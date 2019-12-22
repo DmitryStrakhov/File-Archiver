@@ -3,11 +3,65 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FileArchiver"
+        xmlns:viewModel="clr-namespace:FileArchiver.ViewModel"
         mc:Ignorable="d"
-        Title="Archiver" Height="450" Width="800"
+        Title="Archiver"
+        Width="700"
+        Height="350"
+        WindowStartupLocation="CenterScreen"
         >
-    <Grid>
-        
-    </Grid>
+    <Window.DataContext>
+        <viewModel:MainViewModel />
+    </Window.DataContext>
+    <Border BorderThickness="1" BorderBrush="Gray" Margin="4">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Button Margin="4"
+                    Content="..."
+                    Grid.Row="0" Grid.Column="0"
+                    Command="{Binding ChooseCommand}"
+                    x:Name="ChoiceButton"
+                    />
+            <TextBlock Margin="4"
+                       Grid.Row="0" Grid.Column="1"
+                       Text="{Binding Path}"
+                       VerticalAlignment="Center"
+                       IsEnabled="{Binding IsPathEnabled}"
+                       x:Name="PathTextBlock"
+                       />
+            <Button Margin="4"
+                    Content="Run"
+                    Grid.Row="1" Grid.Column="0"
+                    Command="{Binding RunCommand}"
+                    x:Name="RunButton"
+                    />
+            <ProgressBar Margin="4"
+                         Grid.Row="1" Grid.Column="1"
+                         IsEnabled="{Binding IsProgressEnabled}"
+                         Minimum="0"
+                         Maximum="100"
+                         Value="{Binding ProgressValue}"
+                         x:Name="ProgressBar"
+                         />
+            <TextBlock Margin="4"
+                       Grid.Row="2" Grid.Column="1"
+                       Text="{Binding Status}"
+                       VerticalAlignment="Center"
+                       IsEnabled="{Binding IsStatusEnabled}"
+                       x:Name="StatusTextBlock"
+                       />
+
+        </Grid>
+    </Border>
 </Window>
