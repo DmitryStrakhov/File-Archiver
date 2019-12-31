@@ -73,7 +73,8 @@ namespace FileArchiver.Tests {
         }
 
         private void AreEqual(double expected, double actual) {
-            if(MathHelper.AreNotEqual(expected, actual)) Assert.Fail();
+            if(MathHelper.AreNotEqual(expected, actual))
+                Assert.Fail();
         }
     }
 }

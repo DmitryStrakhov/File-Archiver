@@ -15,8 +15,9 @@ namespace FileArchiver.ViewModel {
             this.status = "(status)";
             this.path = "(path)";
             this.progressValue = 0;
-            this.ChooseCommand = new SimpleCommand(Choose, CanChoose);
             this.RunCommand = new SimpleCommand(Run, CanRun);
+            this.OpenFileCommand = new SimpleCommand<string>(OpenFile);
+            this.OpenFolderCommand = new SimpleCommand<string>(OpenFolder);
         }
 
         public string Path {
@@ -27,6 +28,10 @@ namespace FileArchiver.ViewModel {
                 RaisePropertyChanged(nameof(Path));
             }
         }
+        public bool IsPathEnabled {
+            get { return false; }
+        }
+
         public string Status {
             get { return status; }
             set {
@@ -34,6 +39,9 @@ namespace FileArchiver.ViewModel {
                 status = value;
                 RaisePropertyChanged(nameof(Status));
             }
+        }
+        public bool IsStatusEnabled {
+            get { return false; }
         }
         public double ProgressValue {
             get { return progressValue; }
@@ -43,32 +51,26 @@ namespace FileArchiver.ViewModel {
                 RaisePropertyChanged(nameof(ProgressValue));
             }
         }
-
-        public bool IsPathEnabled {
-            get { return false; }
-        }
-        public bool IsStatusEnabled {
-            get { return false; }
-        }
         public bool IsProgressEnabled {
             get { return false; }
         }
 
-        public void Choose() {
-
-        }
         public void Run() {
 
         }
-
-        public bool CanChoose() {
+        public bool CanRun() {
             return true;
         }
-        public bool CanRun() {
-            return false;
+
+        public void OpenFile(string path) {
+
+        }
+        public void OpenFolder(string path) {
+
         }
 
-        public SimpleCommand ChooseCommand { get; }
+        public SimpleCommand<string> OpenFileCommand { get; }
+        public SimpleCommand<string> OpenFolderCommand { get; }
         public SimpleCommand RunCommand { get; }
     }
 }
