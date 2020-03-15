@@ -8,7 +8,7 @@
         xmlns:viewModel="clr-namespace:FileArchiver.ViewModel"
         xmlns:behaviors="clr-namespace:FileArchiver.Behaviors"
         mc:Ignorable="d"
-        Title="Archiver"
+        Title="File Archiver"
         Width="700"
         Height="350"
         ResizeMode="CanMinimize"
@@ -35,12 +35,14 @@
                                      Grid.Row="0" Grid.Column="0"
                                      Content="Open"
                                      x:Name="ChoiceButton"
+                                     IsEnabled="{Binding IsChoiceButtonEnabled}"
                                      >
                 <i:Interaction.Behaviors>
                     <behaviors:OpenFileBehavior Command="{Binding OpenFileCommand}" />
                     <behaviors:OpenFolderBehavior Command="{Binding OpenFolderCommand}" />
                 </i:Interaction.Behaviors>
             </controls:DropDownButton>
+
             <TextBlock x:Name="PathTextBlock"
                        Margin="4"
                        Grid.Row="0" Grid.Column="1"
@@ -53,6 +55,7 @@
                     Content="Run"
                     Grid.Row="1" Grid.Column="0"
                     Command="{Binding RunCommand}"
+                    IsEnabled="{Binding IsRunButtonEnabled}"
                     />
             <ProgressBar x:Name="ProgressBar"
                          Margin="4"

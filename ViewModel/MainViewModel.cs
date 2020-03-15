@@ -15,10 +15,14 @@ namespace FileArchiver.ViewModel {
             this.status = "(status)";
             this.path = "(path)";
             this.progressValue = 0;
-            this.RunCommand = new SimpleCommand(Run, CanRun);
-            this.OpenFileCommand = new SimpleCommand<string>(OpenFile);
-            this.OpenFolderCommand = new SimpleCommand<string>(OpenFolder);
+            this.RunCommand = new Command(Run, CanRun);
+            this.OpenFileCommand = new Command<string>(OpenFile);
+            this.OpenFolderCommand = new Command<string>(OpenFolder);
         }
+
+        public Command<string> OpenFolderCommand { get; }
+        public Command<string> OpenFileCommand { get; }
+        public Command RunCommand { get; }
 
         public string Path {
             get { return path; }
@@ -54,23 +58,22 @@ namespace FileArchiver.ViewModel {
         public bool IsProgressEnabled {
             get { return false; }
         }
-
-        public void Run() {
-
+        public bool IsChoiceButtonEnabled {
+            get { return true; }
         }
-        public bool CanRun() {
+        public bool IsRunButtonEnabled {
+            get { return false; }
+        }
+
+        private void Run() {
+        }
+        private bool CanRun() {
             return true;
         }
 
-        public void OpenFile(string path) {
-
+        private void OpenFolder(string folderPath) {
         }
-        public void OpenFolder(string path) {
-
+        private void OpenFile(string filePath) {
         }
-
-        public SimpleCommand<string> OpenFileCommand { get; }
-        public SimpleCommand<string> OpenFolderCommand { get; }
-        public SimpleCommand RunCommand { get; }
     }
 }

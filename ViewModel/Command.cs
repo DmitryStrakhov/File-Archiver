@@ -8,11 +8,11 @@ using System.Windows.Input;
 using FileArchiver.Base;
 
 namespace FileArchiver.ViewModel {
-    public sealed class SimpleCommand : ICommand {
-        readonly Action action;
+    public sealed class Command : ICommand {
         readonly Func<bool> canExecuteFunc;
+        readonly Action action;
 
-        public SimpleCommand(Action action, Func<bool> canExecuteFunc = null) {
+        public Command(Action action, Func<bool> canExecuteFunc = null) {
             Guard.IsNotNull(action, nameof(action));
             this.action = action;
             this.canExecuteFunc = canExecuteFunc;
@@ -25,9 +25,7 @@ namespace FileArchiver.ViewModel {
 
         #region ICommand
 
-        void ICommand.Execute(object param) {
-            action();
-        }
+        void ICommand.Execute(object param) => action();
         bool ICommand.CanExecute(object param) {
             if(canExecuteFunc == null) return true;
             return canExecuteFunc();
@@ -41,11 +39,11 @@ namespace FileArchiver.ViewModel {
     }
 
 
-    public sealed class SimpleCommand<T> : ICommand {
-        readonly Action<T> action;
+    public sealed class Command<T> : ICommand {
         readonly Func<bool> canExecuteFunc;
+        readonly Action<T> action;
 
-        public SimpleCommand(Action<T> action, Func<bool> canExecuteFunc = null) {
+        public Command(Action<T> action, Func<bool> canExecuteFunc = null) {
             Guard.IsNotNull(action, nameof(action));
             this.action = action;
             this.canExecuteFunc = canExecuteFunc;
@@ -58,9 +56,7 @@ namespace FileArchiver.ViewModel {
 
         #region ICommand
 
-        void ICommand.Execute(object param) {
-            action((T)param);
-        }
+        void ICommand.Execute(object param) => action((T)param);
         bool ICommand.CanExecute(object param) {
             if(canExecuteFunc == null) return true;
             return canExecuteFunc();

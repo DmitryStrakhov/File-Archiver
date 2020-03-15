@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace FileArchiver.ViewModel {
 
     public abstract class ViewModelBase : INotifyPropertyChanged {
-        public ViewModelBase() {
+        protected ViewModelBase() {
         }
 
         #region INotifyPropertyChanged

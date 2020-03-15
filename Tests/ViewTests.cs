@@ -16,7 +16,9 @@ namespace FileArchiver.Tests {
     public sealed class TestMainWindow : MainWindow {
         public TestMainWindow() {
         }
-        public MainViewModel ViewModel => (MainViewModel)DataContext;
+        public MainViewModel ViewModel {
+            get { return (MainViewModel)DataContext; }
+        }
     }
 
     #endregion
@@ -48,7 +50,7 @@ namespace FileArchiver.Tests {
 
             Assert.AreEqual("(path)", window.PathTextBlock.Text);
             Assert.AreEqual("(status)", window.StatusTextBlock.Text);
-            AreEqual(0, window.ProgressBar.Value);
+            AssertHelper.AreEqual(0, window.ProgressBar.Value);
         }
         [TestMethod]
         public void PathPropertyTest() {
@@ -67,14 +69,9 @@ namespace FileArchiver.Tests {
         [TestMethod]
         public void ProgressValuePropertyTest() {
             viewModel.ProgressValue = 50;
-            AreEqual(50, window.ProgressBar.Value);
+            AssertHelper.AreEqual(50, window.ProgressBar.Value);
             viewModel.ProgressValue = 100;
-            AreEqual(100, window.ProgressBar.Value);
-        }
-
-        private void AreEqual(double expected, double actual) {
-            if(MathHelper.AreNotEqual(expected, actual))
-                Assert.Fail();
+            AssertHelper.AreEqual(100, window.ProgressBar.Value);
         }
     }
 }

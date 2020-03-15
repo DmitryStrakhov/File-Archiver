@@ -72,7 +72,7 @@ namespace FileArchiver.Controls {
 
         private void SetIsPressed(bool pressed) {
             if(pressed)
-                SetValue(IsPressedPropertyKey, pressed);
+                SetValue(IsPressedPropertyKey, true);
             else
                 ClearValue(IsPressedPropertyKey);
         }

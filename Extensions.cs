@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace FileArchiver.Extensions {
     public static class ObjectExtensions {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T CastTo<T>(this object @this) {
             return (T)@this;
         }
