@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Windows;
-using FileArchiver.Base;
 using FileArchiver.Extensions;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using FileArchiver.Helpers;
 
 namespace FileArchiver.Controls {
     public class DropDownButton : ContentControl {

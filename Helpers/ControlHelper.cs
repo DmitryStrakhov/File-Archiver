@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
-namespace FileArchiver.Base {
+namespace FileArchiver.Helpers {
     public sealed class ControlHelper<TOwner>
         where TOwner : DependencyObject {
 

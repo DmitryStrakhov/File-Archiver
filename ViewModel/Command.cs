@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using FileArchiver.Base;
+using FileArchiver.Helpers;
 
 namespace FileArchiver.ViewModel {
     public sealed class Command : ICommand {

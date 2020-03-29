@@ -4,24 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FileArchiver.Base;
+using FileArchiver.Helpers;
 
 namespace FileArchiver.ViewModel {
-    public sealed class MainViewModel : ViewModelBase {
+    public class MainViewModel : ViewModelBase {
+        readonly ServiceFactory serviceFactory;
         string status;
         string path;
         double progressValue;
 
-        public MainViewModel() {
-            this.status = "(status)";
-            this.path = "(path)";
+        public MainViewModel(ServiceFactory serviceFactory) {
+            Guard.IsNotNull(serviceFactory, nameof(serviceFactory));
+            this.serviceFactory = serviceFactory;
+            this.status = string.Empty;
+            this.path = string.Empty;
             this.progressValue = 0;
             this.RunCommand = new Command(Run, CanRun);
-            this.OpenFileCommand = new Command<string>(OpenFile);
-            this.OpenFolderCommand = new Command<string>(OpenFolder);
         }
 
-        public Command<string> OpenFolderCommand { get; }
-        public Command<string> OpenFileCommand { get; }
         public Command RunCommand { get; }
 
         public string Path {
@@ -30,12 +30,9 @@ namespace FileArchiver.ViewModel {
                 if(Path == value) return;
                 path = value;
                 RaisePropertyChanged(nameof(Path));
+                RunCommand.RaiseCanExecuteChanged();
             }
         }
-        public bool IsPathEnabled {
-            get { return false; }
-        }
-
         public string Status {
             get { return status; }
             set {
@@ -61,19 +58,39 @@ namespace FileArchiver.ViewModel {
         public bool IsChoiceButtonEnabled {
             get { return true; }
         }
-        public bool IsRunButtonEnabled {
-            get { return false; }
+
+        internal bool CanRun() {
+            InputType inputType = serviceFactory.InputDataService.GetInputType(path);
+            return inputType != InputType.Unknown;
+        }
+        internal virtual void Run() {
+            InputType inputType = serviceFactory.InputDataService.GetInputType(path);
+            switch(inputType) {
+                case InputType.FileToEncode:
+                    EncodeFile();
+                    break;
+                case InputType.FolderToEncode:
+                    EncodeFolder();
+                    break;
+                case InputType.Archive:
+                    DecodeArchive();
+                    break;
+                default:
+                    throw new Exception(nameof(inputType));
+            }
         }
 
-        private void Run() {
+        private void EncodeFile() {
+            string targetPath = serviceFactory.FileSelectorService.GetSaveFile();
+            serviceFactory.EncodingService.EncodeFile(Path, targetPath);
         }
-        private bool CanRun() {
-            return true;
+        private void EncodeFolder() {
+            string targetFile = serviceFactory.FileSelectorService.GetSaveFile();
+            serviceFactory.EncodingService.EncodeFolder(Path, targetFile);
         }
-
-        private void OpenFolder(string folderPath) {
-        }
-        private void OpenFile(string filePath) {
+        private void DecodeArchive() {
+            string targetFolder = serviceFactory.FolderSelectorService.GetFolder();
+            serviceFactory.DecodingService.Decode(Path, targetFolder);
         }
     }
 }

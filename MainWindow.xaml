@@ -4,19 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:view="clr-namespace:FileArchiver.View"
         xmlns:controls="clr-namespace:FileArchiver.Controls"
-        xmlns:viewModel="clr-namespace:FileArchiver.ViewModel"
         xmlns:behaviors="clr-namespace:FileArchiver.Behaviors"
         mc:Ignorable="d"
         Title="File Archiver"
-        Width="700"
-        Height="350"
+        Width="700" Height="350"
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
         >
-    <Window.DataContext>
-        <viewModel:MainViewModel />
-    </Window.DataContext>
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="TextBlockValidationStyleKey">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)/ErrorContent}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
     <Border BorderThickness="1" BorderBrush="Gray" Margin="4">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -35,43 +41,44 @@
                                      Grid.Row="0" Grid.Column="0"
                                      Content="Open"
                                      x:Name="ChoiceButton"
-                                     IsEnabled="{Binding IsChoiceButtonEnabled}"
-                                     >
+                                     IsEnabled="{Binding IsChoiceButtonEnabled}">
                 <i:Interaction.Behaviors>
-                    <behaviors:OpenFileBehavior Command="{Binding OpenFileCommand}" />
-                    <behaviors:OpenFolderBehavior Command="{Binding OpenFolderCommand}" />
+                    <behaviors:OpenFileBehavior Path="{Binding Path, Mode=OneWayToSource}" />
+                    <behaviors:OpenFolderBehavior Path="{Binding Path, Mode=OneWayToSource}" />
                 </i:Interaction.Behaviors>
             </controls:DropDownButton>
 
             <TextBlock x:Name="PathTextBlock"
+                       Style="{StaticResource TextBlockValidationStyleKey}"
                        Margin="4"
                        Grid.Row="0" Grid.Column="1"
-                       Text="{Binding Path}"
-                       VerticalAlignment="Center"
-                       IsEnabled="{Binding IsPathEnabled}"
-                       />
+                       VerticalAlignment="Center">
+                <TextBlock.Text>
+                    <Binding Path="Path">
+                        <Binding.ValidationRules>
+                            <view:PathValidationRule ValidatesOnTargetUpdated="True" />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBlock.Text>
+            </TextBlock>
             <Button x:Name="RunButton"
                     Margin="4"
                     Content="Run"
                     Grid.Row="1" Grid.Column="0"
-                    Command="{Binding RunCommand}"
-                    IsEnabled="{Binding IsRunButtonEnabled}"
-                    />
+                    Command="{Binding RunCommand}" />
             <ProgressBar x:Name="ProgressBar"
                          Margin="4"
                          Grid.Row="1" Grid.Column="1"
                          IsEnabled="{Binding IsProgressEnabled}"
                          Minimum="0"
                          Maximum="100"
-                         Value="{Binding ProgressValue}"
-                         />
+                         Value="{Binding ProgressValue}" />
             <TextBlock x:Name="StatusTextBlock"
                        Margin="4"
                        Grid.Row="2" Grid.Column="1"
                        Text="{Binding Status}"
                        VerticalAlignment="Center"
-                       IsEnabled="{Binding IsStatusEnabled}"
-                       />
+                       IsEnabled="{Binding IsStatusEnabled}" />
         </Grid>
     </Border>
 </Window>

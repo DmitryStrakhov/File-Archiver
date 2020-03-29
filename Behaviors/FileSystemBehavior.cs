@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using FileArchiver.Base;
 using FileArchiver.Controls;
+using FileArchiver.Helpers;
 using Microsoft.Xaml.Behaviors;
 
 namespace FileArchiver.Behaviors {
@@ -29,6 +29,17 @@ namespace FileArchiver.Behaviors {
 
         #endregion
 
+        #region Properties
+
+        public static readonly DependencyProperty PathProperty = helper.RegisterProperty<string>(nameof(Path));
+
+        public string Path {
+            get { return (string)GetValue(PathProperty); }
+            set { SetValue(PathProperty, value); }
+        }
+
+        #endregion
+
         private MenuItem MenuItem {
             get { return menuItem ?? (menuItem = CreateMenuItemInstance()); }
         }
@@ -41,6 +52,7 @@ namespace FileArchiver.Behaviors {
             AssociatedObject.DropDownMenu?.Items.Remove(MenuItem);
         }
         protected void ExecuteCommand(string path) {
+            SetValue(PathProperty, path);
             Command?.Execute(path);
         }
 
