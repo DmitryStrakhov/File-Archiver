@@ -16,7 +16,7 @@ namespace FileArchiver.View {
 
             if(!string.IsNullOrEmpty(inputPath)) {
                 InputType inputType = service.GetInputType(inputPath);
-                if(inputType == InputType.Unknown) return new ValidationResult(false, $"Invalid Path");
+                if(inputType == InputType.Unknown) return new ValidationResult(false, "Invalid Path");
             }
             return ValidationResult.ValidResult;
         }

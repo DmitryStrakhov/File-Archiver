@@ -17,5 +17,9 @@ namespace FileArchiver.Helpers {
             if(value == null)
                 throw new ArgumentNullException(argument);
         }
+        public static void IsInRange(int value, int minValue, int maxValue, string argument) {
+            if(value < minValue || value > maxValue)
+                throw new ArgumentOutOfRangeException(argument);
+        }
     }
 }

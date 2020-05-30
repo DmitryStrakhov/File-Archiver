@@ -155,7 +155,10 @@ namespace FileArchiver.Tests {
             this.viewModel = null;
             this.inputDataService = null;
         }
-
+        [TestMethod]
+        public void DefaultsTest() {
+            Assert.IsFalse(viewModel.CanRun());
+        }
         [TestMethod]
         public void EncodeFileTest() {
             inputDataService.InputType = InputType.FileToEncode;
