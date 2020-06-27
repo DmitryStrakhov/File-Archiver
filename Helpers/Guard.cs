@@ -21,5 +21,11 @@ namespace FileArchiver.Helpers {
             if(value < minValue || value > maxValue)
                 throw new ArgumentOutOfRangeException(argument);
         }
+        public static void IsNotNullOrEmpty(string value, string argument) {
+            if(value == null)
+                throw new ArgumentNullException(argument);
+            if(value == string.Empty)
+                throw new ArgumentException(argument);
+        }
     }
 }

@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FileArchiver.Base {
     public interface IPlatformService {
-        bool FileExists(string path);
-        bool FolderExists(string path);
+        bool IsPathExists(string path);
+        bool IsFileExists(string path);
+        bool IsDirectoryExists(string path);
+        IEnumerable<string> EnumFiles(string path);
+        IEnumerable<string> EnumDirectories(string path);
     }
 }

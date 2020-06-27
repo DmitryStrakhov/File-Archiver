@@ -57,6 +57,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Base\IFileSystemService.cs" />
     <Compile Include="Base\IInputDataService.cs" />
     <Compile Include="Base\IPlatformService.cs" />
     <Compile Include="Base\ServiceFactory.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Helpers\FileDialogHelper.cs" />
     <Compile Include="Helpers\FolderDialogHelper.cs" />
     <Compile Include="DataStructures\BitSequence.cs" />
+    <Compile Include="Helpers\PathHelper.cs" />
     <Compile Include="HuffmanCore\HuffmanDecoder.cs" />
     <Compile Include="HuffmanCore\HuffmanEncoder.cs" />
     <Compile Include="HuffmanCore\HuffmanTree.cs" />
@@ -82,12 +84,14 @@
     <Compile Include="DataStructures\PriorityQueue.cs" />
     <Compile Include="HuffmanCore\PriorityQueue.cs" />
     <Compile Include="Services\DefaultFileSelectorService.cs" />
+    <Compile Include="Services\DefaultFileSystemService.cs" />
     <Compile Include="Services\DefaultInputDataService.cs" />
     <Compile Include="Services\DefaultFolderSelectorService.cs" />
     <Compile Include="Services\DefaultHuffmanDecodingService.cs" />
     <Compile Include="Services\DefaultHuffmanEncodingService.cs" />
     <Compile Include="Services\DefaultPlatformService.cs" />
     <Compile Include="Services\DefaultServiceFactory.cs" />
+    <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Tests\Base.cs" />
     <Compile Include="Tests\BitSequenceTests.cs" />
     <Compile Include="Tests\EncodingEngineTests.cs" />
@@ -97,6 +101,7 @@
     <Compile Include="Tests\FileDecodingOutputStreamTests.cs" />
     <Compile Include="Tests\FileEncodingInputStreamTests.cs" />
     <Compile Include="Tests\FileEncodingOutputStreamTests.cs" />
+    <Compile Include="Tests\FileSystemServiceTests.cs" />
     <Compile Include="Tests\HuffmanDecoderTests.cs" />
     <Compile Include="Tests\HuffmanEncoderTests.cs" />
     <Compile Include="Tests\InputDataServiceTests.cs" />
@@ -116,6 +121,7 @@
     <Compile Include="Tests\TestExtensions.cs" />
     <Compile Include="Tests\TestHelper.cs" />
     <Compile Include="Tests\TestHelpers.cs" />
+    <Compile Include="Tests\TestIPlatformService.cs" />
     <Compile Include="Tests\ViewModelTests.cs" />
     <Compile Include="Tests\ViewTests.cs" />
     <Compile Include="ViewModel\Base.cs" />

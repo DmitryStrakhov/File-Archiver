@@ -1,11 +1,61 @@
 ﻿#if DEBUG
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using FileArchiver.Base;
 using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
 
 namespace FileArchiver.Tests {
+    public static class FileSystemEntryHelper {
+        public static FileSystemEntryListBuilder CreateListBuilder() {
+            return new FileSystemEntryListBuilder();
+        }
+    }
+
+    public class FileSystemEntryListBuilder {
+        readonly List<FileSystemEntry> entryList;
+        string currentDir;
+
+        public FileSystemEntryListBuilder() {
+            this.currentDir = null;
+            this.entryList = new List<FileSystemEntry>(64);
+        }
+        public FileSystemEntryListBuilder AddDirectory(string path) {
+            Guard.IsNotNullOrEmpty(path, nameof(path));
+            currentDir = path;
+            entryList.Add(NewDirectory(path));
+            return this;
+        }
+        public FileSystemEntryListBuilder AddFile(string name) {
+            Guard.IsNotNullOrEmpty(name, nameof(name));
+            if(string.IsNullOrEmpty(currentDir)) {
+                throw new InvalidOperationException();
+            }
+            entryList.Add(NewFile(name));
+            return this;
+        }
+        public FileSystemEntryListBuilder AddFiles(params string[] names) {
+            Guard.IsNotNull(names, nameof(names));
+            for(int n = 0; n < names.Length; n++) {
+                AddFile(names[n]);
+            }
+            return this;
+        }
+        public IReadOnlyList<FileSystemEntry> GetList() => entryList;
+
+        private FileSystemEntry NewDirectory(string path) {
+            string name = PathHelper.GetDirectoryName(path);
+            return new FileSystemEntry(FileSystemEntryType.Directory, name, path);
+        }
+        private FileSystemEntry NewFile(string name) {
+            string path = Path.Combine(currentDir, name);
+            return new FileSystemEntry(FileSystemEntryType.File, name, path);
+        }
+    }
+
     public static class HuffmanTreeHelper {
         public static TreeNodeBuildContext Builder() {
             return new TreeNodeBuildContext();
@@ -27,7 +77,7 @@ namespace FileArchiver.Tests {
         }
     }
 
-    
+
     [DebuggerDisplay("TreeNodeTraits('{(char)Symbol.Symbol}', Weight={Symbol.Weight})")]
     public class TreeNodeTraits {
         private TreeNodeTraits(WeightedSymbol symbol) {
@@ -78,7 +128,7 @@ namespace FileArchiver.Tests {
         public HuffmanTree CreateTree() {
             return HuffmanTreeBuilder.Build(this);
         }
-        
+
         public static TreeNodeTraits New(int weight, byte? symbol) {
             return new TreeNodeTraits(new WeightedSymbol(symbol.GetValueOrDefault(0), weight));
         }

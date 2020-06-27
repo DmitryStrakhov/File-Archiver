@@ -11,17 +11,12 @@ namespace FileArchiver.Services {
             Guard.IsNotNull(platform, nameof(platform));
             this.platform = platform;
         }
-        public InputType GetInputType(string path) {
-            if(!string.IsNullOrEmpty(path)) {
-                if(platform.FolderExists(path)) return InputType.FolderToEncode;
-
-                if(platform.FileExists(path))
-                    return IsArchiveExtension(Path.GetExtension(path)) ? InputType.Archive : InputType.FileToEncode;
+        public InputCommand GetInputCommand(string path) {
+            if(platform.IsPathExists(path)) {
+                if(StringHelper.AreEqual(Path.GetExtension(path), ".archive")) return InputCommand.Decode;
+                return InputCommand.Encode;
             }
-            return InputType.Unknown;
-        }
-        static bool IsArchiveExtension(string extension) {
-            return string.Equals(extension, ".archive", StringComparison.OrdinalIgnoreCase);
+            return InputCommand.Unknown;
         }
     }
 }

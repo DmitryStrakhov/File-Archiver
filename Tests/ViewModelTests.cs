@@ -1,6 +1,7 @@
 ﻿#if DEBUG
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using FileArchiver.Base;
 using FileArchiver.ViewModel;
@@ -93,14 +94,14 @@ namespace FileArchiver.Tests {
 
         #region IInputDataService
 
-        InputType IInputDataService.GetInputType(string path) {
+        InputCommand IInputDataService.GetInputCommand(string path) {
             TraceMember();
-            return InputType;
+            return InputCommand;
         }
 
         #endregion
 
-        public InputType InputType { get; set; } = InputType.Unknown;
+        public InputCommand InputCommand { get; set; } = InputCommand.Unknown;
     }
 
     public class TestIHuffmanEncodingService : TraceableObject, IHuffmanEncodingService {
@@ -109,11 +110,7 @@ namespace FileArchiver.Tests {
 
         #region IHuffmanEncodingService
 
-        bool IHuffmanEncodingService.EncodeFile(string inputFile, string outputFile) {
-            TraceMember();
-            return true;
-        }
-        bool IHuffmanEncodingService.EncodeFolder(string inputFolder, string outputFile) {
+        bool IHuffmanEncodingService.Encode(string inputPath, string outputFile) {
             TraceMember();
             return true;
         }
@@ -161,61 +158,61 @@ namespace FileArchiver.Tests {
         }
         [TestMethod]
         public void EncodeFileTest() {
-            inputDataService.InputType = InputType.FileToEncode;
+            inputDataService.InputCommand = InputCommand.Encode;
             viewModel.Path = "Path";
 
             viewModel.Run();
             Assert.AreEqual("Run;", viewModel.Trace);
-            Assert.AreEqual("GetInputType;GetSaveFile;EncodeFile;", serviceFactory.GetTrace());
+            Assert.AreEqual("GetInputCommand;GetSaveFile;Encode;", serviceFactory.GetTrace());
         }
         [TestMethod]
         public void EncodeFolderTest() {
-            inputDataService.InputType = InputType.FolderToEncode;
+            inputDataService.InputCommand = InputCommand.Encode;
             viewModel.Path = "Path";
 
             viewModel.Run();
             Assert.AreEqual("Run;", viewModel.Trace);
-            Assert.AreEqual("GetInputType;GetSaveFile;EncodeFolder;", serviceFactory.GetTrace());
+            Assert.AreEqual("GetInputCommand;GetSaveFile;Encode;", serviceFactory.GetTrace());
         }
         [TestMethod]
         public void DecodeFileTest() {
-            inputDataService.InputType = InputType.Archive;
+            inputDataService.InputCommand = InputCommand.Decode;
             viewModel.Path = "Path";
 
             viewModel.Run();
             Assert.AreEqual("Run;", viewModel.Trace);
-            Assert.AreEqual("GetInputType;GetFolder;Decode;", serviceFactory.GetTrace());
+            Assert.AreEqual("GetInputCommand;GetFolder;Decode;", serviceFactory.GetTrace());
         }
         [TestMethod]
         public void InvalidPathTest() {
-            inputDataService.InputType = InputType.Unknown;
+            inputDataService.InputCommand = InputCommand.Unknown;
             viewModel.Path = "Path";
 
             AssertHelper.Throws<Exception>(() => viewModel.Run());
             Assert.AreEqual("Run;", viewModel.Trace);
-            Assert.AreEqual("GetInputType;", serviceFactory.GetTrace());
+            Assert.AreEqual("GetInputCommand;", serviceFactory.GetTrace());
         }
         [TestMethod]
         public void CanRunTest1() {
-            inputDataService.InputType = InputType.FileToEncode;
+            inputDataService.InputCommand = InputCommand.Encode;
             viewModel.Path = @"C:\Temp\file.bin";
             Assert.IsTrue(viewModel.CanRun());
         }
         [TestMethod]
         public void CanRunTest2() {
-            inputDataService.InputType = InputType.FolderToEncode;
+            inputDataService.InputCommand = InputCommand.Encode;
             viewModel.Path = @"D:\Temp\";
             Assert.IsTrue(viewModel.CanRun());
         }
         [TestMethod]
         public void CanRunTest3() {
-            inputDataService.InputType = InputType.Archive;
+            inputDataService.InputCommand = InputCommand.Decode;
             viewModel.Path = @"E:\Temp\file.archive";
             Assert.IsTrue(viewModel.CanRun());
         }
         [TestMethod]
         public void CanRunTest4() {
-            inputDataService.InputType = InputType.Unknown;
+            inputDataService.InputCommand = InputCommand.Unknown;
             viewModel.Path = @"some path";
             Assert.IsFalse(viewModel.CanRun());
         }

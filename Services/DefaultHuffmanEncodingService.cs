@@ -1,12 +1,25 @@
 ﻿using System;
+using System.Text;
 using FileArchiver.Base;
 using FileArchiver.FileCore;
+using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
 
 namespace FileArchiver.Services {
     public class DefaultHuffmanEncodingService : IHuffmanEncodingService {
-        public bool EncodeFile(string inputFile, string outputFile) {
-            FileEncodingInputStream inputStream = new FileEncodingInputStream(inputFile);
+        readonly IFileSystemService fileSystemService;
+
+        public DefaultHuffmanEncodingService(IFileSystemService fileSystemService) {
+            Guard.IsNotNull(fileSystemService, nameof(fileSystemService));
+            this.fileSystemService = fileSystemService;
+        }
+
+        public bool Encode(string inputPath, string outputFile) {
+            // ToDo
+            foreach(FileSystemEntry entry in fileSystemService.EnumFileSystemEntries(inputPath)) {
+            }
+
+            FileEncodingInputStream inputStream = new FileEncodingInputStream(inputPath);
             FileEncodingOutputStream outputStream = new FileEncodingOutputStream(outputFile);
 
             try {
@@ -20,9 +33,6 @@ namespace FileArchiver.Services {
                 outputStream.Dispose();
             }
             return true;
-        }
-        public bool EncodeFolder(string inputFolder, string outputFile) {
-            throw new NotImplementedException();
         }
     }
 

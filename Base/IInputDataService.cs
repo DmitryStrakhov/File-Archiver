@@ -1,12 +1,11 @@
 ﻿namespace FileArchiver.Base {
-    public enum InputType {
-        FileToEncode,
-        FolderToEncode,
-        Archive,
+    public enum InputCommand {
+        Encode,
+        Decode,
         Unknown
     }
 
     public interface IInputDataService {
-        InputType GetInputType(string path);
+        InputCommand GetInputCommand(string path);
     }
 }

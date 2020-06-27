@@ -60,35 +60,28 @@ namespace FileArchiver.ViewModel {
         }
 
         internal bool CanRun() {
-            InputType inputType = serviceFactory.InputDataService.GetInputType(path);
-            return inputType != InputType.Unknown;
+            InputCommand inputCommand = serviceFactory.InputDataService.GetInputCommand(path);
+            return inputCommand != InputCommand.Unknown;
         }
         internal virtual void Run() {
-            InputType inputType = serviceFactory.InputDataService.GetInputType(path);
-            switch(inputType) {
-                case InputType.FileToEncode:
-                    EncodeFile();
+            InputCommand inputCommand = serviceFactory.InputDataService.GetInputCommand(path);
+            switch(inputCommand) {
+                case InputCommand.Encode:
+                    Encode();
                     break;
-                case InputType.FolderToEncode:
-                    EncodeFolder();
-                    break;
-                case InputType.Archive:
-                    DecodeArchive();
+                case InputCommand.Decode:
+                    Decode();
                     break;
                 default:
-                    throw new Exception(nameof(inputType));
+                    throw new Exception(nameof(inputCommand));
             }
         }
 
-        private void EncodeFile() {
+        private void Encode() {
             string targetPath = serviceFactory.FileSelectorService.GetSaveFile();
-            serviceFactory.EncodingService.EncodeFile(Path, targetPath);
+            serviceFactory.EncodingService.Encode(Path, targetPath);
         }
-        private void EncodeFolder() {
-            string targetFile = serviceFactory.FileSelectorService.GetSaveFile();
-            serviceFactory.EncodingService.EncodeFolder(Path, targetFile);
-        }
-        private void DecodeArchive() {
+        private void Decode() {
             string targetFolder = serviceFactory.FolderSelectorService.GetFolder();
             serviceFactory.DecodingService.Decode(Path, targetFolder);
         }

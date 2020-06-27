@@ -41,6 +41,16 @@ namespace FileArchiver {
         }
     }
 
+    public static class QueueExtensions {
+        public static void Enqueue<T>(this Queue<T> @this, IEnumerable<T> items) {
+            Guard.IsNotNull(items, nameof(items));
+
+            foreach(T item in items) {
+                @this.Enqueue(item);
+            }
+        }
+    }
+
     public static class StreamExtensions {
         [ThreadStatic] static readonly byte[] buffer = new byte[8];
 
