@@ -66,6 +66,8 @@
     <Compile Include="DataStructures\ByteReader.cs" />
     <Compile Include="DataStructures\ByteWriter.cs" />
     <Compile Include="DataStructures\Pair.cs" />
+    <Compile Include="DataStructures\ValueCache.cs" />
+    <Compile Include="FileCore\DirectoryEncodingInputStream.cs" />
     <Compile Include="FileCore\FileEncodingInputStream.cs" />
     <Compile Include="FileCore\FileEncodingOutputStream.cs" />
     <Compile Include="FileCore\FileDecodingInputStream.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Tests\Base.cs" />
     <Compile Include="Tests\BitSequenceTests.cs" />
+    <Compile Include="Tests\DirectoryEncodingInputStreamTests.cs" />
     <Compile Include="Tests\EncodingEngineTests.cs" />
     <Compile Include="Tests\ByteReaderTests.cs" />
     <Compile Include="Tests\ByteWriterTests.cs" />

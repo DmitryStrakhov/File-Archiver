@@ -1,5 +1,6 @@
 ﻿#if DEBUG
 
+using System;
 using System.IO;
 using FileArchiver.DataStructures;
 using FileArchiver.FileCore;
@@ -9,10 +10,22 @@ namespace FileArchiver.Tests {
     [TestClass]
     public class FileEncodingOutputStreamTests {
         [TestMethod]
+        public void CtorGuardCase1Test() {
+            AssertHelper.Throws<ArgumentNullException>(() => new FileEncodingOutputStream(null, new TestIPlatformService()));
+        }
+        [TestMethod]
+        public void CtorGuardCase2Test() {
+            AssertHelper.Throws<ArgumentException>(() => new FileEncodingOutputStream(string.Empty, new TestIPlatformService()));
+        }
+        [TestMethod]
+        public void CtorGuardCase3Test() {
+            AssertHelper.Throws<ArgumentNullException>(() => new FileEncodingOutputStream("file", null));
+        }
+        [TestMethod]
         public void WriteBitTest1() {
             MemoryStream memoryStream = new MemoryStream();
 
-            using(FileEncodingOutputStream stream = new FileEncodingOutputStream(memoryStream)) {
+            using(FileEncodingOutputStream stream = CreateFileEncodingOutputStream(memoryStream)) {
                 Bit[] bits = TestHelper.BitsFromString("1001110000110011");
                 
                 stream.BeginWrite();
@@ -27,7 +40,7 @@ namespace FileArchiver.Tests {
         public void WriteBitTest2() {
             MemoryStream memoryStream = new MemoryStream();
 
-            using(FileEncodingOutputStream stream = new FileEncodingOutputStream(memoryStream)) {
+            using(FileEncodingOutputStream stream = CreateFileEncodingOutputStream(memoryStream)) {
                 Bit[] bits = TestHelper.BitsFromString("01111001101");
 
                 stream.BeginWrite();
@@ -37,6 +50,10 @@ namespace FileArchiver.Tests {
                 stream.EndWrite();
             }
             AssertHelper.AreEqual(new byte[] { 0xB, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9E, 0x5}, memoryStream.ToArray());
+        }
+        private FileEncodingOutputStream CreateFileEncodingOutputStream(Stream stream) {
+            TestIPlatformService platform = new TestIPlatformService {OpenFileFunc = x => stream};
+            return new FileEncodingOutputStream("file", platform);
         }
     }
 }

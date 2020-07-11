@@ -5,22 +5,28 @@ using FileArchiver.Base;
 
 namespace FileArchiver.Services {
     public class DefaultPlatformService : IPlatformService {
-        public bool IsPathExists(string path) {
+        public DefaultPlatformService() {
+        }
+
+        bool IPlatformService.IsPathExists(string path) {
             if(string.IsNullOrEmpty(path)) return false;
             return File.Exists(path) || Directory.Exists(path);
         }
-        public bool IsFileExists(string path) {
+        bool IPlatformService.IsFileExists(string path) {
             return File.Exists(path);
         }
-        public bool IsDirectoryExists(string path) {
+        bool IPlatformService.IsDirectoryExists(string path) {
             return Directory.Exists(path);
         }
 
-        public IEnumerable<string> EnumFiles(string path) {
+        IEnumerable<string> IPlatformService.EnumFiles(string path) {
             return Directory.GetFiles(path);
         }
-        public IEnumerable<string> EnumDirectories(string path) {
+        IEnumerable<string> IPlatformService.EnumDirectories(string path) {
             return Directory.GetDirectories(path);
+        }
+        Stream IPlatformService.OpenFile(string path, FileMode fileMode, FileAccess fileAccess) {
+            return new FileStream(path, fileMode, fileAccess, FileShare.None);
         }
     }
 }

@@ -8,23 +8,40 @@ using FileArchiver.Helpers;
 using FileArchiver.DataStructures;
 
 namespace FileArchiver.HuffmanCore {
+    public class EncodingToken {
+        public EncodingToken(HuffmanTreeBase huffmanTree, CodingTable codingTable) {
+            CodingTable = codingTable;
+            HuffmanTree = huffmanTree;
+        }
+        public CodingTable CodingTable { get; }
+        public HuffmanTreeBase HuffmanTree { get; }
+    }
+
+    
     public class HuffmanEncoder {
         public HuffmanEncoder() {
         }
-        public void Encode(IEncodingInputStream inputStream, IEncodingOutputStream outputStream, out HuffmanTreeBase huffmanTree) {
+
+        public EncodingToken CreateEncodingToken(IEncodingInputStream inputStream) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
-            Guard.IsNotNull(outputStream, nameof(outputStream));
 
             WeightsTable weightsTable = BuildWeightsTable(inputStream);
-            huffmanTree = BuildHuffmanTree(weightsTable);
+            HuffmanTreeBase huffmanTree = BuildHuffmanTree(weightsTable);
             CodingTable codingTable = BuildCodingTable(huffmanTree);
-            
+            return new EncodingToken(huffmanTree, codingTable);
+        }
+        
+        public void Encode(IEncodingInputStream inputStream, IEncodingOutputStream outputStream, EncodingToken encodingToken) {
+            Guard.IsNotNull(inputStream, nameof(inputStream));
+            Guard.IsNotNull(outputStream, nameof(outputStream));
+            Guard.IsNotNull(encodingToken, nameof(encodingToken));
+
+            CodingTable codingTable = encodingToken.CodingTable;
             inputStream.Reset();
+
             while(inputStream.ReadSymbol(out byte symbol)) {
                 BitSequence codingSequence = codingTable[symbol];
-                foreach(Bit bit in codingSequence) {
-                    outputStream.WriteBit(bit);
-                }
+                foreach(Bit bit in codingSequence) outputStream.WriteBit(bit);
             }
         }
         internal WeightsTable BuildWeightsTable(IEncodingInputStream inputStream) {

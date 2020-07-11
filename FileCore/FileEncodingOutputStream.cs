@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using FileArchiver.Base;
 using FileArchiver.DataStructures;
 using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
@@ -11,16 +12,14 @@ namespace FileArchiver.FileCore {
         readonly ByteWriter byteWriter;
         long streamSize;
 
-        public FileEncodingOutputStream(string fileName)
-            : this(new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None)) {
-        }
-        internal FileEncodingOutputStream(Stream stream) {
-            Guard.IsNotNull(stream, nameof(stream));
+        public FileEncodingOutputStream(string fileName, IPlatformService platform) {
+            Guard.IsNotNullOrEmpty(fileName, nameof(fileName));
+            Guard.IsNotNull(platform, nameof(platform));
             this.streamSize = 0;
-            this.fileStream = stream;
             this.byteWriter = new ByteWriter();
+            this.fileStream = platform.OpenFile(fileName, FileMode.Create, FileAccess.Write);
         }
-
+        
         public void BeginWrite() {
             fileStream.Seek(sizeof(long), SeekOrigin.Begin);
         }

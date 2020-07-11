@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
+using FileArchiver.Base;
 using FileArchiver.Helpers;
+using System.Runtime.CompilerServices;
 
 namespace FileArchiver {
     public static class ObjectExtensions {
@@ -79,6 +80,15 @@ namespace FileArchiver {
                 offset += num;
             }
             while(offset < size);
+        }
+    }
+
+    public static class FileSystemEntryEnumeratorExtensions {
+        public static bool NextFile(this IEnumerator<FileSystemEntry> @this) {
+            while(@this.MoveNext()) {
+                if(@this.Current.Type == FileSystemEntryType.File) return true;
+            }
+            return false;
         }
     }
 }

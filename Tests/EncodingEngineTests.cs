@@ -20,13 +20,16 @@ namespace FileArchiver.Tests {
 
         private byte[] Encode(byte[] data, out HuffmanTreeBase tree) {
             MemoryStream outputMemoryStream = new MemoryStream();
-            FileEncodingInputStream inputStream = new FileEncodingInputStream(new MemoryStream(data));
-            FileEncodingOutputStream outputStream = new FileEncodingOutputStream(outputMemoryStream);
+            FileEncodingInputStream inputStream = CreateFileEncodingInputStream(data);
+            FileEncodingOutputStream outputStream = CreateFileEncodingOutputStream(outputMemoryStream);
 
+            HuffmanEncoder encoder = new HuffmanEncoder();
             try {
                 outputStream.BeginWrite();
-                new HuffmanEncoder().Encode(inputStream, outputStream, out tree);
+                EncodingToken token = encoder.CreateEncodingToken(inputStream);
+                encoder.Encode(inputStream, outputStream, token);
                 outputStream.EndWrite();
+                tree = token.HuffmanTree;
                 return outputMemoryStream.ToArray();
             }
             finally {
@@ -36,8 +39,8 @@ namespace FileArchiver.Tests {
         }
         private byte[] Decode(byte[] code, HuffmanTreeBase tree) {
             MemoryStream outputMemoryStream = new MemoryStream();
-            FileDecodingInputStream inputStream = new FileDecodingInputStream(new MemoryStream(code));
-            FileDecodingOutputStream outputStream = new FileDecodingOutputStream(outputMemoryStream);
+            FileDecodingInputStream inputStream = CreateFileDecodingInputStream(code);
+            FileDecodingOutputStream outputStream = CreateFileDecodingOutputStream(outputMemoryStream);
 
             try {
                 inputStream.BeginRead();
@@ -49,6 +52,23 @@ namespace FileArchiver.Tests {
                 inputStream.Dispose();
                 outputStream.Dispose();
             }
+        }
+
+        private FileEncodingInputStream CreateFileEncodingInputStream(byte[] data) {
+            TestIPlatformService platform = new TestIPlatformService {OpenFileFunc = x => new MemoryStream(data)};
+            return new FileEncodingInputStream("file", platform);
+        }
+        private FileDecodingInputStream CreateFileDecodingInputStream(byte[] data) {
+            TestIPlatformService platform = new TestIPlatformService {OpenFileFunc = x => new MemoryStream(data)};
+            return new FileDecodingInputStream("file", platform);
+        }
+        private FileEncodingOutputStream CreateFileEncodingOutputStream(Stream stream) {
+            TestIPlatformService platform = new TestIPlatformService {OpenFileFunc = x => stream};
+            return new FileEncodingOutputStream("file", platform);
+        }
+        private FileDecodingOutputStream CreateFileDecodingOutputStream(Stream stream) {
+            TestIPlatformService platform = new TestIPlatformService {OpenFileFunc = x => stream};
+            return new FileDecodingOutputStream("file", platform);
         }
     }
 }
