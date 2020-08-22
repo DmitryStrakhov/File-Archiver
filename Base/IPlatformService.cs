@@ -8,8 +8,9 @@ namespace FileArchiver.Base {
         bool IsFileExists(string path);
         bool IsDirectoryExists(string path);
 
+        Stream ReadFile(string path);
+        Stream WriteFile(string path);
         IEnumerable<string> EnumFiles(string path);
         IEnumerable<string> EnumDirectories(string path);
-        Stream OpenFile(string path, FileMode fileMode, FileAccess fileAccess);
     }
 }

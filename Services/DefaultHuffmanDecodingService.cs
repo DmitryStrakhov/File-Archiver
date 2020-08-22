@@ -15,24 +15,24 @@ namespace FileArchiver.Services {
         }
 
         public bool Decode(string inputFile, string outputFolder) {
-            FileDecodingInputStream inputStream = new FileDecodingInputStream(inputFile, platform);
-            FileDecodingOutputStream outputStream = new FileDecodingOutputStream(GetOutputFile(inputFile, outputFolder), platform);
-
-            try {
-                inputStream.BeginRead();
-                new HuffmanDecoder().Decode(inputStream, SharedTree.Instance.CastTo<HuffmanTree>(), outputStream);
-                inputStream.EndRead();
-            }
-            finally {
-                inputStream.Dispose();
-                outputStream.Dispose();
-            }
+            //FileDecodingInputStream inputStream = new FileDecodingInputStream(inputFile, platform);
+            //FileDecodingOutputStream outputStream = new FileDecodingOutputStream(GetOutputFile(inputFile, outputFolder), platform);
+            //
+            //try {
+            //    inputStream.BeginRead();
+            //    new HuffmanDecoder().Decode(inputStream, SharedTree.Instance.CastTo<HuffmanTree>(), outputStream);
+            //    inputStream.EndRead();
+            //}
+            //finally {
+            //    inputStream.Dispose();
+            //    outputStream.Dispose();
+            //}
 
             return true;
         }
-        private static string GetOutputFile(string inputFile, string outputFolder) {
-            string fileName = Path.GetFileNameWithoutExtension(inputFile);
-            return Path.Combine(outputFolder, fileName);
-        }
+        //private static string GetOutputFile(string inputFile, string outputFolder) {
+        //    string fileName = Path.GetFileNameWithoutExtension(inputFile);
+        //    return Path.Combine(outputFolder, fileName);
+        //}
     }
 }

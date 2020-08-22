@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using FileArchiver.Base;
 using FileArchiver.FileCore;
+using FileArchiver.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FileArchiver.Tests {
@@ -18,6 +19,23 @@ namespace FileArchiver.Tests {
             return EnumFileSystemEntriesFunc?.Invoke(path) ?? throw new InvalidOperationException();;
         }
         public Func<string, IEnumerable<FileSystemEntry>> EnumFileSystemEntriesFunc { get; set; }
+    }
+
+    #endregion
+
+    #region TestMemoryStream
+
+    public class TestMemoryStream : MemoryStream {
+        public TestMemoryStream(byte[] data, IList<TestMemoryStream> repository = null)
+            : base(data) {
+            Guard.IsNotNull(data, nameof(data));
+            repository?.Add(this);
+        }
+        protected override void Dispose(bool disposing) {
+            Trace += "->Dispose;";
+            base.Dispose(disposing);
+        }
+        public string Trace { get; set; } = string.Empty;
     }
 
     #endregion
@@ -74,7 +92,7 @@ namespace FileArchiver.Tests {
             Dictionary<string, byte[]> data = new Dictionary<string, byte[]> {
                 {@"C:\dir\file.dat", new byte[] {0x1, 0x2, 0x3, 0x7}}
             };
-            platform.OpenFileFunc = x => new MemoryStream(data[x]);
+            platform.ReadFileFunc = x => new MemoryStream(data[x]);
 
             using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\file.dat", fileSystemService, platform)) {
                 byte symbol;
@@ -98,7 +116,7 @@ namespace FileArchiver.Tests {
             Dictionary<string, byte[]> data = new Dictionary<string, byte[]> {
                 {@"C:\dir\file.dat", new byte[] {0x11, 0x22, 0x33}}
             };
-            platform.OpenFileFunc = x => new MemoryStream(data[x]);
+            platform.ReadFileFunc = x => new MemoryStream(data[x]);
 
             using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir", fileSystemService, platform)) {
                 byte symbol;
@@ -130,7 +148,7 @@ namespace FileArchiver.Tests {
                 {@"C:\dir\file2.dat", new byte[] {0xEA, 0x22, 0x33}},
                 {@"C:\dir\file3.dat", new byte[] {0x13}},
             };
-            platform.OpenFileFunc = x => new MemoryStream(data[x]);
+            platform.ReadFileFunc = x => new MemoryStream(data[x]);
 
             using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
                 byte symbol;
@@ -158,11 +176,10 @@ namespace FileArchiver.Tests {
                 {@"C:\dir\file2.dat", new byte[] {0xEA, 0x33}},
                 {@"C:\dir\file3.dat", new byte[] {0x13}},
             };
-            platform.OpenFileFunc = x => new MemoryStream(data[x]);
+            platform.ReadFileFunc = x => new MemoryStream(data[x]);
             
             using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
-                byte symbol;
-                Assert.IsTrue(stream.ReadSymbol(out symbol));
+                Assert.IsTrue(stream.ReadSymbol(out byte symbol));
                 Assert.AreEqual(0x12, symbol);
                 Assert.IsTrue(stream.ReadSymbol(out symbol));
                 Assert.AreEqual(0x33, symbol);
@@ -181,6 +198,25 @@ namespace FileArchiver.Tests {
                 Assert.AreEqual(0x13, symbol);
                 Assert.IsFalse(stream.ReadSymbol(out symbol));
             }
+        }
+        [TestMethod]
+        public void DisposeTest() {
+            fileSystemService.EnumFileSystemEntriesFunc = _ => {
+                return new[] {
+                    new FileSystemEntry(FileSystemEntryType.File, "file1.dat", @"C:\dir\file1.dat"),
+                    new FileSystemEntry(FileSystemEntryType.File, "file2.dat", @"C:\dir\file2.dat"),
+                    new FileSystemEntry(FileSystemEntryType.File, "file3.dat", @"C:\dir\file3.dat"),
+                };
+            };
+            List<TestMemoryStream> streamList = new List<TestMemoryStream>(16);
+            platform.ReadFileFunc = x => {
+                return new TestMemoryStream(new byte[] {1}, streamList);
+            };
+
+            using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
+                while(stream.ReadSymbol(out byte _)) { }
+            }
+            AssertHelper.TrueForAll(streamList, 3, x => x.Trace == "->Dispose;");
         }
 
         private static IEnumerable<FileSystemEntry> EnumFiles(int count) {

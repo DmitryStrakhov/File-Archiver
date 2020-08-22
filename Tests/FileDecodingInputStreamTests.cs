@@ -12,53 +12,55 @@ namespace FileArchiver.Tests {
     public class FileDecodingInputStreamTests {
         [TestMethod]
         public void CtorGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => new FileDecodingInputStream(null, new TestIPlatformService()));
+            AssertHelper.Throws<ArgumentNullException>(() => new FileDecodingInputStream(null, new TestIPlatformService(), 1));
         }
         [TestMethod]
         public void CtorGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => new FileDecodingInputStream(string.Empty, new TestIPlatformService()));
+            AssertHelper.Throws<ArgumentException>(() => new FileDecodingInputStream(string.Empty, new TestIPlatformService(), 1));
         }
         [TestMethod]
         public void CtorGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => new FileDecodingInputStream("file", null));
+            AssertHelper.Throws<ArgumentNullException>(() => new FileDecodingInputStream("file", null, 1));
         }
         [TestMethod]
-        public void ReadBitTest1() {
-            byte[] data = {0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x39, 0xCC};
+        public void CtorGuardCase4Test() {
+            AssertHelper.Throws<ArgumentException>(() => new FileDecodingInputStream("file", new TestIPlatformService(), -1));
+        }
 
-            using(FileDecodingInputStream stream = CreateFileDecodingInputStream(data)) {
+
+        [TestMethod]
+        public void ReadBitTest1() {
+            byte[] data = {0x39, 0xCC};
+
+            using(FileDecodingInputStream stream = CreateFileDecodingInputStream(data, 0x10)) {
                 List<Bit> bitList = new List<Bit>(16);
 
-                stream.BeginRead();
                 while(!stream.IsEmpty) {
                     Assert.IsTrue(stream.ReadBit(out Bit bit));
                     bitList.Add(bit);
                 }
                 Assert.IsFalse(stream.ReadBit(out Bit _));
-                stream.EndRead();
                 Assert.AreEqual("1001110000110011", TestHelper.StringFromBits(bitList.ToArray()));
             }
         }
         [TestMethod]
         public void ReadBitTest2() {
-            byte[] data = {0xB, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9E, 0x5};
+            byte[] data = {0x9E, 0x5};
 
-            using(FileDecodingInputStream stream = CreateFileDecodingInputStream(data)) {
+            using(FileDecodingInputStream stream = CreateFileDecodingInputStream(data, 0xB)) {
                 List<Bit> bitList = new List<Bit>(16);
 
-                stream.BeginRead();
                 while(!stream.IsEmpty) {
                     Assert.IsTrue(stream.ReadBit(out Bit bit));
                     bitList.Add(bit);
                 }
                 Assert.IsFalse(stream.ReadBit(out Bit _));
-                stream.EndRead();
                 Assert.AreEqual("01111001101", TestHelper.StringFromBits(bitList.ToArray()));
             }
         }
-        private FileDecodingInputStream CreateFileDecodingInputStream(byte[] data) {
-            TestIPlatformService platform = new TestIPlatformService {OpenFileFunc = x => new MemoryStream(data)};
-            return new FileDecodingInputStream("file", platform);
+        private FileDecodingInputStream CreateFileDecodingInputStream(byte[] data, long streamSize) {
+            TestIPlatformService platform = new TestIPlatformService {ReadFileFunc = x => new MemoryStream(data)};
+            return new FileDecodingInputStream("file", platform, streamSize);
         }
     }
 }

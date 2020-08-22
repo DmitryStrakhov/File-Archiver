@@ -25,8 +25,11 @@ namespace FileArchiver.Services {
         IEnumerable<string> IPlatformService.EnumDirectories(string path) {
             return Directory.GetDirectories(path);
         }
-        Stream IPlatformService.OpenFile(string path, FileMode fileMode, FileAccess fileAccess) {
-            return new FileStream(path, fileMode, fileAccess, FileShare.None);
+        Stream IPlatformService.ReadFile(string path) {
+            return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None);
+        }
+        Stream IPlatformService.WriteFile(string path) {
+            return new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
         }
     }
 }

@@ -46,6 +46,16 @@ namespace FileArchiver.Tests {
         public static void CollectionIsEmpty(ICollection collection) {
             if(collection == null || collection.Count != 0) throw new AssertFailedException();
         }
+        public static void TrueForAll<T>(ICollection<T> collection, int expectedSize, Predicate<T> predicate) {
+            if(collection == null || predicate == null) throw new AssertFailedException();
+
+            if(collection.Count != expectedSize)
+                throw new AssertFailedException();
+            foreach(T item in collection) {
+                if(!predicate(item))
+                    throw new AssertFailedException();
+            }
+        }
     }
 }
 #endif

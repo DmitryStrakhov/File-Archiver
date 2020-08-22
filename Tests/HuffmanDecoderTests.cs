@@ -23,10 +23,6 @@ namespace FileArchiver.Tests {
 
         #region IDecodingInputStream
 
-        void IDecodingInputStream.BeginRead() {
-        }
-        void IDecodingInputStream.EndRead() {
-        }
         bool IDecodingInputStream.ReadBit(out Bit bit) {
             bool hasBit = index < data.Length;
             bit = hasBit ? data[index++] : Bit.Zero;

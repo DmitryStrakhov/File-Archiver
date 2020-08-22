@@ -34,7 +34,7 @@ namespace FileArchiver.Tests {
             }
         }
         private FileDecodingOutputStream CreateFileDecodingOutputStream(Stream stream) {
-            TestIPlatformService platform = new TestIPlatformService {OpenFileFunc = x => stream};
+            TestIPlatformService platform = new TestIPlatformService {WriteFileFunc = x => stream};
             return new FileDecodingOutputStream("file", platform);
         }
     }

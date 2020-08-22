@@ -12,7 +12,7 @@ namespace FileArchiver.FileCore {
             Guard.IsNotNullOrEmpty(fileName, nameof(fileName));
             Guard.IsNotNull(platform, nameof(platform));
 
-            this.fileStream = platform.OpenFile(fileName, FileMode.Open, FileAccess.Read);
+            this.fileStream = platform.ReadFile(fileName);
         }
         
         public bool ReadSymbol(out byte symbol) {

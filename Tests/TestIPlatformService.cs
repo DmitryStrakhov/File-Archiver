@@ -20,8 +20,11 @@ namespace FileArchiver.Tests {
         IEnumerable<string> IPlatformService.EnumDirectories(string path) {
             return EnumDirectoriesFunc?.Invoke(path) ?? new string[0];
         }
-        Stream IPlatformService.OpenFile(string path, FileMode fileMode, FileAccess fileAccess) {
-            return OpenFileFunc?.Invoke(path) ?? throw new InvalidOperationException();
+        Stream IPlatformService.ReadFile(string path) {
+            return ReadFileFunc?.Invoke(path) ?? throw new InvalidOperationException();
+        }
+        Stream IPlatformService.WriteFile(string path) {
+            return WriteFileFunc?.Invoke(path) ?? throw new InvalidOperationException();
         }
 
         #endregion
@@ -32,6 +35,7 @@ namespace FileArchiver.Tests {
 
         public Func<string, IEnumerable<string>> EnumFilesFunc { get; set; }
         public Func<string, IEnumerable<string>> EnumDirectoriesFunc { get; set; }
-        public Func<string, Stream> OpenFileFunc { get; set; }
+        public Func<string, Stream> ReadFileFunc { get; set; }
+        public Func<string, Stream> WriteFileFunc { get; set; }
     }
 }

@@ -27,5 +27,9 @@ namespace FileArchiver.Helpers {
             if(value == string.Empty)
                 throw new ArgumentException(argument);
         }
+        public static void IsNotNegative(long value, string argument) {
+            if(value < 0)
+                throw new ArgumentException(argument);
+        }
     }
 }

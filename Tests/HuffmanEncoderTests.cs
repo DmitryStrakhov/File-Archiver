@@ -40,8 +40,10 @@ namespace FileArchiver.Tests {
 
     class TestIEncodingOutputStream : IEncodingOutputStream {
         readonly List<Bit> bitList;
+        int index;
 
         public TestIEncodingOutputStream() {
+            this.index = 0;
             this.bitList = new List<Bit>(64);
         }
 
@@ -52,9 +54,30 @@ namespace FileArchiver.Tests {
         void IEncodingOutputStream.EndWrite() {
         }
         void IEncodingOutputStream.WriteBit(Bit bit) {
-            bitList.Add(bit);
+            if(index == bitList.Count)
+                bitList.Add(bit);
+            else
+                bitList[index] = bit;
+            index++;
+        }
+        IStreamPosition IEncodingOutputStream.SavePosition() {
+            return new StreamPosition(index);
+        }
+        void IEncodingOutputStream.RestorePosition(IStreamPosition position) {
+            index = ((StreamPosition)position).Index;
         }
         void IDisposable.Dispose() {
+        }
+
+        #endregion
+
+        #region StreamPosition
+
+        class StreamPosition : IStreamPosition {
+            public StreamPosition(int index) {
+                Index = index;
+            }
+            public readonly int Index;
         }
 
         #endregion
@@ -334,9 +357,10 @@ namespace FileArchiver.Tests {
 
             HuffmanEncoder encoder = new HuffmanEncoder();
             EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            encoder.Encode(inputStream, outputStream, token);
+            long length = encoder.Encode(inputStream, outputStream, token);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
+            Assert.AreEqual(0, length);
             AssertHelper.CollectionIsEmpty(token.HuffmanTree.FlattenValues());
             AssertHelper.CollectionIsEmpty(outputStream.BitList);
         }
@@ -347,7 +371,7 @@ namespace FileArchiver.Tests {
             
             HuffmanEncoder encoder = new HuffmanEncoder();
             EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            encoder.Encode(inputStream, outputStream, token);
+            long length = encoder.Encode(inputStream, outputStream, token);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
 
@@ -357,6 +381,7 @@ namespace FileArchiver.Tests {
                 null,
             };
             AssertHelper.AreEqual(expected, token.HuffmanTree.FlattenValues());
+            Assert.AreEqual(1, length);
             AssertOutputStream(outputStream, "0");
         }
         [TestMethod]
@@ -367,7 +392,7 @@ namespace FileArchiver.Tests {
             
             HuffmanEncoder encoder = new HuffmanEncoder();
             EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            encoder.Encode(inputStream, outputStream, token);
+            long length = encoder.Encode(inputStream, outputStream, token);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
 
@@ -381,6 +406,7 @@ namespace FileArchiver.Tests {
                 null,
             };
             AssertHelper.AreEqual(expected, token.HuffmanTree.FlattenValues());
+            Assert.AreEqual(7, length);
             AssertOutputStream(outputStream, "0110011");
         }
         [TestMethod]
@@ -391,9 +417,10 @@ namespace FileArchiver.Tests {
             
             HuffmanEncoder encoder = new HuffmanEncoder();
             EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            encoder.Encode(inputStream, outputStream, token);
+            long length = encoder.Encode(inputStream, outputStream, token);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
+            Assert.AreEqual(54, length);
             AssertOutputStream(outputStream, "110111111111111110111111111101010101010001010000000000");
         }
 
@@ -412,13 +439,6 @@ namespace FileArchiver.Tests {
                 case '1': return Bit.One;
                 default: throw new ArgumentException();    
             }
-        }
-
-        private class EmptyEncodingToken : EncodingToken {
-            private EmptyEncodingToken()
-                : base(EmptyHuffmanTree.Instance, new CodingTable()) {
-            }
-            public static readonly EmptyEncodingToken Instance = new EmptyEncodingToken();
         }
     }
 }

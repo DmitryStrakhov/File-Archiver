@@ -11,7 +11,7 @@ namespace FileArchiver.FileCore {
         public FileDecodingOutputStream(string fileName, IPlatformService platform) {
             Guard.IsNotNullOrEmpty(fileName, nameof(fileName));
             Guard.IsNotNull(platform, nameof(platform));
-            this.fileStream = platform.OpenFile(fileName, FileMode.Create, FileAccess.Write);
+            this.fileStream = platform.WriteFile(fileName);
         }
 
         public void WriteSymbol(byte symbol) {

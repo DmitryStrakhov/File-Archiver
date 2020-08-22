@@ -5,10 +5,93 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using FileArchiver.Base;
+using FileArchiver.DataStructures;
 using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
 
 namespace FileArchiver.Tests {
+    [DebuggerDisplay("BufferBuilder(Length={Length})")]
+    public class BufferBuilder {
+        readonly MemoryStream memoryStream;
+
+        public BufferBuilder() {
+            this.memoryStream = new MemoryStream(128);
+        }
+
+        public BufferBuilder AddByte(byte value) {
+            memoryStream.WriteByte(value);
+            return this;
+        }
+        public BufferBuilder AddInt(int value) {
+            for(int n = 0; n < 4; n++) {
+                AddByte((byte)value);
+                value >>= 8;
+            }
+            return this;
+        }
+        public BufferBuilder AddLong(long value) {
+            for(int n = 0; n < 8; n++) {
+                AddByte((byte)value);
+                value >>= 8;
+            }
+            return this;
+        }
+        public BufferBuilder AddString(string value) {
+            for(int n = 0; n < value.Length; n++) {
+                AddByte((byte)value[n]);
+                AddByte((byte)(value[n] >> 8));
+            }
+            return this;
+        }
+        public byte[] GetData() {
+            return memoryStream.ToArray();
+        }
+    }
+
+    public static class BitListHelper {
+        public static BitListBuilder CreateBuilder() {
+            return new BitListBuilder();
+        }
+    }
+
+    public class BitListBuilder {
+        readonly List<Bit> bitList;
+        
+        public BitListBuilder() {
+            this.bitList = new List<Bit>(64);
+        }
+        public BitListBuilder AddByte(byte value) {
+            for(int n = 0; n < 8; n++) {
+                bitList.Add((value & 1) == 1 ? Bit.One : Bit.Zero);
+                value >>= 1;
+            }
+            return this;
+        }
+        public BitListBuilder AddChar(char symbol) {
+            for(int n = 0; n < 2; n++) {
+                AddByte((byte)symbol);
+                symbol >>= 8;
+            }
+            return this;
+        }
+        public BitListBuilder AddInt(int value) {
+            for(int n = 0; n < 4; n++) {
+                AddByte((byte)value);
+                value >>= 8;
+            }
+            return this;
+        }
+        public BitListBuilder AddLong(long value) {
+            for(int n = 0; n < 8; n++) {
+                AddByte((byte)value);
+                value >>= 8;
+            }
+            return this;
+        }
+        public IReadOnlyList<Bit> BitList { get { return bitList; } }
+    }
+
+
     public static class FileSystemEntryHelper {
         public static FileSystemEntryListBuilder CreateListBuilder() {
             return new FileSystemEntryListBuilder();

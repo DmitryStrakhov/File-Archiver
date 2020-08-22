@@ -10,38 +10,47 @@ namespace FileArchiver.FileCore {
     public class FileEncodingOutputStream : IEncodingOutputStream {
         readonly Stream fileStream;
         readonly ByteWriter byteWriter;
-        long streamSize;
 
         public FileEncodingOutputStream(string fileName, IPlatformService platform) {
             Guard.IsNotNullOrEmpty(fileName, nameof(fileName));
             Guard.IsNotNull(platform, nameof(platform));
-            this.streamSize = 0;
             this.byteWriter = new ByteWriter();
-            this.fileStream = platform.OpenFile(fileName, FileMode.Create, FileAccess.Write);
+            this.fileStream = platform.WriteFile(fileName);
         }
         
         public void BeginWrite() {
-            fileStream.Seek(sizeof(long), SeekOrigin.Begin);
         }
         public void EndWrite() {
-            if(!byteWriter.IsEmpty) {
+            if(!byteWriter.IsEmpty)
                 fileStream.WriteByte(byteWriter.Value);
-            }
-            
-            fileStream.Seek(0, SeekOrigin.Begin);
-            fileStream.WriteLong(streamSize);
-            fileStream.Close();
         }
         public void WriteBit(Bit bit) {
-            streamSize++;
             byteWriter.AddBit(bit);
             if(byteWriter.IsReady) {
                 fileStream.WriteByte(byteWriter.Value);
                 byteWriter.Reset();
             }
         }
+        public IStreamPosition SavePosition() {
+            return new StreamPosition(fileStream.Position);
+        }
+        public void RestorePosition(IStreamPosition position) {
+            Guard.IsNotNull(position, nameof(position));
+            fileStream.Position = ((StreamPosition)position).Position;
+        }
         public void Dispose() {
             fileStream.Dispose();
         }
+
+        #region StreamPosition
+
+        class StreamPosition : IStreamPosition {
+            public StreamPosition(long position) {
+                this.Position = position;
+            }
+            public readonly long Position;
+        }
+
+        #endregion
     }
 }

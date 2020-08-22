@@ -9,12 +9,14 @@ using FileArchiver.DataStructures;
 
 namespace FileArchiver.HuffmanCore {
     public class EncodingToken {
-        public EncodingToken(HuffmanTreeBase huffmanTree, CodingTable codingTable) {
+        public EncodingToken(WeightsTable weightsTable, HuffmanTreeBase huffmanTree, CodingTable codingTable) {
             CodingTable = codingTable;
+            WeightsTable = weightsTable;
             HuffmanTree = huffmanTree;
         }
         public CodingTable CodingTable { get; }
         public HuffmanTreeBase HuffmanTree { get; }
+        public WeightsTable WeightsTable { get; }
     }
 
     
@@ -28,21 +30,26 @@ namespace FileArchiver.HuffmanCore {
             WeightsTable weightsTable = BuildWeightsTable(inputStream);
             HuffmanTreeBase huffmanTree = BuildHuffmanTree(weightsTable);
             CodingTable codingTable = BuildCodingTable(huffmanTree);
-            return new EncodingToken(huffmanTree, codingTable);
+            return new EncodingToken(weightsTable, huffmanTree, codingTable);
         }
         
-        public void Encode(IEncodingInputStream inputStream, IEncodingOutputStream outputStream, EncodingToken encodingToken) {
+        public long Encode(IEncodingInputStream inputStream, IEncodingOutputStream outputStream, EncodingToken encodingToken) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
             Guard.IsNotNull(outputStream, nameof(outputStream));
             Guard.IsNotNull(encodingToken, nameof(encodingToken));
 
             CodingTable codingTable = encodingToken.CodingTable;
             inputStream.Reset();
+            long sequenceLength = 0;
 
             while(inputStream.ReadSymbol(out byte symbol)) {
                 BitSequence codingSequence = codingTable[symbol];
-                foreach(Bit bit in codingSequence) outputStream.WriteBit(bit);
+                foreach(Bit bit in codingSequence) {
+                    sequenceLength++;
+                    outputStream.WriteBit(bit);
+                }
             }
+            return sequenceLength;
         }
         internal WeightsTable BuildWeightsTable(IEncodingInputStream inputStream) {
             WeightsTable weightsTable = new WeightsTable();
@@ -105,13 +112,21 @@ namespace FileArchiver.HuffmanCore {
     [DebuggerDisplay("WeightsTable()")]
     public class WeightsTable : EnumerableBase<WeightedSymbol> {
         readonly long[] data;
+        int size;
 
         public WeightsTable() {
+            this.size = 0;
             this.data = new long[256];
         }
 
         public void TrackSymbol(byte symbol) {
+            if(data[symbol] == 0) {
+                size++;
+            }
             data[symbol]++;
+        }
+        public int Size {
+            get { return size; }
         }
         public long this[byte symbol] {
             get { return data[symbol]; }

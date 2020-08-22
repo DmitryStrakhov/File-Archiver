@@ -31,10 +31,11 @@ namespace FileArchiver.FileCore {
                     symbol = 0;
                     return false;
                 }
-                fileStream = platform.OpenFile(fileSystemEntries.Value.Current.Path, FileMode.Open, FileAccess.Read);
+                fileStream = platform.ReadFile(fileSystemEntries.Value.Current.Path);
             }
             int result = fileStream.ReadByte();
             if(result == -1) {
+                fileStream?.Dispose();
                 fileStream = null;
                 return ReadSymbol(out symbol);
             }

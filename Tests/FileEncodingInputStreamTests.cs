@@ -67,7 +67,7 @@ namespace FileArchiver.Tests {
             }
         }
         private FileEncodingInputStream CreateFileEncodingInputStream(byte[] data) {
-            TestIPlatformService platform = new TestIPlatformService {OpenFileFunc = x => new MemoryStream(data)};
+            TestIPlatformService platform = new TestIPlatformService {ReadFileFunc = x => new MemoryStream(data)};
             return new FileEncodingInputStream("file", platform);
         }
     }
