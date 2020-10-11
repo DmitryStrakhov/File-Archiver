@@ -39,11 +39,11 @@ namespace FileArchiver.Tests {
         }
         private byte[] Decode(byte[] code, HuffmanTreeBase tree, long streamSize) {
             MemoryStream outputMemoryStream = new MemoryStream();
-            FileDecodingInputStream inputStream = CreateFileDecodingInputStream(code, streamSize);
+            FileDecodingInputStream inputStream = CreateFileDecodingInputStream(code);
             FileDecodingOutputStream outputStream = CreateFileDecodingOutputStream(outputMemoryStream);
 
             try {
-                new HuffmanDecoder().Decode(inputStream, tree.CastTo<HuffmanTree>() /*ToDo*/, outputStream);
+                new HuffmanDecoder().Decode(inputStream, tree, outputStream, streamSize);
                 return outputMemoryStream.ToArray();
             }
             finally {
@@ -56,9 +56,9 @@ namespace FileArchiver.Tests {
             TestIPlatformService platform = new TestIPlatformService {ReadFileFunc = x => new MemoryStream(data)};
             return new FileEncodingInputStream("file", platform);
         }
-        private FileDecodingInputStream CreateFileDecodingInputStream(byte[] data, long streamSize) {
+        private FileDecodingInputStream CreateFileDecodingInputStream(byte[] data) {
             TestIPlatformService platform = new TestIPlatformService {ReadFileFunc = x => new MemoryStream(data)};
-            return new FileDecodingInputStream("file", platform, streamSize);
+            return new FileDecodingInputStream("file", platform);
         }
         private FileEncodingOutputStream CreateFileEncodingOutputStream(Stream stream) {
             TestIPlatformService platform = new TestIPlatformService {WriteFileFunc = x => stream};

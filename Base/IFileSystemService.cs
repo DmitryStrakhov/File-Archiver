@@ -14,17 +14,20 @@ namespace FileArchiver.Base {
         public readonly FileSystemEntryType Type;
         public readonly string Name;
         public readonly string Path;
+        public readonly int Cardinality;
 
-        public FileSystemEntry(FileSystemEntryType type, string name, string path) {
+        public FileSystemEntry(FileSystemEntryType type, string name, string path, int cardinality = 0) {
             Type = type;
             Name = name;
             Path = path;
+            Cardinality = cardinality;
         }
 
         #region Equals & GetHashCode
 
         public bool Equals(FileSystemEntry other) {
-            return Type == other.Type && StringHelper.AreEqual(Name, other.Name)
+            return Type == other.Type && Cardinality == other.Cardinality
+                                      && StringHelper.AreEqual(Name, other.Name)
                                       && StringHelper.AreEqual(Path, other.Path);
         }
         public override bool Equals(object obj) {

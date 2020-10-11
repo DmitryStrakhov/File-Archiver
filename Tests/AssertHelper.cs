@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using FileArchiver.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,6 +37,10 @@ namespace FileArchiver.Tests {
             }
             if(!(exception is T)) throw new AssertFailedException();
         }
+        public static void StringIsEmpty(string actual) {
+            if(!string.IsNullOrEmpty(actual))
+                throw new AssertFailedException("was " + actual);
+        }
         public static void CollectionIsEmpty(IEnumerable collection) {
             if(collection == null) throw new AssertFailedException();
 
@@ -55,6 +60,15 @@ namespace FileArchiver.Tests {
                 if(!predicate(item))
                     throw new AssertFailedException();
             }
+        }
+        public static void AssertStream(MemoryStream stream, params byte[] expected) {
+            if(stream == null) throw new AssertFailedException();
+
+            AreEqual(expected, stream.ToArray());
+        }
+        public static void StreamIsEmpty(MemoryStream stream) {
+            if(stream == null || stream.ToArray().Length != 0)
+                throw new AssertFailedException();
         }
     }
 }

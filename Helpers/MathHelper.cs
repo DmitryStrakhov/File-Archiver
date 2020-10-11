@@ -13,5 +13,8 @@ namespace FileArchiver.Helpers {
         public static bool IsEven(int value) {
             return (value & 1) == 0;
         }
+        public static int ModAdv(long value, int mod) {
+            return (int)((8L - value % mod) % mod);
+        }
     }
 }

@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.Base;
 using FileArchiver.Builders;
 using FileArchiver.DataStructures;
+using FileArchiver.Format;
 using FileArchiver.HuffmanCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,25 +21,19 @@ namespace FileArchiver.Tests {
         [TestMethod]
         public void InitializeGuardCase1Test() {
             AssertHelper.Throws<ArgumentNullException>(() => {
-                builder.Initialize(null, new HuffmanEncoder(), EmptyEncodingToken.Instance,  new TestIEncodingOutputStream());
+                builder.Initialize(null, EmptyEncodingToken.Instance,  new TestIEncodingOutputStream());
             });
         }
         [TestMethod]
         public void InitializeGuardCase2Test() {
             AssertHelper.Throws<ArgumentNullException>(() => {
-                builder.Initialize(new TestIPlatformService(), null, EmptyEncodingToken.Instance, new TestIEncodingOutputStream());
+                builder.Initialize(new TestIPlatformService(), null, new TestIEncodingOutputStream());
             });
         }
         [TestMethod]
         public void InitializeGuardCase3Test() {
             AssertHelper.Throws<ArgumentNullException>(() => {
-                builder.Initialize(new TestIPlatformService(),  new HuffmanEncoder(), null, new TestIEncodingOutputStream());
-            });
-        }
-        [TestMethod]
-        public void InitializeGuardCase4Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
-                builder.Initialize(new TestIPlatformService(),  new HuffmanEncoder(), EmptyEncodingToken.Instance, null);
+                builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, null);
             });
         }
         [TestMethod]
@@ -50,9 +44,9 @@ namespace FileArchiver.Tests {
         [TestMethod]
         public void AddWeightsTableTest1() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
-            builder.Initialize(new TestIPlatformService(), new HuffmanEncoder(), EmptyEncodingToken.Instance, stream);
+            builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
 
-            builder.AddWeightsTable(new WeightsTable());
+            builder.AddWeightsTable(new BootstrapSegment(new WeightsTable()));
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x2)
                 .AddInt(0x0).BitList;
@@ -61,12 +55,12 @@ namespace FileArchiver.Tests {
         [TestMethod]
         public void AddWeightsTableTest2() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
-            builder.Initialize(new TestIPlatformService(), new HuffmanEncoder(), EmptyEncodingToken.Instance, stream);
+            builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
 
             WeightsTable weightsTable = new WeightsTable();
-            WeightsTableExtensions.TrackSymbol(weightsTable, symbol: 0x45, times: 0x33);
+            weightsTable.TrackSymbol(symbol: 0x45, frequency: 0x33);
 
-            builder.AddWeightsTable(weightsTable);
+            builder.AddWeightsTable(new BootstrapSegment(weightsTable));
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x2)
                 .AddInt(0x9)
@@ -77,16 +71,16 @@ namespace FileArchiver.Tests {
         [TestMethod]
         public void AddWeightsTableTest3() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
-            builder.Initialize(new TestIPlatformService(), new HuffmanEncoder(), EmptyEncodingToken.Instance, stream);
+            builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
 
             WeightsTable weightsTable = new WeightsTable();
             weightsTable.TrackSymbol(0x1);
-            WeightsTableExtensions.TrackSymbol(weightsTable, symbol: 0xF, times: 0x5);
-            WeightsTableExtensions.TrackSymbol(weightsTable, symbol: 0x2, times: 0xFFF);
-            WeightsTableExtensions.TrackSymbol(weightsTable, symbol: 0xAF, times: 0xFFA);
+            weightsTable.TrackSymbol(symbol: 0xF, frequency: 0x5);
+            weightsTable.TrackSymbol(symbol: 0x2, frequency: 0xFFF);
+            weightsTable.TrackSymbol(symbol: 0xAF, frequency: 0xFFA);
             weightsTable.TrackSymbol(0xFF);
             
-            builder.AddWeightsTable(weightsTable);
+            builder.AddWeightsTable(new BootstrapSegment(weightsTable));
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x2)
                 .AddInt(0x2D)
@@ -109,56 +103,50 @@ namespace FileArchiver.Tests {
         }
         [TestMethod]
         public void AddDirectoryGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => builder.AddDirectory(string.Empty));
+            AssertHelper.Throws<ArgumentException>(() => builder.AddDirectory(new DirectorySegment(string.Empty, 0)));
         }
         [TestMethod]
         public void AddDirectoryTest1() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
-            builder.Initialize(new TestIPlatformService(), new HuffmanEncoder(), EmptyEncodingToken.Instance, stream);
+            builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
             
-            builder.AddDirectory("X");
+            builder.AddDirectory(new DirectorySegment("X", 0));
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x1)
                 .AddInt(0x2)
-                .AddChar('X').BitList;
+                .AddChar('X')
+                .AddInt(0x0).BitList;
             AssertHelper.AreEqual(bitList, stream.BitList);
         }
         [TestMethod]
         public void AddDirectoryTest2() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
-            builder.Initialize(new TestIPlatformService(), new HuffmanEncoder(), EmptyEncodingToken.Instance, stream);
+            builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
             
-            builder.AddDirectory("Directory");
+            builder.AddDirectory(new DirectorySegment("Directory", 3));
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x1)
                 .AddInt(0x12)
-                .AddChar('D')
-                .AddChar('i')
-                .AddChar('r')
-                .AddChar('e')
-                .AddChar('c')
-                .AddChar('t')
-                .AddChar('o')
-                .AddChar('r')
-                .AddChar('y').BitList;
+                .AddString("Directory")
+                .AddInt(0x3).BitList;
             AssertHelper.AreEqual(bitList, stream.BitList);
         }
 
         [TestMethod]
         public void AddFileGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => builder.AddFile(null, "path"));
+            AssertHelper.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment(null, "path")));
         }
         [TestMethod]
         public void AddFileGuardCase2Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => builder.AddFile("name", null));
+            AssertHelper.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment("name", (string)null)));
         }
         [TestMethod]
         public void AddFileGuardCase3Test() {
-            AssertHelper.Throws<ArgumentException>(() => builder.AddFile(string.Empty, "path"));
+            AssertHelper.Throws<ArgumentException>(() => builder.AddFile(new FileSegment(string.Empty, "path")));
         }
         [TestMethod]
         public void AddFileGuardCase4Test() {
-            AssertHelper.Throws<ArgumentException>(() => builder.AddFile("name", string.Empty));
+            AssertHelper.Throws<ArgumentException>(() => builder.AddFile(new FileSegment("name", string.Empty)));
         }
         [TestMethod]
         public void AddFileTest1() {
@@ -166,9 +154,9 @@ namespace FileArchiver.Tests {
                 ReadFileFunc = x => new MemoryStream()
             };
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
-            builder.Initialize(platform, new HuffmanEncoder(), EmptyEncodingToken.Instance, stream);
+            builder.Initialize(platform, EmptyEncodingToken.Instance, stream);
             
-            builder.AddFile(@"file.bin", @"C:\file.bin");
+            builder.AddFile(new FileSegment(@"file.bin", @"C:\file.bin"));
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x00)
                 .AddInt(0x10)
@@ -192,9 +180,9 @@ namespace FileArchiver.Tests {
             };
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
             HuffmanEncoder encoder = new HuffmanEncoder();
-            builder.Initialize(platform, encoder, CreateEncodingToken(encoder, data), stream);
+            builder.Initialize(platform, CreateEncodingToken(encoder, data), stream);
 
-            builder.AddFile(@"data.bin", @"C:\data.bin");
+            builder.AddFile(new FileSegment(@"data.bin", @"C:\data.bin"));
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x00)
                 .AddInt(0x10)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using FileArchiver.Base;
 using FileArchiver.Helpers;
 
@@ -25,12 +26,14 @@ namespace FileArchiver.Services {
 
                 while(queue.Count != 0) {
                     string dirPath = queue.Dequeue();
-                    yield return NewDirectory(dirPath);
+                    string[] subDirs = platform.EnumDirectories(dirPath).ToArray();
+
+                    yield return NewDirectory(dirPath, subDirs.Length);
 
                     foreach(string filePath in platform.EnumFiles(dirPath)) {
                         yield return NewFile(filePath);
                     }
-                    queue.Enqueue(platform.EnumDirectories(dirPath));
+                    queue.Enqueue(subDirs);
                 }
             }
             else throw new ArgumentException(nameof(path));
@@ -39,9 +42,9 @@ namespace FileArchiver.Services {
             string name = Path.GetFileName(path);
             return new FileSystemEntry(FileSystemEntryType.File, name, path);
         }
-        private static FileSystemEntry NewDirectory(string path) {
+        private static FileSystemEntry NewDirectory(string path, int cardinality) {
             string name = PathHelper.GetDirectoryName(path);
-            return new FileSystemEntry(FileSystemEntryType.Directory, name, path);
+            return new FileSystemEntry(FileSystemEntryType.Directory, name, path, cardinality);
         }
     }
 }

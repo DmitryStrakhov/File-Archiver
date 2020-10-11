@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using FileArchiver.Base;
 using FileArchiver.Builders;
+using FileArchiver.Format;
 using FileArchiver.HuffmanCore;
 using FileArchiver.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,23 +14,23 @@ namespace FileArchiver.Tests {
     
     #region TestStreamBuilder
 
-    class TestStreamBuilder : IStreamBuilder {
-        public TestStreamBuilder() {
+    class TestIStreamBuilder : IStreamBuilder {
+        public TestIStreamBuilder() {
         }
 
         #region IStreamBuilder
 
-        void IStreamBuilder.Initialize(IPlatformService platform, HuffmanEncoder encoder, EncodingToken token, IEncodingOutputStream stream) {
+        void IStreamBuilder.Initialize(IPlatformService platform, EncodingToken token, IEncodingOutputStream stream) {
             Trace += "->Initialize;";
         }
-        void IStreamBuilder.AddWeightsTable(WeightsTable weightsTable) {
+        void IStreamBuilder.AddWeightsTable(BootstrapSegment segment) {
             Trace += "->AddWeightsTable;";
         }
-        void IStreamBuilder.AddDirectory(string name) {
-            Trace += $"->AddDirectory({name});";
+        void IStreamBuilder.AddDirectory(DirectorySegment segment) {
+            Trace += $"->AddDirectory({segment.Name});";
         }
-        void IStreamBuilder.AddFile(string name, string path) {
-            Trace += $"->AddFile({name});";
+        void IStreamBuilder.AddFile(FileSegment segment) {
+            Trace += $"->AddFile({segment.Name});";
         }
         
         #endregion
@@ -45,13 +46,13 @@ namespace FileArchiver.Tests {
         [TestMethod]
         public void GuardTest1() {
             AssertHelper.Throws<ArgumentNullException>(() => {
-                new DefaultHuffmanEncodingService(null, new TestIPlatformService(), new TestStreamBuilder());
+                new DefaultHuffmanEncodingService(null, new TestIPlatformService(), new TestIStreamBuilder());
             });
         }
         [TestMethod]
         public void GuardTest2() {
             AssertHelper.Throws<ArgumentNullException>(() => {
-                new DefaultHuffmanEncodingService(new TestIFileSystemService(), null, new TestStreamBuilder());
+                new DefaultHuffmanEncodingService(new TestIFileSystemService(), null, new TestIStreamBuilder());
             });
         }
         [TestMethod]
@@ -66,25 +67,25 @@ namespace FileArchiver.Tests {
     [TestClass]
     public class HuffmanEncodingServiceBehaviorTests {
         DefaultHuffmanEncodingService service;
-        TestIPlatformService platformService;
-        TestIFileSystemService fileSystemService;
-        TestStreamBuilder streamBuilder;
+        TestIPlatformService platform;
+        TestIFileSystemService fileSystem;
+        TestIStreamBuilder streamBuilder;
 
         [TestInitialize]
         public void SetUp() {
-            this.fileSystemService = new TestIFileSystemService();
+            this.fileSystem = new TestIFileSystemService();
 
-            this.platformService = new TestIPlatformService {
+            this.platform = new TestIPlatformService {
                 ReadFileFunc = x => new MemoryStream(),
                 WriteFileFunc = x => new MemoryStream()
             };
-            this.streamBuilder = new TestStreamBuilder();
-            this.service = new DefaultHuffmanEncodingService(fileSystemService, platformService, streamBuilder);
+            this.streamBuilder = new TestIStreamBuilder();
+            this.service = new DefaultHuffmanEncodingService(fileSystem, platform, streamBuilder);
         }
         
         [TestMethod]
         public void EncodeTest1() {
-            fileSystemService.EnumFileSystemEntriesFunc = _ => new FileSystemEntry[0];
+            fileSystem.EnumFileSystemEntriesFunc = _ => new FileSystemEntry[0];
 
             streamBuilder.Trace = string.Empty;
             service.Encode(@"C:\dir\", "file.dat");
@@ -92,7 +93,7 @@ namespace FileArchiver.Tests {
         }
         [TestMethod]
         public void EncodeTest2() {
-            fileSystemService.EnumFileSystemEntriesFunc = _ => new[] {
+            fileSystem.EnumFileSystemEntriesFunc = _ => new[] {
                 new FileSystemEntry(FileSystemEntryType.File, "file1.dat", @"C:\file1.dat")
             };
             
@@ -102,7 +103,7 @@ namespace FileArchiver.Tests {
         }
         [TestMethod]
         public void EncodeTest3() {
-            fileSystemService.EnumFileSystemEntriesFunc = _ => new[] {
+            fileSystem.EnumFileSystemEntriesFunc = _ => new[] {
                 new FileSystemEntry(FileSystemEntryType.File, "file1.dat", @"C:\dir\file1.dat"),
                 new FileSystemEntry(FileSystemEntryType.File, "file2.dat", @"C:\dir\file2.dat"),
                 new FileSystemEntry(FileSystemEntryType.Directory, "subdir1", @"C:\dir\subdir1"),
@@ -125,19 +126,19 @@ namespace FileArchiver.Tests {
     [TestClass]
     public class HuffmanEncodingServiceTests {
         DefaultHuffmanEncodingService service;
-        TestIPlatformService platformService;
-        TestIFileSystemService fileSystemService;
+        TestIPlatformService platform;
+        TestIFileSystemService fileSystem;
         MemoryStream outputStream;
 
         [TestInitialize]
         public void SetUp() {
-            this.fileSystemService = new TestIFileSystemService();
+            this.fileSystem = new TestIFileSystemService();
             this.outputStream = new MemoryStream();
 
-            this.platformService = new TestIPlatformService {
+            this.platform = new TestIPlatformService {
                 WriteFileFunc = x => outputStream
             };
-            this.service = new DefaultHuffmanEncodingService(fileSystemService, platformService, new DefaultStreamBuilder());
+            this.service = new DefaultHuffmanEncodingService(fileSystem, platform, new DefaultStreamBuilder());
         }
         
         [TestMethod]
@@ -159,7 +160,7 @@ namespace FileArchiver.Tests {
 
         [TestMethod]
         public void EncodeEmptyDirectoryTest() {
-            fileSystemService.EnumFileSystemEntriesFunc = _ => {
+            fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\")};
             };
 
@@ -169,15 +170,16 @@ namespace FileArchiver.Tests {
                 .AddInt(0x0)
                 .AddByte(0x1)
                 .AddInt(0x6)
-                .AddString("dir").GetData();
+                .AddString("dir")
+                .AddInt(0x0).GetData();
             CollectionAssert.AreEqual(expected, outputStream.ToArray());
         }
         [TestMethod]
         public void EncodeEmptyFileTest() {
-            fileSystemService.EnumFileSystemEntriesFunc = _ => {
+            fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\file.dat")};
             };
-            platformService.ReadFileFunc += x => new MemoryStream();
+            platform.ReadFileFunc += x => new MemoryStream();
 
             service.Encode(@"C:\file.dat", @"C:\outputFile.dat");
             byte[] expected = new BufferBuilder()
@@ -193,10 +195,10 @@ namespace FileArchiver.Tests {
         public void EncodeFileTest() {
             byte[] data = {1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4};
 
-            fileSystemService.EnumFileSystemEntriesFunc = _ => {
+            fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\file.dat")};
             };
-            platformService.ReadFileFunc += x => new MemoryStream(data);
+            platform.ReadFileFunc += x => new MemoryStream(data);
 
             service.Encode(@"C:\file.dat", @"C:\outputFile.dat");
             byte[] expected = new BufferBuilder()
@@ -221,10 +223,10 @@ namespace FileArchiver.Tests {
             CollectionAssert.AreEqual(expected, outputStream.ToArray());
         }
         [TestMethod]
-        public void EncodeDirectoryTest() {
-            fileSystemService.EnumFileSystemEntriesFunc = _ => {
+        public void EncodeDirectoryTest1() {
+            fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] {
-                    new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\"),
+                    new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\", 2),
                     new FileSystemEntry(FileSystemEntryType.File, "f1.dat", @"C:\dir\f1.dat"),
                     new FileSystemEntry(FileSystemEntryType.File, "f2.dat", @"C:\dir\f2.dat"),
                     new FileSystemEntry(FileSystemEntryType.Directory, "subdir1", @"C:\dir\subdir1\"),
@@ -240,7 +242,7 @@ namespace FileArchiver.Tests {
                 {@"C:\dir\subdir1\f3.dat", new byte[0]},
                 {@"C:\dir\subdir2\f4.dat", new byte[] {0x3, 0x1, 0x9}},
             };
-            platformService.ReadFileFunc = x => new MemoryStream(data[x]);
+            platform.ReadFileFunc = x => new MemoryStream(data[x]);
 
             service.Encode(@"C:\dir\", @"C:\outputFile.dat");
             byte[] expected = new BufferBuilder()
@@ -257,6 +259,7 @@ namespace FileArchiver.Tests {
                 .AddByte(0x1)
                 .AddInt(0x6)
                 .AddString("dir")
+                .AddInt(0x2)
                 .AddByte(0x0)
                 .AddInt(0xC)
                 .AddString("f1.dat")
@@ -271,6 +274,7 @@ namespace FileArchiver.Tests {
                 .AddByte(0x1)
                 .AddInt(0xE)
                 .AddString("subdir1")
+                .AddInt(0x0)
                 .AddByte(0x0)
                 .AddInt(0xC)
                 .AddString("f3.dat")
@@ -278,6 +282,7 @@ namespace FileArchiver.Tests {
                 .AddByte(0x1)
                 .AddInt(0xE)
                 .AddString("subdir2")
+                .AddInt(0x0)
                 .AddByte(0x0)
                 .AddInt(0xC)
                 .AddString("f4.dat")

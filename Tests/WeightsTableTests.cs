@@ -22,7 +22,7 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(1, weightsTable.Size);
             weightsTable.TrackSymbol(0);
             Assert.AreEqual(1, weightsTable.Size);
-            WeightsTableExtensions.TrackSymbol(weightsTable, 0, 20);
+            weightsTable.TrackSymbol(0, 20);
             Assert.AreEqual(1, weightsTable.Size);
 
             weightsTable.TrackSymbol(0x10);

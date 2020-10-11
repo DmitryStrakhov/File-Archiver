@@ -3,6 +3,7 @@ using System.Text;
 using FileArchiver.Base;
 using FileArchiver.Builders;
 using FileArchiver.FileCore;
+using FileArchiver.Format;
 using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
 
@@ -33,16 +34,16 @@ namespace FileArchiver.Services {
             try {
                 outputStream.BeginWrite();
                 EncodingToken encodingToken = encoder.CreateEncodingToken(directoryInputStream);
-                streamBuilder.Initialize(platform, encoder, encodingToken, outputStream);
-                streamBuilder.AddWeightsTable(encodingToken.WeightsTable);
+                streamBuilder.Initialize(platform, encodingToken, outputStream);
+                streamBuilder.AddWeightsTable(new BootstrapSegment(encodingToken.WeightsTable));
 
                 foreach(FileSystemEntry entry in fileSystemService.EnumFileSystemEntries(inputPath)) {
                     switch(entry.Type) {
-                        case FileSystemEntryType.File:
-                            streamBuilder.AddFile(entry.Name, entry.Path);
-                            break;
                         case FileSystemEntryType.Directory:
-                            streamBuilder.AddDirectory(entry.Name);
+                            streamBuilder.AddDirectory(new DirectorySegment(entry.Name, entry.Cardinality));
+                            break;
+                        case FileSystemEntryType.File:
+                            streamBuilder.AddFile(new FileSegment(entry.Name, entry.Path));
                             break;
                         default:
                             throw new InvalidOperationException();

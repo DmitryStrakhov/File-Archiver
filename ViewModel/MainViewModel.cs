@@ -79,10 +79,12 @@ namespace FileArchiver.ViewModel {
 
         private void Encode() {
             string targetPath = serviceFactory.FileSelectorService.GetSaveFile();
+            if(string.IsNullOrEmpty(targetPath)) return;
             serviceFactory.EncodingService.Encode(Path, targetPath);
         }
         private void Decode() {
             string targetFolder = serviceFactory.FolderSelectorService.GetFolder();
+            if(string.IsNullOrEmpty(targetFolder)) return;
             serviceFactory.DecodingService.Decode(Path, targetFolder);
         }
     }

@@ -31,14 +31,6 @@ namespace FileArchiver.Tests {
         }
     }
 
-    public static class WeightsTableExtensions {
-        public static void TrackSymbol(this WeightsTable @this, byte symbol, int times) {
-            for(int n = 0; n < times; n++) {
-                @this.TrackSymbol(symbol);
-            }
-        }
-    }
-
     public static class ConversionTool {
         public static char ToHexSymbol(byte value) {
             if(value > 15) {

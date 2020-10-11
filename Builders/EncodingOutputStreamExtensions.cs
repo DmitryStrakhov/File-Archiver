@@ -1,10 +1,11 @@
 ﻿using System;
 using FileArchiver.HuffmanCore;
 using FileArchiver.DataStructures;
+using FileArchiver.Format;
 
 namespace FileArchiver.Builders {
     public static class EncodingOutputStreamExtensions {
-        public static void Write(this IEncodingOutputStream @this, StreamFormat value) {
+        public static void Write(this IEncodingOutputStream @this, StreamKind value) {
             Write(@this, (byte)value);
         }
         public static void Write(this IEncodingOutputStream @this, byte value) {

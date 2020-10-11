@@ -2,6 +2,7 @@
 using FileArchiver.Base;
 using FileArchiver.DataStructures;
 using FileArchiver.FileCore;
+using FileArchiver.Format;
 using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
 
@@ -16,41 +17,45 @@ namespace FileArchiver.Builders {
             this.encoder = null;
         }
 
-        public void Initialize(IPlatformService platform, HuffmanEncoder encoder, EncodingToken token, IEncodingOutputStream stream) {
+        public void Initialize(IPlatformService platform, EncodingToken token, IEncodingOutputStream stream) {
             Guard.IsNotNull(platform, nameof(platform));
-            Guard.IsNotNull(encoder, nameof(encoder));
             Guard.IsNotNull(token, nameof(token));
             Guard.IsNotNull(stream, nameof(stream));
 
             this.platform = platform;
-            this.encoder = encoder;
             this.token = token;
             this.stream = stream;
+            this.encoder = new HuffmanEncoder();
         }
-        public void AddWeightsTable(WeightsTable weightsTable) {
-            Guard.IsNotNull(weightsTable, nameof(weightsTable));
+        public void AddWeightsTable(BootstrapSegment segment) {
+            Guard.IsNotNull(segment, nameof(segment));
 
-            stream.Write(StreamFormat.WT_CODE);
+            WeightsTable weightsTable = segment.WeightsTable;
+            stream.Write(StreamKind.WT_CODE);
             stream.Write(9 * weightsTable.Size);
             foreach(WeightedSymbol symbol in weightsTable) {
                 stream.Write(symbol.Symbol);
                 stream.Write(symbol.Weight);
             }
         }
-        public void AddDirectory(string name) {
-            if(string.IsNullOrEmpty(name)) throw new ArgumentException();
+        public void AddDirectory(DirectorySegment segment) {
+            Guard.IsNotNull(segment, nameof(segment));
 
-            stream.Write(StreamFormat.DS_CODE);
+            string name = segment.Name;
+            stream.Write(StreamKind.DS_CODE);
             stream.Write(2 * name.Length);
             for(int n = 0; n < name.Length; n++) {
                 stream.Write(name[n]);
             }
+            stream.Write(segment.Cardinality);
         }
-        public void AddFile(string name, string path) {
+        public void AddFile(FileSegment segment) {
+            string name = segment.Name;
+            string path = segment.Path;
             Guard.IsNotNullOrEmpty(name, nameof(name));
             Guard.IsNotNullOrEmpty(path, nameof(path));
 
-            stream.Write(StreamFormat.FS_CODE);
+            stream.Write(StreamKind.FS_CODE);
             stream.Write(2 * name.Length);
             for(int n = 0; n < name.Length; n++) {
                 stream.Write(name[n]);
@@ -68,9 +73,9 @@ namespace FileArchiver.Builders {
             }
         }
         private void EnsureSequenceLayout(long length) {
-            int extension = (int)((8L - length % 8) % 8);
+            int trailingBitCount = MathHelper.ModAdv(length, 8);
 
-            for(int n = 0; n < extension; n++) {
+            for(int n = 0; n < trailingBitCount; n++) {
                 stream.WriteBit(Bit.Zero);
             }
         }

@@ -102,18 +102,18 @@ namespace FileArchiver.Tests {
             platform.EnumDirectoriesFunc = path => dirs[path].Select(x => path + x);
 
             IReadOnlyList<FileSystemEntry> expected = FileSystemEntryHelper.CreateListBuilder()
-                .AddDirectory(@"C:\Root\")
+                .AddDirectory(@"C:\Root\", 2)
                 .AddFiles("F1.dat", "F2.dat")
-                .AddDirectory(@"C:\Root\D1\")
+                .AddDirectory(@"C:\Root\D1\", 1)
                 .AddFiles("F1.dat", "F2.dat", "F3.dat")
-                .AddDirectory(@"C:\Root\D3\")
+                .AddDirectory(@"C:\Root\D3\", 1)
                 .AddFile("F1.dat")
-                .AddDirectory(@"C:\Root\D1\D2\")
-                .AddDirectory(@"C:\Root\D3\D4\")
+                .AddDirectory(@"C:\Root\D1\D2\", 0)
+                .AddDirectory(@"C:\Root\D3\D4\", 2)
                 .AddFiles("F1.dat", "F2.dat")
-                .AddDirectory(@"C:\Root\D3\D4\D5\")
+                .AddDirectory(@"C:\Root\D3\D4\D5\", 0)
                 .AddFiles("F1.dat", "F2.dat")
-                .AddDirectory(@"C:\Root\D3\D4\D6\")
+                .AddDirectory(@"C:\Root\D3\D4\D6\", 0)
                 .AddFile("F1.dat").GetList();
             AssertHelper.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\"));
         }
@@ -144,17 +144,17 @@ namespace FileArchiver.Tests {
             platform.EnumDirectoriesFunc = path => dirs[path].Select(x => path + x);
 
             IReadOnlyList<FileSystemEntry> expected = FileSystemEntryHelper.CreateListBuilder()
-                .AddDirectory(@"F:\")
+                .AddDirectory(@"F:\", 2)
                 .AddFile("F1.dat")
-                .AddDirectory(@"F:\D1\")
+                .AddDirectory(@"F:\D1\", 2)
                 .AddFiles("F1.dat", "F2.dat")
-                .AddDirectory(@"F:\D2\")
-                .AddDirectory(@"F:\D1\D3\")
+                .AddDirectory(@"F:\D2\", 0)
+                .AddDirectory(@"F:\D1\D3\", 0)
                 .AddFile("F3.dat")
-                .AddDirectory(@"F:\D1\D4\")
-                .AddDirectory(@"F:\D1\D4\D5\")
+                .AddDirectory(@"F:\D1\D4\", 1)
+                .AddDirectory(@"F:\D1\D4\D5\", 1)
                 .AddFile("F2.dat")
-                .AddDirectory(@"F:\D1\D4\D5\D6\")
+                .AddDirectory(@"F:\D1\D4\D5\D6\", 0)
                 .AddFiles("F1.dat", "F2.dat", "F3.dat").GetList();
             AssertHelper.AreEqual(expected, service.EnumFileSystemEntries(@"F:\"));
         }

@@ -11,14 +11,13 @@ namespace FileArchiver.FileCore {
         readonly ByteReader byteReader;
         long streamSize;
 
-        public FileDecodingInputStream(string fileName, IPlatformService platform, long streamSize) {
+        public FileDecodingInputStream(string fileName, IPlatformService platform) {
             Guard.IsNotNullOrEmpty(fileName, nameof(fileName));
             Guard.IsNotNull(platform, nameof(platform));
-            Guard.IsNotNegative(streamSize, nameof(streamSize));
 
-            this.streamSize = streamSize;
             this.byteReader = new ByteReader();
             this.fileStream = platform.ReadFile(fileName);
+            this.streamSize = fileStream.Length * 8;
         }
         
         public bool ReadBit(out Bit bit) {

@@ -8,6 +8,7 @@ namespace FileArchiver.Base {
         bool IsFileExists(string path);
         bool IsDirectoryExists(string path);
 
+        void CreateDirectory(string name);
         Stream ReadFile(string path);
         Stream WriteFile(string path);
         IEnumerable<string> EnumFiles(string path);

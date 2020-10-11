@@ -2,6 +2,6 @@
 
 namespace FileArchiver.Base {
     public interface IHuffmanDecodingService {
-        bool Decode(string inputFile, string outputFolder);
+        void Decode(string inputFile, string outputFolder);
     }
 }

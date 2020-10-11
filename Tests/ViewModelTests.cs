@@ -49,6 +49,8 @@ namespace FileArchiver.Tests {
         public override IInputDataService InputDataService { get; }
         public override IHuffmanEncodingService EncodingService { get; }
         public override IHuffmanDecodingService DecodingService { get; }
+        public TestIFolderSelectorService TestFolderSelectorService => (TestIFolderSelectorService)FolderSelectorService;
+        public TestIFileSelectorService TestFileSelectorService => (TestIFileSelectorService)FileSelectorService;
     }
 
     #endregion
@@ -124,9 +126,8 @@ namespace FileArchiver.Tests {
 
         #region IHuffmanDecodingService
 
-        bool IHuffmanDecodingService.Decode(string inputFile, string outputFolder) {
+        void IHuffmanDecodingService.Decode(string inputFile, string outputFolder) {
             TraceMember();
-            return true;
         }
 
         #endregion
@@ -157,31 +158,54 @@ namespace FileArchiver.Tests {
             Assert.IsFalse(viewModel.CanRun());
         }
         [TestMethod]
-        public void EncodeFileTest() {
+        public void EncodeFileTest1() {
             inputDataService.InputCommand = InputCommand.Encode;
             viewModel.Path = "Path";
 
+            serviceFactory.TestFileSelectorService.FilePath = @"C:\File.archive";
             viewModel.Run();
             Assert.AreEqual("Run;", viewModel.Trace);
             Assert.AreEqual("GetInputCommand;GetSaveFile;Encode;", serviceFactory.GetTrace());
+        }
+        [TestMethod]
+        public void EncodeFileTest2() {
+            inputDataService.InputCommand = InputCommand.Encode;
+            viewModel.Path = "Path";
+
+            serviceFactory.TestFileSelectorService.FilePath = null;
+            viewModel.Run();
+            Assert.AreEqual("Run;", viewModel.Trace);
+            Assert.AreEqual("GetInputCommand;GetSaveFile;", serviceFactory.GetTrace());
         }
         [TestMethod]
         public void EncodeFolderTest() {
             inputDataService.InputCommand = InputCommand.Encode;
             viewModel.Path = "Path";
 
+            serviceFactory.TestFileSelectorService.FilePath = @"C:\File.archive";
             viewModel.Run();
             Assert.AreEqual("Run;", viewModel.Trace);
             Assert.AreEqual("GetInputCommand;GetSaveFile;Encode;", serviceFactory.GetTrace());
         }
         [TestMethod]
-        public void DecodeFileTest() {
+        public void DecodeFileTest1() {
             inputDataService.InputCommand = InputCommand.Decode;
             viewModel.Path = "Path";
 
+            serviceFactory.TestFolderSelectorService.FolderPath = @"C:\Folder";
             viewModel.Run();
             Assert.AreEqual("Run;", viewModel.Trace);
             Assert.AreEqual("GetInputCommand;GetFolder;Decode;", serviceFactory.GetTrace());
+        }
+        [TestMethod]
+        public void DecodeFileTest2() {
+            inputDataService.InputCommand = InputCommand.Decode;
+            viewModel.Path = "Path";
+
+            serviceFactory.TestFolderSelectorService.FolderPath = null;
+            viewModel.Run();
+            Assert.AreEqual("Run;", viewModel.Trace);
+            Assert.AreEqual("GetInputCommand;GetFolder;", serviceFactory.GetTrace());
         }
         [TestMethod]
         public void InvalidPathTest() {

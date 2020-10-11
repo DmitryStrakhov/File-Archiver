@@ -10,7 +10,7 @@ using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
 
 namespace FileArchiver.Tests {
-    [DebuggerDisplay("BufferBuilder(Length={Length})")]
+    [DebuggerDisplay("BufferBuilder()")]
     public class BufferBuilder {
         readonly MemoryStream memoryStream;
 
@@ -46,6 +46,10 @@ namespace FileArchiver.Tests {
         public byte[] GetData() {
             return memoryStream.ToArray();
         }
+        public Stream GetStream() {
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            return memoryStream;
+        }
     }
 
     public static class BitListHelper {
@@ -56,7 +60,7 @@ namespace FileArchiver.Tests {
 
     public class BitListBuilder {
         readonly List<Bit> bitList;
-        
+
         public BitListBuilder() {
             this.bitList = new List<Bit>(64);
         }
@@ -64,6 +68,12 @@ namespace FileArchiver.Tests {
             for(int n = 0; n < 8; n++) {
                 bitList.Add((value & 1) == 1 ? Bit.One : Bit.Zero);
                 value >>= 1;
+            }
+            return this;
+        }
+        public BitListBuilder AddString(string value) {
+            for(int n = 0; n < value.Length; n++) {
+                AddChar(value[n]);
             }
             return this;
         }
@@ -106,10 +116,10 @@ namespace FileArchiver.Tests {
             this.currentDir = null;
             this.entryList = new List<FileSystemEntry>(64);
         }
-        public FileSystemEntryListBuilder AddDirectory(string path) {
+        public FileSystemEntryListBuilder AddDirectory(string path, int cardinality) {
             Guard.IsNotNullOrEmpty(path, nameof(path));
             currentDir = path;
-            entryList.Add(NewDirectory(path));
+            entryList.Add(NewDirectory(path, cardinality));
             return this;
         }
         public FileSystemEntryListBuilder AddFile(string name) {
@@ -129,9 +139,9 @@ namespace FileArchiver.Tests {
         }
         public IReadOnlyList<FileSystemEntry> GetList() => entryList;
 
-        private FileSystemEntry NewDirectory(string path) {
+        private FileSystemEntry NewDirectory(string path, int cardinality) {
             string name = PathHelper.GetDirectoryName(path);
-            return new FileSystemEntry(FileSystemEntryType.Directory, name, path);
+            return new FileSystemEntry(FileSystemEntryType.Directory, name, path, cardinality);
         }
         private FileSystemEntry NewFile(string name) {
             string path = Path.Combine(currentDir, name);
