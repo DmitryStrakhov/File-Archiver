@@ -1,3 +1,3 @@
 # File-Archiver
 
-High performance files and folders archiver based on Huffman coding algorithm. UI is implemented using WPF. Core algorithm is implemented using high performance parallel computing.
+A high performance files and folders archiver based on Huffman coding algorithm. Its UI is implemented using WPF technology. A core-algorithm uses an high performance parallel computing.
