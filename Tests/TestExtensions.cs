@@ -1,6 +1,4 @@
-﻿#if DEBUG
-
-using System;
+﻿using System;
 using FileArchiver.HuffmanCore;
 using System.Collections.Generic;
 using FileArchiver.Helpers;
@@ -79,4 +77,3 @@ namespace FileArchiver.Tests {
         }
     }
 }
-#endif

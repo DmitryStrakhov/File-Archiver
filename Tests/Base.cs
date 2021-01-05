@@ -1,6 +1,4 @@
-﻿#if DEBUG
-
-using System.Text;
+﻿using System.Text;
 using System.Runtime.CompilerServices;
 using FileArchiver.Helpers;
 
@@ -30,4 +28,3 @@ namespace FileArchiver.Tests {
         }
     }
 }
-#endif

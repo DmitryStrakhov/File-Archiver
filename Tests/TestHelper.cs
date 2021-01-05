@@ -1,6 +1,4 @@
-﻿#if DEBUG
-
-using System;
+﻿using System;
 using FileArchiver.DataStructures;
 
 namespace FileArchiver.Tests {
@@ -31,4 +29,3 @@ namespace FileArchiver.Tests {
         }
     }
 }
-#endif

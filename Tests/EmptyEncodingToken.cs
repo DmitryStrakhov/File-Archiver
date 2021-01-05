@@ -1,6 +1,4 @@
-﻿#if DEBUG
-
-using System;
+﻿using System;
 using FileArchiver.HuffmanCore;
 
 namespace FileArchiver.Tests {
@@ -11,4 +9,3 @@ namespace FileArchiver.Tests {
         public static readonly EmptyEncodingToken Instance = new EmptyEncodingToken();
     }
 }
-#endif
