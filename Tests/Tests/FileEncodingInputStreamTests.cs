@@ -1,24 +1,24 @@
 ﻿using System;
 using System.IO;
 using FileArchiver.FileCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class FileEncodingInputStreamTests {
-        [TestMethod]
+        [Test]
         public void CtorGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => new FileEncodingInputStream(null, new TestIPlatformService()));
+            Assert.Throws<ArgumentNullException>(() => new FileEncodingInputStream(null, new TestIPlatformService()));
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => new FileEncodingInputStream(string.Empty, new TestIPlatformService()));
+            Assert.Throws<ArgumentException>(() => new FileEncodingInputStream(string.Empty, new TestIPlatformService()));
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => new FileEncodingInputStream("file", null));
+            Assert.Throws<ArgumentNullException>(() => new FileEncodingInputStream("file", null));
         }
-        [TestMethod]
+        [Test]
         public void ReadSymbolTest() {
             byte[] data = {0xFF, 0x33, 0x00, 0x12, 0x78};
             byte symbol;
@@ -40,7 +40,7 @@ namespace FileArchiver.Tests {
                 Assert.AreEqual(0x00, symbol);
             }
         }
-        [TestMethod]
+        [Test]
         public void ResetTest() {
             byte[] data = {0x12, 0x35, 0x01, 0x14};
             byte symbol;

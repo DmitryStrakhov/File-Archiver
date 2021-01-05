@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using FileArchiver.DataStructures;
 using FileArchiver.FileCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class FileDecodingInputStreamTests {
-        [TestMethod]
+        [Test]
         public void CtorGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => new FileDecodingInputStream(null, new TestIPlatformService()));
+            Assert.Throws<ArgumentNullException>(() => new FileDecodingInputStream(null, new TestIPlatformService()));
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => new FileDecodingInputStream(string.Empty, new TestIPlatformService()));
+            Assert.Throws<ArgumentException>(() => new FileDecodingInputStream(string.Empty, new TestIPlatformService()));
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => new FileDecodingInputStream("file", null));
+            Assert.Throws<ArgumentNullException>(() => new FileDecodingInputStream("file", null));
         }
-        [TestMethod]
+        [Test]
         public void ReadBitTest1() {
             byte[] data = {0x39, 0xCC};
 
@@ -35,7 +35,7 @@ namespace FileArchiver.Tests {
                 Assert.AreEqual("1001110000110011", TestHelper.StringFromBits(bitList.ToArray()));
             }
         }
-        [TestMethod]
+        [Test]
         public void ReadBitTest2() {
             byte[] data = {0x9E, 0x5};
 

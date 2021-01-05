@@ -3,53 +3,53 @@ using System.Collections;
 using System.Linq;
 using FileArchiver.DataStructures;
 using FileArchiver.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class BitSequenceTests {
         BitSequence sequence;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.sequence = new BitSequence();
         }
-        [TestCleanup]
+        [TearDown]
         public void TearDown() {
             this.sequence = null;
         }
-        [TestMethod]
+        [Test]
         public void DefaultsTest() {
             Assert.AreEqual(0, sequence.Size);
-            AssertHelper.CollectionIsEmpty(sequence);
+            CollectionAssert.IsEmpty(sequence);
         }
-        [TestMethod]
+        [Test]
         public void IndexerGetGuardTest1() {
-            AssertHelper.Throws<ArgumentOutOfRangeException>((() => {
+            Assert.Throws<ArgumentOutOfRangeException>((() => {
                 Bit bit = sequence[-1];
             }));
         }
-        [TestMethod]
+        [Test]
         public void IndexerGetGuardTest2() {
-            AssertHelper.Throws<ArgumentOutOfRangeException>((() => {
+            Assert.Throws<ArgumentOutOfRangeException>((() => {
                 Bit bit = sequence[0];
             }));
         }
-        [TestMethod]
+        [Test]
         public void IndexerGetGuardTest3() {
             sequence[0] = Bit.One;
             sequence[1] = Bit.Zero;
             sequence[2] = Bit.One;
             sequence[3] = Bit.Zero;
-            AssertHelper.Throws<ArgumentOutOfRangeException>((() => {
+            Assert.Throws<ArgumentOutOfRangeException>((() => {
                 Bit bit = sequence[4];
             }));
         }
-        [TestMethod]
+        [Test]
         public void IndexerSetGuardTest() {
-            AssertHelper.Throws<ArgumentOutOfRangeException>((() => sequence[-1] = Bit.One));
+            Assert.Throws<ArgumentOutOfRangeException>((() => sequence[-1] = Bit.One));
         }
-        [TestMethod]
+        [Test]
         public void SequenceSizeTest() {
             sequence[0] = Bit.Zero;
             Assert.AreEqual(1, sequence.Size);
@@ -62,7 +62,7 @@ namespace FileArchiver.Tests {
             sequence[111] = Bit.One;
             Assert.AreEqual(112, sequence.Size);
         }
-        [TestMethod]
+        [Test]
         public void IndexerTest1() {
             sequence[0] = Bit.Zero;
             AssertSequence(0);
@@ -72,7 +72,7 @@ namespace FileArchiver.Tests {
             sequence[2] = Bit.One;
             AssertSequence(1, 1, 1);
         }
-        [TestMethod]
+        [Test]
         public void IndexerTest2() {
             sequence[0] = Bit.Zero;
             sequence[3] = Bit.One;
@@ -80,7 +80,7 @@ namespace FileArchiver.Tests {
             sequence[9] = Bit.One;
             AssertSequence(0, 0, 0, 1, 0, 1, 0, 0, 0, 1);
         }
-        [TestMethod]
+        [Test]
         public void IndexerTest3() {
             for(int n = 0; n < 100; n++) {
                 sequence[n] = MathHelper.IsEven(n) ? Bit.Zero : Bit.One;
@@ -90,13 +90,13 @@ namespace FileArchiver.Tests {
                 Assert.AreEqual(expectedBit, sequence[n]);
             }
         }
-        [TestMethod]
+        [Test]
         public void CloneTest1() {
             BitSequence clonedSequence = sequence.Clone();
             Assert.AreEqual(0, clonedSequence.Size);
-            AssertHelper.CollectionIsEmpty(clonedSequence);
+            CollectionAssert.IsEmpty(clonedSequence);
         }
-        [TestMethod]
+        [Test]
         public void CloneTest2() {
             sequence[0] = Bit.One;
             sequence[3] = Bit.One;
@@ -106,11 +106,11 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(12, clonedSequence.Size);
             AssertSequence(clonedSequence, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1);
         }
-        [TestMethod]
+        [Test]
         public void ReduceGuardTest() {
-            AssertHelper.Throws<ArgumentOutOfRangeException>(() => sequence.Reduce(-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sequence.Reduce(-1));
         }
-        [TestMethod]
+        [Test]
         public void ReduceTest1() {
             sequence[0] = Bit.One;
             sequence[1] = Bit.Zero;
@@ -121,7 +121,7 @@ namespace FileArchiver.Tests {
             AssertSequence(1, 0, 1, 0);
             Assert.AreEqual(4, sequence.Size);
         }
-        [TestMethod]
+        [Test]
         public void ReduceTest2() {
             sequence[0] = Bit.One;
             sequence[1] = Bit.Zero;
@@ -132,7 +132,7 @@ namespace FileArchiver.Tests {
             AssertSequence(1, 0, 1, 0);
             Assert.AreEqual(4, sequence.Size);
         }
-        [TestMethod]
+        [Test]
         public void ReduceTest3() {
             sequence[0] = Bit.One;
             sequence[1] = Bit.Zero;
@@ -147,7 +147,7 @@ namespace FileArchiver.Tests {
             AssertSequence(1);
             Assert.AreEqual(1, sequence.Size);
         }
-        [TestMethod]
+        [Test]
         public void ReduceTest4() {
             sequence[0] = Bit.One;
             sequence[1] = Bit.One;
@@ -158,38 +158,38 @@ namespace FileArchiver.Tests {
             AssertSequence(1, 1, 0, 0, 0, 1);
             Assert.AreEqual(6, sequence.Size);
         }
-        [TestMethod]
+        [Test]
         public void FromStringGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => BitSequence.FromString(null));
+            Assert.Throws<ArgumentNullException>(() => BitSequence.FromString(null));
         }
-        [TestMethod]
+        [Test]
         public void FromStringGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => BitSequence.FromString("01210"));
+            Assert.Throws<ArgumentException>(() => BitSequence.FromString("01210"));
         }
-        [TestMethod]
+        [Test]
         public void FromStringGuardCase3Test() {
-            AssertHelper.Throws<ArgumentException>(() => BitSequence.FromString("01-"));
+            Assert.Throws<ArgumentException>(() => BitSequence.FromString("01-"));
         }
-        [TestMethod]
+        [Test]
         public void FromStringTest1() {
             sequence = BitSequence.FromString(string.Empty);
             Assert.IsNotNull(sequence);
             Assert.AreEqual(0, sequence.Size);
         }
-        [TestMethod]
+        [Test]
         public void FromStringTest2() {
             sequence = BitSequence.FromString("100100011100");
             Assert.IsNotNull(sequence);
             AssertSequence(sequence, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0);
         }
-        [TestMethod]
+        [Test]
         public void EqualsSimpleTest() {
             sequence = new BitSequence();
             Assert.IsFalse(sequence.Equals(null));
             Assert.IsTrue(sequence.Equals(sequence));
             Assert.IsTrue(sequence.Equals(new BitSequence()));
         }
-        [TestMethod]
+        [Test]
         public void EqualsTest() {
             sequence[0] = Bit.One;
             sequence[1] = Bit.Zero;

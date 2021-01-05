@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using FileArchiver.DataStructures;
 using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
 
@@ -60,65 +60,65 @@ namespace FileArchiver.Tests {
 
     #endregion
 
-    [TestClass]
+    [TestFixture]
     public class HuffmanDecoderTests {
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new HuffmanDecoder().Decode(null, HuffmanTreeHelper.SomeTree(), new TestIDecodingOutputStream(), 1);
             });
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase2Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new HuffmanDecoder().Decode(new TestIDecodingInputStream(new Bit[0]), (HuffmanTree)null, new TestIDecodingOutputStream(), 1);
             });
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new HuffmanDecoder().Decode(new TestIDecodingInputStream(new Bit[0]), HuffmanTreeHelper.SomeTree(), null, 1);
             });
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase4Test() {
-            AssertHelper.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentException>(() => {
                 new HuffmanDecoder().Decode(new TestIDecodingInputStream(new Bit[0]), HuffmanTreeHelper.SomeTree(), new TestIDecodingOutputStream(), -1);
             });
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase5Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new HuffmanDecoder().Decode(null, new WeightsTable(), new TestIDecodingOutputStream(), 1L);
             });
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase6Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new HuffmanDecoder().Decode(new TestIDecodingInputStream(new Bit[0]), (WeightsTable)null, new TestIDecodingOutputStream(), 1L);
             });
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase7Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new HuffmanDecoder().Decode(new TestIDecodingInputStream(new Bit[0]), new WeightsTable(), null, 1L);
             });
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase8Test() {
-            AssertHelper.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentException>(() => {
                 new HuffmanDecoder().Decode(new TestIDecodingInputStream(new Bit[0]), new WeightsTable(), new TestIDecodingOutputStream(), -1);
             });
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest1() {
             TestIDecodingInputStream inputStream = new TestIDecodingInputStream(new Bit[0]);
             TestIDecodingOutputStream outputStream = new TestIDecodingOutputStream();
 
             new HuffmanDecoder().Decode(inputStream, HuffmanTreeHelper.SomeTree(), outputStream, 0);
-            AssertHelper.CollectionIsEmpty(outputStream.ByteList);
+            CollectionAssert.IsEmpty(outputStream.ByteList);
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest2() {
             Bit[] data = TestHelper.BitsFromString("00000");
             TestIDecodingInputStream inputStream = new TestIDecodingInputStream(data);
@@ -128,7 +128,7 @@ namespace FileArchiver.Tests {
             new HuffmanDecoder().Decode(inputStream, tree, outputStream, 5);
             AssertOutputStream(outputStream, 1, 1, 1, 1, 1);
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest3() {
             Bit[] data = TestHelper.BitsFromString("0110011");
             TestIDecodingInputStream inputStream = new TestIDecodingInputStream(data);
@@ -142,7 +142,7 @@ namespace FileArchiver.Tests {
             new HuffmanDecoder().Decode(inputStream, tree, outputStream, 7);
             AssertOutputStream(outputStream, 1, 2, 2, 1, 1, 2, 2);
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest4() {
             Bit[] data = TestHelper.BitsFromString("110101010101111110000000111111");
             TestIDecodingInputStream inputStream = new TestIDecodingInputStream(data);
@@ -159,7 +159,7 @@ namespace FileArchiver.Tests {
             new HuffmanDecoder().Decode(inputStream, tree, outputStream, 30);
             AssertOutputStream(outputStream, 3, 1, 2, 2, 2, 2, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3);
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest5() {
             Bit[] data = TestHelper.BitsFromString("110101010101111110000000111111");
             TestIDecodingInputStream inputStream = new TestIDecodingInputStream(data);
@@ -177,9 +177,9 @@ namespace FileArchiver.Tests {
                 .WithRight(1, 6)
                 .CreateTree();
 
-            AssertHelper.Throws<ArgumentException>(() => new HuffmanDecoder().Decode(inputStream, tree, outputStream, 30));
+            Assert.Throws<ArgumentException>(() => new HuffmanDecoder().Decode(inputStream, tree, outputStream, 30));
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest6() {
             Bit[] data = TestHelper.BitsFromString("10110111001111010000001111");
             TestIDecodingInputStream inputStream = new TestIDecodingInputStream(data);
@@ -202,11 +202,11 @@ namespace FileArchiver.Tests {
 
         private void AssertOutputStream(TestIDecodingOutputStream stream, params byte[] expected) {
             IReadOnlyList<byte> bitList = stream.ByteList;
-            if(bitList.Count != expected.Length) throw new AssertFailedException();
+            if(bitList.Count != expected.Length) throw new AssertionException(nameof(stream));
 
             for(int n = 0; n < bitList.Count; n++) {
                 if(bitList[n] != expected[n])
-                    throw new AssertFailedException();
+                    throw new AssertionException(nameof(stream));
             }
         }
     }

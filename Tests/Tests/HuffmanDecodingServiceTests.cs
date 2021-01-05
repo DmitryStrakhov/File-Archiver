@@ -5,7 +5,7 @@ using FileArchiver.Format;
 using FileArchiver.HuffmanCore;
 using FileArchiver.Parsers;
 using FileArchiver.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
 
@@ -60,27 +60,27 @@ namespace FileArchiver.Tests {
     #endregion
 
     
-    [TestClass]
+    [TestFixture]
     public class DefaultHuffmanDecodingServiceCtorTests {
-        [TestMethod]
+        [Test]
         public void GuardTest1() {
-            AssertHelper.Throws<ArgumentNullException>(() => new DefaultHuffmanDecodingService(null, new TestIStreamParser(new TestIFileDecoder())));
+            Assert.Throws<ArgumentNullException>(() => new DefaultHuffmanDecodingService(null, new TestIStreamParser(new TestIFileDecoder())));
         }
-        [TestMethod]
+        [Test]
         public void GuardTest2() {
-            AssertHelper.Throws<ArgumentNullException>(() => new DefaultHuffmanDecodingService(new TestIPlatformService(), null));
+            Assert.Throws<ArgumentNullException>(() => new DefaultHuffmanDecodingService(new TestIPlatformService(), null));
         }
     }
 
     
-    [TestClass]
+    [TestFixture]
     public class HuffmanDecodingServiceBehaviorTests {
         DefaultHuffmanDecodingService service;
         TestIPlatformService platform;
         TestIStreamParser streamParser;
         TestIFileDecoder fileDecoder;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.platform = new TestIPlatformService {
                 WriteFileFunc = _ => new MemoryStream()
@@ -89,7 +89,7 @@ namespace FileArchiver.Tests {
             this.streamParser = new TestIStreamParser(fileDecoder);
             this.service = new DefaultHuffmanDecodingService(platform, streamParser);
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest1() {
             platform.ReadFileFunc = x => new MemoryStream(new byte[0]);
 
@@ -97,7 +97,7 @@ namespace FileArchiver.Tests {
             service.Decode(@"C:\Input.archive", @"C:\Output\");
             AssertHelper.StringIsEmpty(streamParser.Trace);
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest2() {
             byte[] data = { 0x2, 0x0 };
             platform.ReadFileFunc = x => new MemoryStream(data);
@@ -106,7 +106,7 @@ namespace FileArchiver.Tests {
             service.Decode(@"C:\Input.archive", @"C:\Output\");
             Assert.AreEqual("->ParseWeightsTable;->ParseFile;", streamParser.Trace);
         }
-        [TestMethod]
+        [Test]
         public void DecodeTest3() {
             byte[] data = { 0x2, 0x1, 0x0, 0x0, 0x1, 0x0, 0x1 };
             platform.ReadFileFunc = x => new MemoryStream(data);
@@ -123,46 +123,46 @@ namespace FileArchiver.Tests {
                               "->ParseDirectory;";
             Assert.AreEqual(expected, streamParser.Trace);
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardTest() {
             byte[] data = { 0x1, 0x0, 0x0, 0x1 };
             platform.ReadFileFunc = x => new MemoryStream(data);
 
-            AssertHelper.Throws<InvalidOperationException>(() => {
+            Assert.Throws<InvalidOperationException>(() => {
                 service.Decode(@"C:\Input.archive", @"C:\Output\");
             });
         }
     }
 
 
-    [TestClass]
+    [TestFixture]
     public class HuffmanDecodingServiceTests {
         DefaultHuffmanDecodingService service;
         TestIPlatformService platform;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.platform = new TestIPlatformService();
             this.service = new DefaultHuffmanDecodingService(platform, new DefaultStreamParser());
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => service.Decode(null, @"C:\Dir\"));
+            Assert.Throws<ArgumentNullException>(() => service.Decode(null, @"C:\Dir\"));
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => service.Decode(string.Empty, @"C:\Dir\"));
+            Assert.Throws<ArgumentException>(() => service.Decode(string.Empty, @"C:\Dir\"));
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => service.Decode(@"C:\File.dat", null));
+            Assert.Throws<ArgumentNullException>(() => service.Decode(@"C:\File.dat", null));
         }
-        [TestMethod]
+        [Test]
         public void DecodeGuardCase4Test() {
-            AssertHelper.Throws<ArgumentException>(() => service.Decode(@"C:\File.dat", string.Empty));
+            Assert.Throws<ArgumentException>(() => service.Decode(@"C:\File.dat", string.Empty));
         }
         
-        [TestMethod]
+        [Test]
         public void DecodeEmptyStreamTest() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
@@ -173,7 +173,7 @@ namespace FileArchiver.Tests {
             service.Decode(@"C:\InputFile.dat", @"C:\Root\");
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)", platform.Trace);
         }
-        [TestMethod]
+        [Test]
         public void DecodeEmptyDirectoryTest() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
@@ -187,7 +187,7 @@ namespace FileArchiver.Tests {
             service.Decode(@"C:\InputFile.dat", @"C:\Root\");
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->CreateDirectory(C:\Root\dir)", platform.Trace);
         }
-        [TestMethod]
+        [Test]
         public void DecodeEmptyFileTest() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
@@ -205,7 +205,7 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->WriteFile(C:\Root\file.dat)", platform.Trace);
             AssertHelper.StreamIsEmpty(dataStream);
         }
-        [TestMethod]
+        [Test]
         public void DecodeFileTest() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
@@ -235,7 +235,7 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->WriteFile(C:\Root\file.dat)", platform.Trace);
             AssertHelper.AssertStream(dataStream, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4);
         }
-        [TestMethod]
+        [Test]
         public void DecodeDirectoryTest1() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
@@ -310,7 +310,7 @@ namespace FileArchiver.Tests {
             AssertHelper.StreamIsEmpty(streams[f3]);
             AssertHelper.AssertStream(streams[f4], 0x3, 0x1, 0x9);
         }
-        [TestMethod]
+        [Test]
         public void DecodeDirectoryTest2() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)

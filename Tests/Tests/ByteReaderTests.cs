@@ -1,34 +1,34 @@
 ﻿using System;
 using FileArchiver.DataStructures;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class ByteReaderTests {
         ByteReader reader;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.reader = new ByteReader();
         }
-        [TestMethod]
+        [Test]
         public void DefaultsTest() {
             Assert.IsFalse(reader.IsReady);
         }
-        [TestMethod]
+        [Test]
         public void ReadBitGuardCase1Test() {
-            AssertHelper.Throws<InvalidOperationException>(() => reader.ReadBit());
+            Assert.Throws<InvalidOperationException>(() => reader.ReadBit());
         }
-        [TestMethod]
+        [Test]
         public void ReadBitGuardCase2Test() {
             reader.SetValue(1);
 
             for(int n = 0; n < 8; n++) {
                 reader.ReadBit();
             }
-            AssertHelper.Throws<InvalidOperationException>(() => reader.ReadBit());
+            Assert.Throws<InvalidOperationException>(() => reader.ReadBit());
         }
-        [TestMethod]
+        [Test]
         public void ReadBitTest1() {
             reader.SetValue(189);
             Assert.AreEqual(Bit.One, reader.ReadBit());
@@ -40,7 +40,7 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(Bit.Zero, reader.ReadBit());
             Assert.AreEqual(Bit.One, reader.ReadBit());
         }
-        [TestMethod]
+        [Test]
         public void ReadBitTest2() {
             reader.SetValue(23);
             Assert.AreEqual(Bit.One, reader.ReadBit());
@@ -52,7 +52,7 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(Bit.Zero, reader.ReadBit());
             Assert.AreEqual(Bit.Zero, reader.ReadBit());
         }
-        [TestMethod]
+        [Test]
         public void IsReadyTest() {
             reader.SetValue(0);
             for(int n = 0; n < 8; n++) {
@@ -61,7 +61,7 @@ namespace FileArchiver.Tests {
             }
             Assert.IsFalse(reader.IsReady);
         }
-        [TestMethod]
+        [Test]
         public void ResetTest() {
             reader.SetValue(1);
 

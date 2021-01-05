@@ -3,24 +3,24 @@ using System.IO;
 using FileArchiver.DataStructures;
 using FileArchiver.FileCore;
 using FileArchiver.HuffmanCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class FileEncodingOutputStreamTests {
-        [TestMethod]
+        [Test]
         public void CtorGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => new FileEncodingOutputStream(null, new TestIPlatformService()));
+            Assert.Throws<ArgumentNullException>(() => new FileEncodingOutputStream(null, new TestIPlatformService()));
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => new FileEncodingOutputStream(string.Empty, new TestIPlatformService()));
+            Assert.Throws<ArgumentException>(() => new FileEncodingOutputStream(string.Empty, new TestIPlatformService()));
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => new FileEncodingOutputStream("file", null));
+            Assert.Throws<ArgumentNullException>(() => new FileEncodingOutputStream("file", null));
         }
-        [TestMethod]
+        [Test]
         public void WriteBitTest1() {
             MemoryStream memoryStream = new MemoryStream();
 
@@ -33,9 +33,9 @@ namespace FileArchiver.Tests {
                 }
                 stream.EndWrite();
             }
-            AssertHelper.AreEqual(new byte[] { 0x39, 0xCC}, memoryStream.ToArray());
+            Assert.AreEqual(new byte[] { 0x39, 0xCC}, memoryStream.ToArray());
         }
-        [TestMethod]
+        [Test]
         public void WriteBitTest2() {
             MemoryStream memoryStream = new MemoryStream();
 
@@ -48,16 +48,16 @@ namespace FileArchiver.Tests {
                 }
                 stream.EndWrite();
             }
-            AssertHelper.AreEqual(new byte[] { 0x9E, 0x5}, memoryStream.ToArray());
+            Assert.AreEqual(new byte[] { 0x9E, 0x5}, memoryStream.ToArray());
         }
 
-        [TestMethod]
+        [Test]
         public void RestorePositionGuardTest() {
             using(FileEncodingOutputStream stream = CreateFileEncodingOutputStream(new MemoryStream())) {
-                AssertHelper.Throws<ArgumentNullException>(() => stream.RestorePosition(null));
+                Assert.Throws<ArgumentNullException>(() => stream.RestorePosition(null));
             }
         }
-        [TestMethod]
+        [Test]
         public void SaveRestorePositionTest1() {
             MemoryStream memoryStream = new MemoryStream();
 
@@ -67,10 +67,10 @@ namespace FileArchiver.Tests {
                 stream.RestorePosition(position);
                 
                 WriteBitString(stream, "11111111");
-                AssertHelper.AreEqual(new byte[] {0xFF}, memoryStream.ToArray());
+                Assert.AreEqual(new byte[] {0xFF}, memoryStream.ToArray());
             }
         }
-        [TestMethod]
+        [Test]
         public void SaveRestorePositionTest2() {
             MemoryStream memoryStream = new MemoryStream();
 
@@ -91,7 +91,7 @@ namespace FileArchiver.Tests {
                 WriteBitString(stream, "00000001");
                 stream.RestorePosition(p3);
                 WriteBitString(stream, "00001111");
-                AssertHelper.AreEqual(new byte[] {0x99, 0x69, 0xF0, 0x80}, memoryStream.ToArray());
+                Assert.AreEqual(new byte[] {0x99, 0x69, 0xF0, 0x80}, memoryStream.ToArray());
             }
         }
 

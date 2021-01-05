@@ -2,40 +2,41 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using FileArchiver.Services;
 using FileArchiver.ViewModel;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture, Apartment(ApartmentState.STA)]
     public sealed class ViewTests {
         MainWindow window;
         MainViewModel viewModel;
 
-        [TestInitialize]
+        [SetUp]
         public void OnInitialize() {
             this.window = new MainWindow();
             this.viewModel = new MainViewModel(new DefaultServiceFactory());
             this.window.DataContext = viewModel;
             this.window.Show();
         }
-        [TestCleanup]
+        [TearDown]
         public void OnCleanup() {
             this.window.Close();
             this.window = null;
             this.viewModel = null;
         }
-        [TestMethod, Ignore]
+        [Test, Explicit]
         public void DisplayTest() {
             while(window.IsVisible) {
                 Action action = () => { };
                 window.Dispatcher.Invoke(DispatcherPriority.Background, action);
             }
         }
-        [TestMethod, Ignore]
+        [Test, Explicit]
         public void DisplayValidationErrorsTest() {
             viewModel.Path = "some path";
 
@@ -44,7 +45,7 @@ namespace FileArchiver.Tests {
                 window.Dispatcher.Invoke(DispatcherPriority.Background, action);
             }
         }
-        [TestMethod]
+        [Test]
         public void DefaultsTest() {
             Assert.IsTrue(window.ChoiceButton.IsEnabled);
             Assert.IsFalse(window.RunButton.IsEnabled);
@@ -55,30 +56,30 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(string.Empty, window.StatusTextBlock.Text);
             AssertHelper.AreEqual(0, window.ProgressBar.Value);
             
-            AssertHelper.CollectionIsEmpty(Validation.GetErrors(window.PathTextBlock));
+            CollectionAssert.IsEmpty(Validation.GetErrors(window.PathTextBlock));
         }
-        [TestMethod]
+        [Test]
         public void PathPropertyTest() {
             viewModel.Path = "value1";
             Assert.AreEqual("value1", window.PathTextBlock.Text);
             viewModel.Path = "value2";
             Assert.AreEqual("value2", window.PathTextBlock.Text);
         }
-        [TestMethod]
+        [Test]
         public void StatusPropertyTest() {
             viewModel.Status = "value3";
             Assert.AreEqual("value3", window.StatusTextBlock.Text);
             viewModel.Status = "value4";
             Assert.AreEqual("value4", window.StatusTextBlock.Text);
         }
-        [TestMethod]
+        [Test]
         public void ProgressValuePropertyTest() {
             viewModel.ProgressValue = 50;
             AssertHelper.AreEqual(50, window.ProgressBar.Value);
             viewModel.ProgressValue = 100;
             AssertHelper.AreEqual(100, window.ProgressBar.Value);
         }
-        [TestMethod]
+        [Test]
         public void PathValidationErrorTest() {
             viewModel.Path = "Some Path";
             var errors = Validation.GetErrors(window.PathTextBlock);

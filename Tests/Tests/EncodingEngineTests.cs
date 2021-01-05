@@ -2,12 +2,12 @@
 using System.IO;
 using FileArchiver.FileCore;
 using FileArchiver.HuffmanCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class EncodingEngineTests {
-        [TestMethod]
+        [Test]
         public void Test1() {
             byte[] input = {0xEF, 0xBB, 0xBF, 0x3C, 0x57, 0x69, 0x6E, 0x64, 0x6F, 0x77, 0x3E};
 

@@ -5,41 +5,41 @@ using FileArchiver.Builders;
 using FileArchiver.DataStructures;
 using FileArchiver.Format;
 using FileArchiver.HuffmanCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class StreamBuilderTests {
         DefaultStreamBuilder builder;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.builder = new DefaultStreamBuilder();
         }
-        [TestMethod]
+        [Test]
         public void InitializeGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 builder.Initialize(null, EmptyEncodingToken.Instance,  new TestIEncodingOutputStream());
             });
         }
-        [TestMethod]
+        [Test]
         public void InitializeGuardCase2Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 builder.Initialize(new TestIPlatformService(), null, new TestIEncodingOutputStream());
             });
         }
-        [TestMethod]
+        [Test]
         public void InitializeGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, null);
             });
         }
-        [TestMethod]
+        [Test]
         public void AddWeightsTableGuardTest() {
-            AssertHelper.Throws<ArgumentNullException>(() => builder.AddWeightsTable(null));
+            Assert.Throws<ArgumentNullException>(() => builder.AddWeightsTable(null));
         }
         
-        [TestMethod]
+        [Test]
         public void AddWeightsTableTest1() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
             builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
@@ -48,9 +48,9 @@ namespace FileArchiver.Tests {
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x2)
                 .AddInt(0x0).BitList;
-            AssertHelper.AreEqual(bitList, stream.BitList);
+            Assert.AreEqual(bitList, stream.BitList);
         }
-        [TestMethod]
+        [Test]
         public void AddWeightsTableTest2() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
             builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
@@ -64,9 +64,9 @@ namespace FileArchiver.Tests {
                 .AddInt(0x9)
                 .AddByte(0x45)
                 .AddLong(0x33).BitList;
-            AssertHelper.AreEqual(bitList, stream.BitList);
+            Assert.AreEqual(bitList, stream.BitList);
         }
-        [TestMethod]
+        [Test]
         public void AddWeightsTableTest3() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
             builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
@@ -92,18 +92,18 @@ namespace FileArchiver.Tests {
                 .AddLong(0xFFA)
                 .AddByte(0xFF)
                 .AddLong(0x1).BitList;
-            AssertHelper.AreEqual(bitList, stream.BitList);
+            Assert.AreEqual(bitList, stream.BitList);
         }
 
-        [TestMethod]
+        [Test]
         public void AddDirectoryGuardCase1Test() {
-            AssertHelper.Throws<ArgumentException>(() => builder.AddDirectory(null));
+            Assert.Throws<ArgumentNullException>(() => builder.AddDirectory(null));
         }
-        [TestMethod]
+        [Test]
         public void AddDirectoryGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => builder.AddDirectory(new DirectorySegment(string.Empty, 0)));
+            Assert.Throws<ArgumentException>(() => builder.AddDirectory(new DirectorySegment(string.Empty, 0)));
         }
-        [TestMethod]
+        [Test]
         public void AddDirectoryTest1() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
             builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
@@ -114,9 +114,9 @@ namespace FileArchiver.Tests {
                 .AddInt(0x2)
                 .AddChar('X')
                 .AddInt(0x0).BitList;
-            AssertHelper.AreEqual(bitList, stream.BitList);
+            Assert.AreEqual(bitList, stream.BitList);
         }
-        [TestMethod]
+        [Test]
         public void AddDirectoryTest2() {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
             builder.Initialize(new TestIPlatformService(), EmptyEncodingToken.Instance, stream);
@@ -127,26 +127,26 @@ namespace FileArchiver.Tests {
                 .AddInt(0x12)
                 .AddString("Directory")
                 .AddInt(0x3).BitList;
-            AssertHelper.AreEqual(bitList, stream.BitList);
+            Assert.AreEqual(bitList, stream.BitList);
         }
 
-        [TestMethod]
+        [Test]
         public void AddFileGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment(null, "path")));
+            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment(null, "path")));
         }
-        [TestMethod]
+        [Test]
         public void AddFileGuardCase2Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment("name", (string)null)));
+            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment("name", (string)null)));
         }
-        [TestMethod]
+        [Test]
         public void AddFileGuardCase3Test() {
-            AssertHelper.Throws<ArgumentException>(() => builder.AddFile(new FileSegment(string.Empty, "path")));
+            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment(string.Empty, "path")));
         }
-        [TestMethod]
+        [Test]
         public void AddFileGuardCase4Test() {
-            AssertHelper.Throws<ArgumentException>(() => builder.AddFile(new FileSegment("name", string.Empty)));
+            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment("name", string.Empty)));
         }
-        [TestMethod]
+        [Test]
         public void AddFileTest1() {
             TestIPlatformService platform = new TestIPlatformService {
                 ReadFileFunc = x => new MemoryStream()
@@ -167,9 +167,9 @@ namespace FileArchiver.Tests {
                 .AddChar('i')
                 .AddChar('n')
                 .AddLong(0x0).BitList;
-            AssertHelper.AreEqual(bitList, stream.BitList);
+            Assert.AreEqual(bitList, stream.BitList);
         }
-        [TestMethod]
+        [Test]
         public void AddFileTest2() {
             byte[] data = { 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
 
@@ -197,7 +197,7 @@ namespace FileArchiver.Tests {
                 .AddByte(0x55)
                 .AddByte(0xFF)
                 .AddByte(0x01).BitList;
-            AssertHelper.AreEqual(bitList, stream.BitList);
+            Assert.AreEqual(bitList, stream.BitList);
         }
         private EncodingToken CreateEncodingToken(HuffmanEncoder encoder, byte[] data) {
             using(TestIEncodingInputStream inputStream = new TestIEncodingInputStream(data)) {

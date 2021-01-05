@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using FileArchiver.DataStructures;
 using FileArchiver.Helpers;
 using FileArchiver.HuffmanCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
     #region Streams
@@ -85,32 +85,32 @@ namespace FileArchiver.Tests {
 
     #endregion
 
-    [TestClass]
+    [TestFixture]
     public class HuffmanEncoderTests {
-        [TestMethod]
+        [Test]
         public void CreateEncodingTokenGuardTest() {
-            AssertHelper.Throws<ArgumentNullException>(() => new HuffmanEncoder().CreateEncodingToken(null));
+            Assert.Throws<ArgumentNullException>(() => new HuffmanEncoder().CreateEncodingToken(null));
         }
-        [TestMethod]
+        [Test]
         public void EncodeGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 new HuffmanEncoder().Encode(null, new TestIEncodingOutputStream(), EmptyEncodingToken.Instance)
             );
         }
-        [TestMethod]
+        [Test]
         public void EncodeGuardCase2Test() {
-            AssertHelper.Throws<ArgumentNullException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), null, EmptyEncodingToken.Instance)
             );
         }
-        [TestMethod]
+        [Test]
         public void EncodeGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), new TestIEncodingOutputStream(), null)
             );
         }
         
-        [TestMethod]
+        [Test]
         public void EncodeTest1() {
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(new byte[0]);
             TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
@@ -121,10 +121,10 @@ namespace FileArchiver.Tests {
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
             Assert.AreEqual(0, length);
-            AssertHelper.CollectionIsEmpty(token.HuffmanTree.FlattenValues());
-            AssertHelper.CollectionIsEmpty(outputStream.BitList);
+            CollectionAssert.IsEmpty(token.HuffmanTree.FlattenValues());
+            CollectionAssert.IsEmpty(outputStream.BitList);
         }
-        [TestMethod]
+        [Test]
         public void EncodeTest2() {
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(new byte[] { 1 });
             TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
@@ -140,11 +140,11 @@ namespace FileArchiver.Tests {
                 null,
                 null,
             };
-            AssertHelper.AreEqual(expected, token.HuffmanTree.FlattenValues());
+            Assert.AreEqual(expected, token.HuffmanTree.FlattenValues());
             Assert.AreEqual(1, length);
             AssertOutputStream(outputStream, "0");
         }
-        [TestMethod]
+        [Test]
         public void EncodeTest3() {
             byte[] data = { 1, 2, 2, 1, 1, 2, 2 };
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(data);
@@ -165,11 +165,11 @@ namespace FileArchiver.Tests {
                 null,
                 null,
             };
-            AssertHelper.AreEqual(expected, token.HuffmanTree.FlattenValues());
+            Assert.AreEqual(expected, token.HuffmanTree.FlattenValues());
             Assert.AreEqual(7, length);
             AssertOutputStream(outputStream, "0110011");
         }
-        [TestMethod]
+        [Test]
         public void EncodeTest4() {
             byte[] data = { 1, 2, 2, 2, 2, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4 };
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(data);
@@ -186,11 +186,11 @@ namespace FileArchiver.Tests {
 
         private void AssertOutputStream(TestIEncodingOutputStream stream, string expected) {
             IReadOnlyList<Bit> bitList = stream.BitList;
-            if(bitList.Count != expected.Length) throw new AssertFailedException();
+            if(bitList.Count != expected.Length) throw new AssertionException(nameof(stream));
 
             for(int n = 0; n < bitList.Count; n++) {
                 if(bitList[n] != CharToBit(expected[n]))
-                    throw new AssertFailedException();
+                    throw new AssertionException(nameof(stream));
             }
         }
         private static Bit CharToBit(char @char) {

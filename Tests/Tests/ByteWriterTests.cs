@@ -1,31 +1,31 @@
 ﻿using System;
 using FileArchiver.DataStructures;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class ByteWriterTests {
         ByteWriter writer;
         
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.writer = new ByteWriter();
         }
 
-        [TestMethod]
+        [Test]
         public void DefaultsTest() {
             Assert.AreEqual(0, writer.Value);
             Assert.IsFalse(writer.IsReady);
             Assert.IsTrue(writer.IsEmpty);
         }
-        [TestMethod]
+        [Test]
         public void AddBitGuardTest() {
             for(int n = 0; n < 8; n++) {
                 writer.AddBit(Bit.Zero);
             }
-            AssertHelper.Throws<InvalidOperationException>(() => writer.AddBit(Bit.Zero));
+            Assert.Throws<InvalidOperationException>(() => writer.AddBit(Bit.Zero));
         }
-        [TestMethod]
+        [Test]
         public void AddBitTest1() {
             writer.AddBit(Bit.One);
             writer.AddBit(Bit.Zero);
@@ -37,7 +37,7 @@ namespace FileArchiver.Tests {
             writer.AddBit(Bit.Zero);
             Assert.AreEqual(85, writer.Value);
         }
-        [TestMethod]
+        [Test]
         public void AddBitTest2() {
             writer.AddBit(Bit.Zero);
             writer.AddBit(Bit.Zero);
@@ -49,7 +49,7 @@ namespace FileArchiver.Tests {
             writer.AddBit(Bit.Zero);
             Assert.AreEqual(92, writer.Value);
         }
-        [TestMethod]
+        [Test]
         public void AddBitTest3() {
             writer.AddBit(Bit.Zero);
             writer.AddBit(Bit.Zero);
@@ -61,7 +61,7 @@ namespace FileArchiver.Tests {
             writer.AddBit(Bit.One);
             Assert.AreEqual(128, writer.Value);
         }
-        [TestMethod]
+        [Test]
         public void IsReadyTest() {
             Assert.IsFalse(writer.IsReady);
             writer.AddBit(Bit.Zero);
@@ -81,7 +81,7 @@ namespace FileArchiver.Tests {
             writer.AddBit(Bit.Zero);
             Assert.IsTrue(writer.IsReady);
         }
-        [TestMethod]
+        [Test]
         public void ResetTest1() {
             writer.AddBit(Bit.Zero);
             writer.AddBit(Bit.Zero);
@@ -89,7 +89,7 @@ namespace FileArchiver.Tests {
             writer.Reset();
             Assert.AreEqual(0, writer.Value);
         }
-        [TestMethod]
+        [Test]
         public void ResetTest2() {
             for(int n = 0; n < 8; n++) {
                 writer.AddBit(Bit.Zero);
@@ -106,7 +106,7 @@ namespace FileArchiver.Tests {
             writer.AddBit(Bit.Zero);
             Assert.AreEqual(7, writer.Value);
         }
-        [TestMethod]
+        [Test]
         public void IsEmptyTest() {
             Assert.IsTrue(writer.IsEmpty);
 

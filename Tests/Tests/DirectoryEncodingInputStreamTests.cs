@@ -4,7 +4,7 @@ using System.IO;
 using FileArchiver.Base;
 using FileArchiver.FileCore;
 using FileArchiver.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
     #region TestIFileSystemService
@@ -38,41 +38,41 @@ namespace FileArchiver.Tests {
 
     #endregion
 
-    [TestClass]
+    [TestFixture]
     public class DirectoryEncodingInputStreamTests {
         TestIFileSystemService fileSystemService;
         TestIPlatformService platform;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.fileSystemService = new TestIFileSystemService();
             this.platform = new TestIPlatformService();
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new DirectoryEncodingInputStream(null, new TestIFileSystemService(), new TestIPlatformService());
             });
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentException>(() => {
                 new DirectoryEncodingInputStream(string.Empty, new TestIFileSystemService(), new TestIPlatformService());
             });
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new DirectoryEncodingInputStream("dir", null, new TestIPlatformService());
             });
         }
-        [TestMethod]
+        [Test]
         public void CtorGuardCase4Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new DirectoryEncodingInputStream("dir", new TestIFileSystemService(), null);
             });
         }
-        [TestMethod]
+        [Test]
         public void ReadSymbolTest1() {
             fileSystemService.EnumFileSystemEntriesFunc = _ => new FileSystemEntry[0];
 
@@ -81,7 +81,7 @@ namespace FileArchiver.Tests {
                 Assert.IsFalse(stream.ReadSymbol(out byte _));
             }
         }
-        [TestMethod]
+        [Test]
         public void ReadSymbolTest2() {
             fileSystemService.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\dir\file.dat") };
@@ -105,7 +105,7 @@ namespace FileArchiver.Tests {
                 Assert.IsFalse(stream.ReadSymbol(out symbol));
             }
         }
-        [TestMethod]
+        [Test]
         public void ReadSymbolTest3() {
             fileSystemService.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\dir\file.dat") };
@@ -129,7 +129,7 @@ namespace FileArchiver.Tests {
                 Assert.AreEqual(0x00, symbol);
             }
         }
-        [TestMethod]
+        [Test]
         public void ReadSymbolTest4() {
             fileSystemService.EnumFileSystemEntriesFunc = _ => {
                 return new[] {
@@ -165,7 +165,7 @@ namespace FileArchiver.Tests {
                 Assert.IsFalse(stream.ReadSymbol(out symbol));
             }
         }
-        [TestMethod]
+        [Test]
         public void ReadSymbolTest5() {
             fileSystemService.EnumFileSystemEntriesFunc = _ => EnumFiles(3);
 
@@ -197,7 +197,7 @@ namespace FileArchiver.Tests {
                 Assert.IsFalse(stream.ReadSymbol(out symbol));
             }
         }
-        [TestMethod]
+        [Test]
         public void DisposeTest() {
             fileSystemService.EnumFileSystemEntriesFunc = _ => {
                 return new[] {

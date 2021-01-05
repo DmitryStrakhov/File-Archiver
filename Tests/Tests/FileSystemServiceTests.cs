@@ -5,55 +5,55 @@ using System.Linq;
 using FileArchiver.Base;
 using FileArchiver.Helpers;
 using FileArchiver.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class FileSystemServiceTests {
         DefaultFileSystemService service;
         readonly TestIPlatformService platform = new TestIPlatformService();
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.service = new DefaultFileSystemService(platform);
         }
-        [TestMethod]
+        [Test]
         public void EnumFileSystemEntriesGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => service.EnumFileSystemEntries(null).ToArray());
+            Assert.Throws<ArgumentNullException>(() => service.EnumFileSystemEntries(null).ToArray());
         }
-        [TestMethod]
+        [Test]
         public void EnumFileSystemEntriesGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => service.EnumFileSystemEntries(string.Empty).ToArray());
+            Assert.Throws<ArgumentException>(() => service.EnumFileSystemEntries(string.Empty).ToArray());
         }
-        [TestMethod]
+        [Test]
         public void EnumFileSystemEntriesGuardCase3Test() {
             platform.DirectoryExists = _ => false;
             platform.FileExists = _ => false;
 
-            AssertHelper.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentException>(() => {
                 service.EnumFileSystemEntries(@"C:\").ToArray();
             });
         }
 
-        [TestMethod]
+        [Test]
         public void EnumFilesInEmptyDirectoryTest() {
             platform.DirectoryExists = _ => true;
 
             FileSystemEntry[] expected = {
                 new FileSystemEntry(FileSystemEntryType.Directory, @"Root", @"C:\Root\")
             };
-            AssertHelper.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\"));
+            CollectionAssert.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\"));
         }
-        [TestMethod]
+        [Test]
         public void EnumSingleFileTest() {
             platform.FileExists = _ => true;
 
             FileSystemEntry[] expected = {
                 new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\Root\file.dat")
             };
-            AssertHelper.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\file.dat"));
+            CollectionAssert.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\file.dat"));
         }
-        [TestMethod]
+        [Test]
         public void EnumFileSystemEntriesTest1() {
             platform.FileExists = x => x.EndsWith(".dat");
             platform.DirectoryExists = x => x == @"C:\Root\";
@@ -70,10 +70,10 @@ namespace FileArchiver.Tests {
                 new FileSystemEntry(FileSystemEntryType.File, "file2.dat", @"C:\Root\file2.dat"),
                 new FileSystemEntry(FileSystemEntryType.File, "file3.dat", @"C:\Root\file3.dat"),
             };
-            AssertHelper.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\"));
+            Assert.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\"));
         }
 
-        [TestMethod]
+        [Test]
         public void EnumFileSystemEntriesTest2() {
             platform.DirectoryExists = DefaultDirectoryExists;
             platform.FileExists = DefaultFileExists;
@@ -113,9 +113,9 @@ namespace FileArchiver.Tests {
                 .AddFiles("F1.dat", "F2.dat")
                 .AddDirectory(@"C:\Root\D3\D4\D6\", 0)
                 .AddFile("F1.dat").GetList();
-            AssertHelper.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\"));
+            Assert.AreEqual(expected, service.EnumFileSystemEntries(@"C:\Root\"));
         }
-        [TestMethod]
+        [Test]
         public void EnumFileSystemEntriesTest3() {
             platform.DirectoryExists = DefaultDirectoryExists;
             platform.FileExists = DefaultFileExists;
@@ -154,7 +154,7 @@ namespace FileArchiver.Tests {
                 .AddFile("F2.dat")
                 .AddDirectory(@"F:\D1\D4\D5\D6\", 0)
                 .AddFiles("F1.dat", "F2.dat", "F3.dat").GetList();
-            AssertHelper.AreEqual(expected, service.EnumFileSystemEntries(@"F:\"));
+            Assert.AreEqual(expected, service.EnumFileSystemEntries(@"F:\"));
         }
         static readonly Predicate<string> DefaultFileExists = path => {
             Guard.IsNotNullOrEmpty(path, nameof(path));

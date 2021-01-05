@@ -1,36 +1,36 @@
 ﻿using System;
 using FileArchiver.Base;
 using FileArchiver.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class InputDataServiceTests {
         DefaultInputDataService service;
         TestIPlatformService platform;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.platform = new TestIPlatformService();
             this.service = new DefaultInputDataService(platform);
         }
-        [TestCleanup]
+        [TearDown]
         public void TearDown() {
             this.service = null;
         }
-        [TestMethod]
+        [Test]
         public void IsDataFileTest1() {
             platform.PathExists = _ => true;
             Assert.AreEqual(InputCommand.Encode, service.GetInputCommand(@"C:\Temp\File.dat"));
             Assert.AreEqual(InputCommand.Encode, service.GetInputCommand(@"D:\Text.txt"));
             Assert.AreEqual(InputCommand.Encode, service.GetInputCommand(@"E:\File.html"));
         }
-        [TestMethod]
+        [Test]
         public void IsDataFileTest2() {
             platform.PathExists = _ => false;
             Assert.AreEqual(InputCommand.Unknown, service.GetInputCommand(@"C:\File.bin"));
         }
-        [TestMethod]
+        [Test]
         public void IsFolderTest1() {
             platform.PathExists = _ => true;
             Assert.AreEqual(InputCommand.Encode, service.GetInputCommand(@"C:\Temp"));
@@ -39,18 +39,18 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(InputCommand.Encode, service.GetInputCommand(@"E:\Folder1\Folder2"));
             Assert.AreEqual(InputCommand.Encode, service.GetInputCommand(@"E:\Folder1\Folder2\"));
         }
-        [TestMethod]
+        [Test]
         public void IsFolderTest2() {
             platform.PathExists = _ => false;
             Assert.AreEqual(InputCommand.Unknown, service.GetInputCommand(@"C:\Temp\"));
         }
-        [TestMethod]
+        [Test]
         public void IsArchiveTest1() {
             platform.PathExists = _ => true;
             Assert.AreEqual(InputCommand.Decode, service.GetInputCommand(@"C:\File.archive"));
             Assert.AreEqual(InputCommand.Decode, service.GetInputCommand(@"E:\Folder\File.archive"));
         }
-        [TestMethod]
+        [Test]
         public void IsArchiveTest2() {
             platform.PathExists = _ => false;
             Assert.AreEqual(InputCommand.Unknown, service.GetInputCommand(@"C:\File.archive"));

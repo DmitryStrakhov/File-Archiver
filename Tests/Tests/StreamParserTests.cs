@@ -4,23 +4,23 @@ using FileArchiver.Format;
 using System.Collections.Generic;
 using FileArchiver.HuffmanCore;
 using FileArchiver.DataStructures;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class StreamParserTests {
         DefaultStreamParser streamParser;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.streamParser = new DefaultStreamParser();
         }
 
-        [TestMethod]
+        [Test]
         public void ParseWeightsTableGuardTest() {
-            AssertHelper.Throws<ArgumentNullException>(() => streamParser.ParseWeightsTable(null));
+            Assert.Throws<ArgumentNullException>(() => streamParser.ParseWeightsTable(null));
         }
-        [TestMethod]
+        [Test]
         public void ParseWeightsTableTest1() {
             IReadOnlyList<Bit> data = BitListHelper.CreateBuilder()
                 .AddInt(0x0).BitList;
@@ -31,7 +31,7 @@ namespace FileArchiver.Tests {
             Assert.IsNotNull(weightsTable);
             Assert.AreEqual(0, weightsTable.Size);
         }
-        [TestMethod]
+        [Test]
         public void ParseWeightsTableTest2() {
             IReadOnlyList<Bit> data = BitListHelper.CreateBuilder()
                 .AddInt(0x9)
@@ -46,9 +46,9 @@ namespace FileArchiver.Tests {
             WeightedSymbol[] expectedSymbols = {
                 new WeightedSymbol(0x45, 0x33)
             };
-            AssertHelper.AreEqual(expectedSymbols, weightsTable);
+            Assert.AreEqual(expectedSymbols, weightsTable);
         }
-        [TestMethod]
+        [Test]
         public void ParseWeightsTableTest3() {
             IReadOnlyList<Bit> data = BitListHelper.CreateBuilder()
                 .AddInt(0x2D)
@@ -75,14 +75,14 @@ namespace FileArchiver.Tests {
                 new WeightedSymbol(0xAF, 0xFFA),
                 new WeightedSymbol(0xFF, 1),
             };
-            AssertHelper.AreEqual(expectedSymbols, weightsTable);
+            Assert.AreEqual(expectedSymbols, weightsTable);
         }
 
-        [TestMethod]
+        [Test]
         public void ParseDirectoryGuardTest() {
-            AssertHelper.Throws<ArgumentNullException>(() => streamParser.ParseDirectory(null));
+            Assert.Throws<ArgumentNullException>(() => streamParser.ParseDirectory(null));
         }
-        [TestMethod]
+        [Test]
         public void ParseDirectoryTest1() {
             IReadOnlyList<Bit> data = BitListHelper.CreateBuilder()
                 .AddInt(0x2)
@@ -94,7 +94,7 @@ namespace FileArchiver.Tests {
             Assert.AreEqual("X", segment.Name);
             Assert.AreEqual(0, segment.Cardinality);
         }
-        [TestMethod]
+        [Test]
         public void ParseDirectoryTest2() {
             IReadOnlyList<Bit> data = BitListHelper.CreateBuilder()
                 .AddInt(0x12)
@@ -107,15 +107,15 @@ namespace FileArchiver.Tests {
             Assert.AreEqual(5, segment.Cardinality);
         }
 
-        [TestMethod]
+        [Test]
         public void ParseFileGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => streamParser.ParseFile(null, new WeightsTable()));
+            Assert.Throws<ArgumentNullException>(() => streamParser.ParseFile(null, new WeightsTable()));
         }
-        [TestMethod]
+        [Test]
         public void ParseFileGuardCase2Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => streamParser.ParseFile(new TestIDecodingInputStream(new Bit[0]),  null));
+            Assert.Throws<ArgumentNullException>(() => streamParser.ParseFile(new TestIDecodingInputStream(new Bit[0]),  null));
         }
-        [TestMethod]
+        [Test]
         public void ParseFileTest1() {
             IReadOnlyList<Bit> data = BitListHelper.CreateBuilder()
                 .AddInt(0x10)
@@ -138,9 +138,9 @@ namespace FileArchiver.Tests {
             Assert.IsNotNull(decoder);
             TestIDecodingOutputStream outputStream = new TestIDecodingOutputStream();
             decoder.Decode(outputStream);
-            AssertHelper.CollectionIsEmpty(outputStream.ByteList);
+            CollectionAssert.IsEmpty(outputStream.ByteList);
         }
-        [TestMethod]
+        [Test]
         public void ParseFileTest2() {
             IReadOnlyList<Bit> data = BitListHelper.CreateBuilder()
                 .AddInt(0x10)
@@ -174,7 +174,7 @@ namespace FileArchiver.Tests {
             TestIDecodingOutputStream outputStream = new TestIDecodingOutputStream();
             decoder.Decode(outputStream);
             byte[] expectedData = {1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4};
-            AssertHelper.AreEqual(expectedData, outputStream.ByteList);
+            Assert.AreEqual(expectedData, outputStream.ByteList);
         }
     }
 }

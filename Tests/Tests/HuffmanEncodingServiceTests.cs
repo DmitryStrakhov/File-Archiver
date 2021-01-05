@@ -6,7 +6,7 @@ using FileArchiver.Builders;
 using FileArchiver.Format;
 using FileArchiver.HuffmanCore;
 using FileArchiver.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
     
@@ -39,37 +39,37 @@ namespace FileArchiver.Tests {
     #endregion
 
 
-    [TestClass]
+    [TestFixture]
     public class HuffmanEncodingServiceCtorTests {
-        [TestMethod]
+        [Test]
         public void GuardTest1() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new DefaultHuffmanEncodingService(null, new TestIPlatformService(), new TestIStreamBuilder());
             });
         }
-        [TestMethod]
+        [Test]
         public void GuardTest2() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new DefaultHuffmanEncodingService(new TestIFileSystemService(), null, new TestIStreamBuilder());
             });
         }
-        [TestMethod]
+        [Test]
         public void GuardTest3() {
-            AssertHelper.Throws<ArgumentNullException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 new DefaultHuffmanEncodingService(new TestIFileSystemService(), new TestIPlatformService(), null);
             });
         }
     }
 
 
-    [TestClass]
+    [TestFixture]
     public class HuffmanEncodingServiceBehaviorTests {
         DefaultHuffmanEncodingService service;
         TestIPlatformService platform;
         TestIFileSystemService fileSystem;
         TestIStreamBuilder streamBuilder;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.fileSystem = new TestIFileSystemService();
 
@@ -81,7 +81,7 @@ namespace FileArchiver.Tests {
             this.service = new DefaultHuffmanEncodingService(fileSystem, platform, streamBuilder);
         }
         
-        [TestMethod]
+        [Test]
         public void EncodeTest1() {
             fileSystem.EnumFileSystemEntriesFunc = _ => new FileSystemEntry[0];
 
@@ -89,7 +89,7 @@ namespace FileArchiver.Tests {
             service.Encode(@"C:\dir\", "file.dat");
             Assert.AreEqual("->Initialize;->AddWeightsTable;", streamBuilder.Trace);
         }
-        [TestMethod]
+        [Test]
         public void EncodeTest2() {
             fileSystem.EnumFileSystemEntriesFunc = _ => new[] {
                 new FileSystemEntry(FileSystemEntryType.File, "file1.dat", @"C:\file1.dat")
@@ -99,7 +99,7 @@ namespace FileArchiver.Tests {
             service.Encode(@"C:\file1.dat", @"C:\file2.dat");
             Assert.AreEqual("->Initialize;->AddWeightsTable;->AddFile(file1.dat);", streamBuilder.Trace);
         }
-        [TestMethod]
+        [Test]
         public void EncodeTest3() {
             fileSystem.EnumFileSystemEntriesFunc = _ => new[] {
                 new FileSystemEntry(FileSystemEntryType.File, "file1.dat", @"C:\dir\file1.dat"),
@@ -121,14 +121,14 @@ namespace FileArchiver.Tests {
         }
     }
 
-    [TestClass]
+    [TestFixture]
     public class HuffmanEncodingServiceTests {
         DefaultHuffmanEncodingService service;
         TestIPlatformService platform;
         TestIFileSystemService fileSystem;
         MemoryStream outputStream;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp() {
             this.fileSystem = new TestIFileSystemService();
             this.outputStream = new MemoryStream();
@@ -139,24 +139,24 @@ namespace FileArchiver.Tests {
             this.service = new DefaultHuffmanEncodingService(fileSystem, platform, new DefaultStreamBuilder());
         }
         
-        [TestMethod]
+        [Test]
         public void EncodeGuardCase1Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => service.Encode(null, "file"));
+            Assert.Throws<ArgumentNullException>(() => service.Encode(null, "file"));
         }
-        [TestMethod]
+        [Test]
         public void EncodeGuardCase2Test() {
-            AssertHelper.Throws<ArgumentException>(() => service.Encode(string.Empty, "file"));
+            Assert.Throws<ArgumentException>(() => service.Encode(string.Empty, "file"));
         }
-        [TestMethod]
+        [Test]
         public void EncodeGuardCase3Test() {
-            AssertHelper.Throws<ArgumentNullException>(() => service.Encode("file", null));
+            Assert.Throws<ArgumentNullException>(() => service.Encode("file", null));
         }
-        [TestMethod]
+        [Test]
         public void EncodeGuardCase4Test() {
-            AssertHelper.Throws<ArgumentException>(() => service.Encode("file", string.Empty));
+            Assert.Throws<ArgumentException>(() => service.Encode("file", string.Empty));
         }
 
-        [TestMethod]
+        [Test]
         public void EncodeEmptyDirectoryTest() {
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\")};
@@ -172,7 +172,7 @@ namespace FileArchiver.Tests {
                 .AddInt(0x0).GetData();
             CollectionAssert.AreEqual(expected, outputStream.ToArray());
         }
-        [TestMethod]
+        [Test]
         public void EncodeEmptyFileTest() {
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\file.dat")};
@@ -189,7 +189,7 @@ namespace FileArchiver.Tests {
                 .AddLong(0x0).GetData();
             CollectionAssert.AreEqual(expected, outputStream.ToArray());
         }
-        [TestMethod]
+        [Test]
         public void EncodeFileTest() {
             byte[] data = {1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4};
 
@@ -220,7 +220,7 @@ namespace FileArchiver.Tests {
                 .AddByte(0x01).GetData();
             CollectionAssert.AreEqual(expected, outputStream.ToArray());
         }
-        [TestMethod]
+        [Test]
         public void EncodeDirectoryTest1() {
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] {

@@ -1,19 +1,19 @@
 ﻿using System.Linq;
 using FileArchiver.DataStructures;
 using FileArchiver.HuffmanCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class EncodingToolsTests {
-        [TestMethod]
+        [Test]
         public void BuildWeightsTableTest1() {
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(new byte[0]);
             WeightsTable weightsTable = EncodingTools.BuildWeightsTable(inputStream);
             Assert.IsNotNull(weightsTable);
-            AssertHelper.CollectionIsEmpty(weightsTable);
+            CollectionAssert.IsEmpty(weightsTable);
         }
-        [TestMethod]
+        [Test]
         public void BuildWeightsTableTest2() {
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(new byte[] {1});
             WeightsTable weightsTable = EncodingTools.BuildWeightsTable(inputStream);
@@ -21,7 +21,7 @@ namespace FileArchiver.Tests {
             WeightedSymbol[] expected = {new WeightedSymbol(1, 1)};
             CollectionAssert.AreEqual(expected, weightsTable.ToArray());
         }
-        [TestMethod]
+        [Test]
         public void BuildWeightsTableTest3() {
             byte[] data = @"aaaabbbccedddddeeeaabdcefffeffadc".ToByteArray();
 
@@ -39,14 +39,14 @@ namespace FileArchiver.Tests {
             CollectionAssert.AreEqual(expected, weightsTable.ToArray());
         }
 
-        [TestMethod]
+        [Test]
         public void BuildHuffmanTreeTest1() {
             WeightsTable weightsTable = new WeightsTable();
             HuffmanTreeBase huffmanTree = EncodingTools.BuildHuffmanTree(weightsTable);
             Assert.IsNotNull(huffmanTree);
-            AssertHelper.CollectionIsEmpty(huffmanTree.FlattenValues());
+            CollectionAssert.IsEmpty(huffmanTree.FlattenValues());
         }
-        [TestMethod]
+        [Test]
         public void BuildHuffmanTreeTest2() {
             WeightsTable weightsTable = new WeightsTable();
             weightsTable.TrackSymbol(1);
@@ -56,9 +56,9 @@ namespace FileArchiver.Tests {
             WeightedSymbol?[] expected = {
                 new WeightedSymbol(1, 1), null, null
             };
-            AssertHelper.AreEqual(expected, huffmanTree.FlattenValues());
+            Assert.AreEqual(expected, huffmanTree.FlattenValues());
         }
-        [TestMethod]
+        [Test]
         public void BuildHuffmanTreeTest3() {
             WeightsTable weightsTable = new WeightsTable();
             for(int n = 0; n < 12; n++) {
@@ -107,9 +107,9 @@ namespace FileArchiver.Tests {
                 null,
                 null,
             };
-            AssertHelper.AreEqual(expected, huffmanTree.FlattenValues());
+            Assert.AreEqual(expected, huffmanTree.FlattenValues());
         }
-        [TestMethod]
+        [Test]
         public void BuildHuffmanTreeTest4() {
             WeightsTable weightsTable = new WeightsTable();
             for(int n = 0; n < 13; n++) {
@@ -150,15 +150,15 @@ namespace FileArchiver.Tests {
                 null,
                 null,
             };
-            AssertHelper.AreEqual(expected, huffmanTree.FlattenValues());
+            Assert.AreEqual(expected, huffmanTree.FlattenValues());
         }
 
-        [TestMethod]
+        [Test]
         public void BuildCodingTableTest1() {
             CodingTable codingTable = EncodingTools.BuildCodingTable(EmptyHuffmanTree.Instance);
-            AssertHelper.CollectionIsEmpty(codingTable);
+            CollectionAssert.IsEmpty(codingTable);
         }
-        [TestMethod]
+        [Test]
         public void BuildCodingTableTest2() {
             HuffmanTree tree = HuffmanTreeHelper.Builder().NewNode(1, 'X').CreateTree();
             CodingTable codingTable = EncodingTools.BuildCodingTable(tree);
@@ -167,9 +167,9 @@ namespace FileArchiver.Tests {
             Pair<byte, BitSequence>[] expected = {
                 new Pair<byte, BitSequence>((byte)'X', BitSequence.FromString("0"))
             };
-            AssertHelper.AreEquivalent(expected, codingTable);
+            CollectionAssert.AreEquivalent(expected, codingTable);
         }
-        [TestMethod]
+        [Test]
         public void BuildCodingTableTest3() {
             HuffmanTree tree = HuffmanTreeHelper.Builder().NewInternalNode(15)
                 .WithLeft(5, 'A')
@@ -183,9 +183,9 @@ namespace FileArchiver.Tests {
                 new Pair<byte, BitSequence>((byte)'A', BitSequence.FromString("0")),
                 new Pair<byte, BitSequence>((byte)'B', BitSequence.FromString("1")),
             };
-            AssertHelper.AreEquivalent(expected, codingTable);
+            CollectionAssert.AreEquivalent(expected, codingTable);
         }
-        [TestMethod]
+        [Test]
         public void BuildCodingTableTest4() {
             HuffmanTree tree = HuffmanTreeHelper.Builder().NewInternalNode(133)
                 .WithRight(85, 'f')
@@ -215,9 +215,9 @@ namespace FileArchiver.Tests {
                 new Pair<byte, BitSequence>((byte)'e', BitSequence.FromString("011")),
                 new Pair<byte, BitSequence>((byte)'f', BitSequence.FromString("1")),
             };
-            AssertHelper.AreEquivalent(expected, codingTable);
+            CollectionAssert.AreEquivalent(expected, codingTable);
         }
-        [TestMethod]
+        [Test]
         public void BuildCodingTableTest5() {
             HuffmanTree tree = HuffmanTreeHelper.Builder().NewInternalNode(44)
                 .WithLeft(19, 'C')
@@ -243,7 +243,7 @@ namespace FileArchiver.Tests {
                 new Pair<byte, BitSequence>((byte)'D', BitSequence.FromString("1100")),
                 new Pair<byte, BitSequence>((byte)'E', BitSequence.FromString("111")),
             };
-            AssertHelper.AreEquivalent(expected, codingTable);
+            CollectionAssert.AreEquivalent(expected, codingTable);
         }
     }
 }

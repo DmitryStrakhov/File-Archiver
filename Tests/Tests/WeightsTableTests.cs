@@ -1,20 +1,20 @@
 ﻿using FileArchiver.HuffmanCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace FileArchiver.Tests {
-    [TestClass]
+    [TestFixture]
     public class WeightsTableTests {
         WeightsTable weightsTable;
 
-        [TestInitialize]
+        [SetUp]
         public void OnInitialize() {
             this.weightsTable = new WeightsTable();
         }
-        [TestMethod]
+        [Test]
         public void DefaultsTest() {
             Assert.AreEqual(0, weightsTable.Size);
         }
-        [TestMethod]
+        [Test]
         public void SizeTest() {
             weightsTable.TrackSymbol(0);
             Assert.AreEqual(1, weightsTable.Size);
