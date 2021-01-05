@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FileArchiver.Helpers {
+namespace FileArchiver.Core.Helpers {
     public static class MathHelper {
         public static bool AreEqual(double x, double y) {
             const double epsilon = 0.000001;

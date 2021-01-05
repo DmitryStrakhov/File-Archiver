@@ -1,5 +1,5 @@
 ﻿using System;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.HuffmanCore;
 
 namespace FileArchiver.Tests {
     class EmptyEncodingToken : EncodingToken {

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using FileArchiver.Services;
-using FileArchiver.ViewModel;
+using FileArchiver.Core;
+using FileArchiver.Core.Services;
+using FileArchiver.Core.ViewModel;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {
@@ -18,7 +15,7 @@ namespace FileArchiver.Tests {
 
         [SetUp]
         public void OnInitialize() {
-            this.window = new MainWindow();
+            this.window = new MainWindow {ShowInTaskbar = false};
             this.viewModel = new MainViewModel(new DefaultServiceFactory());
             this.window.DataContext = viewModel;
             this.window.Show();

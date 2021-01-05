@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using FileArchiver.Base;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.FileCore {
+namespace FileArchiver.Core.FileCore {
     public class FileEncodingInputStream : IEncodingInputStream {
         readonly Stream fileStream;
 

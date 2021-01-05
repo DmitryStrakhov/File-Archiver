@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
-using FileArchiver.Helpers;
+using System.Diagnostics;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.DataStructures {
+namespace FileArchiver.Core.DataStructures {
     [DebuggerDisplay("MinimumPriorityQueue(Size={heap.Size})")]
     public class MinimumPriorityQueue<TKey, TValue> where TKey : IComparable<TKey> {
         readonly MinBinaryHeap<TKey, TValue> heap;
 
-        public MinimumPriorityQueue(int capacity) {
+        protected MinimumPriorityQueue(int capacity) {
             this.heap = new MinBinaryHeap<TKey, TValue>(capacity);
         }
 

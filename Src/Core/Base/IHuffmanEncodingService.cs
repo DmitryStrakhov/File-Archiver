@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FileArchiver.Base {
+namespace FileArchiver.Core.Base {
     public interface IHuffmanEncodingService {
         bool Encode(string inputPath, string outputFile);
     }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using FileArchiver.Base;
-using FileArchiver.Helpers;
-using FileArchiver.Services;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.Services;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {

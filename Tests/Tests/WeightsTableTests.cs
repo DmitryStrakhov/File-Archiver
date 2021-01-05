@@ -1,4 +1,5 @@
-﻿using FileArchiver.HuffmanCore;
+﻿using System;
+using FileArchiver.Core.HuffmanCore;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {

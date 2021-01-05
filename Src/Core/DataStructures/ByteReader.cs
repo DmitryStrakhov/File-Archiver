@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FileArchiver.DataStructures {
+namespace FileArchiver.Core.DataStructures {
     public sealed class ByteReader {
         byte value;
         int count;
@@ -9,8 +9,8 @@ namespace FileArchiver.DataStructures {
             this.value = 0;
             this.count = 0;
         }
-        public void SetValue(byte value) {
-            this.value = value;
+        public void SetValue(byte val) {
+            this.value = val;
             count = 8;
         }
         public Bit ReadBit() {

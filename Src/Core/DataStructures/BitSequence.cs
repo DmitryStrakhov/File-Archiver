@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
-using FileArchiver.Helpers;
 using System.Collections.Generic;
+using System.Diagnostics;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.DataStructures {
+namespace FileArchiver.Core.DataStructures {
     [DebuggerDisplay("BitSequence(Size={Size})")]
     public sealed class BitSequence : EnumerableBase<Bit> {
         byte[] data;

@@ -1,8 +1,8 @@
 ﻿using System;
-using FileArchiver.DataStructures;
-using FileArchiver.Helpers;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.HuffmanCore {
+namespace FileArchiver.Core.HuffmanCore {
     public class HuffmanDecoder {
         public HuffmanDecoder() {
         }

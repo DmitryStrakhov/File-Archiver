@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace FileArchiver.Helpers {
+namespace FileArchiver.Core.Helpers {
     public static class FileDialogHelper {
         public static string OpenFile() {
             using(OpenFileDialog dialog = new OpenFileDialog()) {

@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 
-namespace FileArchiver.DataStructures {
+namespace FileArchiver.Core.DataStructures {
     [DebuggerDisplay("Pair(X={X}, Y={Y})")]
     public struct Pair<TX, TY> : IEquatable<Pair<TX, TY>> {
         public readonly TX X;

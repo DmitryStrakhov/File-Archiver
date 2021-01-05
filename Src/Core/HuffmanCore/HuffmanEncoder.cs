@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using FileArchiver.Helpers;
-using FileArchiver.DataStructures;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.HuffmanCore {
+namespace FileArchiver.Core.HuffmanCore {
     public class EncodingToken {
         public EncodingToken(WeightsTable weightsTable, HuffmanTreeBase huffmanTree, CodingTable codingTable) {
             CodingTable = codingTable;

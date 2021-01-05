@@ -1,4 +1,6 @@
-﻿namespace FileArchiver.Base {
+﻿using System;
+
+namespace FileArchiver.Core.Base {
     public enum InputCommand {
         Encode,
         Decode,

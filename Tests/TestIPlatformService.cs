@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.Base;
+using FileArchiver.Core.Base;
 
 namespace FileArchiver.Tests {
     public class TestIPlatformService : IPlatformService {

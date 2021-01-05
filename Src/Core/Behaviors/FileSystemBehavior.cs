@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using FileArchiver.Controls;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Controls;
+using FileArchiver.Core.Helpers;
 using Microsoft.Xaml.Behaviors;
 
-namespace FileArchiver.Behaviors {
+namespace FileArchiver.Core.Behaviors {
     public abstract class FileSystemBehavior : Behavior<DropDownButton> {
         static readonly ControlHelper<FileSystemBehavior> helper = new ControlHelper<FileSystemBehavior>();
         MenuItem menuItem;
 
-        public FileSystemBehavior() {
+        protected FileSystemBehavior() {
             this.menuItem = null;
         }
 

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.Base;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.Services {
+namespace FileArchiver.Core.Services {
     public class DefaultPlatformService : IPlatformService {
         public DefaultPlatformService() {
         }

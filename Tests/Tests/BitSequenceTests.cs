@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
-using FileArchiver.DataStructures;
-using FileArchiver.Helpers;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {
@@ -25,14 +24,14 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public void IndexerGetGuardTest1() {
-            Assert.Throws<ArgumentOutOfRangeException>((() => {
-                Bit bit = sequence[-1];
-            }));
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                Bit _ = sequence[-1];
+            });
         }
         [Test]
         public void IndexerGetGuardTest2() {
             Assert.Throws<ArgumentOutOfRangeException>((() => {
-                Bit bit = sequence[0];
+                Bit _ = sequence[0];
             }));
         }
         [Test]
@@ -42,7 +41,7 @@ namespace FileArchiver.Tests {
             sequence[2] = Bit.One;
             sequence[3] = Bit.Zero;
             Assert.Throws<ArgumentOutOfRangeException>((() => {
-                Bit bit = sequence[4];
+                Bit _ = sequence[4];
             }));
         }
         [Test]

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace FileArchiver.Helpers {
+namespace FileArchiver.Core.Helpers {
     public sealed class ControlHelper<TOwner>
         where TOwner : DependencyObject {
 

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Runtime.CompilerServices;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Helpers;
 
 namespace FileArchiver.Tests {
     public interface ITraceableObject {

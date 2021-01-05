@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.Format {
+namespace FileArchiver.Core.Format {
     [DebuggerDisplay("DirectorySegment(Name={Name})")]
     public sealed class DirectorySegment {
         public DirectorySegment(string name, int cardinality) {

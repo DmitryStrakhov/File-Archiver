@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FileArchiver.DataStructures {
+namespace FileArchiver.Core.DataStructures {
     public sealed class ByteWriter {
         byte value;
         int index;

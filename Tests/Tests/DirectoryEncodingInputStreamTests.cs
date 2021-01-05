@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.Base;
-using FileArchiver.FileCore;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.FileCore;
+using FileArchiver.Core.Helpers;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {
@@ -14,7 +14,7 @@ namespace FileArchiver.Tests {
         }
 
         IEnumerable<FileSystemEntry> IFileSystemService.EnumFileSystemEntries(string path) {
-            return EnumFileSystemEntriesFunc?.Invoke(path) ?? throw new InvalidOperationException();;
+            return EnumFileSystemEntriesFunc?.Invoke(path) ?? throw new InvalidOperationException();
         }
         public Func<string, IEnumerable<FileSystemEntry>> EnumFileSystemEntriesFunc { get; set; }
     }
@@ -93,8 +93,7 @@ namespace FileArchiver.Tests {
             platform.ReadFileFunc = x => new MemoryStream(data[x]);
 
             using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\file.dat", fileSystemService, platform)) {
-                byte symbol;
-                Assert.IsTrue(stream.ReadSymbol(out symbol));
+                Assert.IsTrue(stream.ReadSymbol(out byte symbol));
                 Assert.AreEqual(0x1, symbol);
                 Assert.IsTrue(stream.ReadSymbol(out symbol));
                 Assert.AreEqual(0x2, symbol);
@@ -117,8 +116,7 @@ namespace FileArchiver.Tests {
             platform.ReadFileFunc = x => new MemoryStream(data[x]);
 
             using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir", fileSystemService, platform)) {
-                byte symbol;
-                Assert.IsTrue(stream.ReadSymbol(out symbol));
+                Assert.IsTrue(stream.ReadSymbol(out byte symbol));
                 Assert.AreEqual(0x11, symbol);
                 Assert.IsTrue(stream.ReadSymbol(out symbol));
                 Assert.AreEqual(0x22, symbol);
@@ -149,8 +147,7 @@ namespace FileArchiver.Tests {
             platform.ReadFileFunc = x => new MemoryStream(data[x]);
 
             using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
-                byte symbol;
-                Assert.IsTrue(stream.ReadSymbol(out symbol));
+                Assert.IsTrue(stream.ReadSymbol(out byte symbol));
                 Assert.AreEqual(0x11, symbol);
                 Assert.IsTrue(stream.ReadSymbol(out symbol));
                 Assert.AreEqual(0x33, symbol);

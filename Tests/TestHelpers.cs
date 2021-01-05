@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using FileArchiver.Base;
-using FileArchiver.DataStructures;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
 namespace FileArchiver.Tests {
     [DebuggerDisplay("BufferBuilder()")]

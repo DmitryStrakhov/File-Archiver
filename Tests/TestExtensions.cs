@@ -1,8 +1,8 @@
 ﻿using System;
-using FileArchiver.HuffmanCore;
 using System.Collections.Generic;
-using FileArchiver.Helpers;
-using FileArchiver.DataStructures;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
 namespace FileArchiver.Tests {
     public static class HuffmanTreeTestExtensions {

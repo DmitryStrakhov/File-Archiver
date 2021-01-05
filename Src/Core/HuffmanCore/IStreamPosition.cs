@@ -1,4 +1,6 @@
-﻿namespace FileArchiver.HuffmanCore {
+﻿using System;
+
+namespace FileArchiver.Core.HuffmanCore {
     public interface IStreamPosition {
     }
 }

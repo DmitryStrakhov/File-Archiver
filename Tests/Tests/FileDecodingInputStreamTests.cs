@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.DataStructures;
-using FileArchiver.FileCore;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.FileCore;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {

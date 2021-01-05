@@ -1,6 +1,8 @@
-﻿using System.Linq;
-using FileArchiver.DataStructures;
-using FileArchiver.HuffmanCore;
+﻿using System;
+using System.Linq;
+using FileArchiver.Core;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.HuffmanCore;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {

@@ -1,5 +1,5 @@
 ﻿using System;
-using FileArchiver.DataStructures;
+using FileArchiver.Core.DataStructures;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {

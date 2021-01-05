@@ -1,7 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
-namespace FileArchiver.DataStructures {
+namespace FileArchiver.Core.DataStructures {
     public abstract class EnumerableBase<T> : IEnumerable<T> {
         #region IEnumerable
 

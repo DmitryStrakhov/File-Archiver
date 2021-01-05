@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.Base;
-using FileArchiver.FileCore;
-using FileArchiver.Format;
-using FileArchiver.Helpers;
-using FileArchiver.Parsers;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.FileCore;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.Parsers;
 
-namespace FileArchiver.Services {
+namespace FileArchiver.Core.Services {
     public class DefaultHuffmanDecodingService : IHuffmanDecodingService {
         readonly IPlatformService platform;
         readonly IStreamParser streamParser;

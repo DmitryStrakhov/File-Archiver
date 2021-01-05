@@ -1,8 +1,8 @@
 ﻿using System;
-using FileArchiver.Base;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.Services {
+namespace FileArchiver.Core.Services {
     public class DefaultFolderSelectorService : IFolderSelectorService {
         public string GetFolder() {
             return FolderDialogHelper.Show();

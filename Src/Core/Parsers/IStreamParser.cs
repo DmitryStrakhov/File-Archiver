@@ -1,7 +1,8 @@
-﻿using FileArchiver.Format;
-using FileArchiver.HuffmanCore;
+﻿using System;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.Parsers {
+namespace FileArchiver.Core.Parsers {
     public interface IStreamParser {
         BootstrapSegment ParseWeightsTable(IDecodingInputStream stream);
         DirectorySegment ParseDirectory(IDecodingInputStream stream);

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace FileArchiver.Base {
+namespace FileArchiver.Core.Base {
     public interface IPlatformService {
         bool IsPathExists(string path);
         bool IsFileExists(string path);

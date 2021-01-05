@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.Base;
-using FileArchiver.DataStructures;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.FileCore {
+namespace FileArchiver.Core.FileCore {
     public class DirectoryEncodingInputStream : IEncodingInputStream {
         readonly IFileSystemService fileSystemService;
         readonly IPlatformService platform;
@@ -23,7 +23,7 @@ namespace FileArchiver.FileCore {
             this.fileSystemService = fileSystemService;
             this.platform = platform;
             this.fileStream = null;
-            this.fileSystemEntries = new ValueCache<IEnumerator<FileSystemEntry>>(() => fileSystemService.EnumFileSystemEntries(this.path).GetEnumerator());
+            this.fileSystemEntries = new ValueCache<IEnumerator<FileSystemEntry>>(() => this.fileSystemService.EnumFileSystemEntries(this.path).GetEnumerator());
         }
         public bool ReadSymbol(out byte symbol) {
             if(fileStream == null) {

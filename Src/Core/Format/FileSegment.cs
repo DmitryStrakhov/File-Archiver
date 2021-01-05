@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+﻿using System;
+using System.Diagnostics;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.Format {
+namespace FileArchiver.Core.Format {
     [DebuggerDisplay("FileSegment(Name: {Name})")]
     public class FileSegment {
         public FileSegment(string name, string path) {

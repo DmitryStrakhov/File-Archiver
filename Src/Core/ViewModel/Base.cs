@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace FileArchiver.ViewModel {
+namespace FileArchiver.Core.ViewModel {
 
     public abstract class ViewModelBase : INotifyPropertyChanged {
         protected ViewModelBase() {

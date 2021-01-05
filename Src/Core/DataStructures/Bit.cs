@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FileArchiver.DataStructures {
+namespace FileArchiver.Core.DataStructures {
     public enum Bit {
         Zero,
         One

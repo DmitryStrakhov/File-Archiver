@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Controls;
-using FileArchiver.Base;
-using FileArchiver.Services;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Services;
 
-namespace FileArchiver.View {
+namespace FileArchiver.Core.View {
     public class PathValidationRule : ValidationRule {
         readonly DefaultInputDataService service;
 

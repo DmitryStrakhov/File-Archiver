@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.DataStructures {
+namespace FileArchiver.Core.DataStructures {
     [DebuggerDisplay("ValueCache()")]
     public sealed class ValueCache<T> {
         readonly Func<T> getValue;

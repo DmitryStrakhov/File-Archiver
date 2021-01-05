@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using FileArchiver.FileCore;
+using FileArchiver.Core.FileCore;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {

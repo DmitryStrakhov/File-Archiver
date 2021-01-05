@@ -1,12 +1,12 @@
 ﻿using System;
-using FileArchiver.Base;
-using FileArchiver.DataStructures;
-using FileArchiver.FileCore;
-using FileArchiver.Format;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.FileCore;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.Builders {
+namespace FileArchiver.Core.Builders {
     public class DefaultStreamBuilder : IStreamBuilder {
         IPlatformService platform;
         HuffmanEncoder encoder;

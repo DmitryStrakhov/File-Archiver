@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Text;
-using FileArchiver.Base;
-using FileArchiver.DataStructures;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.FileCore {
+namespace FileArchiver.Core.FileCore {
     public class FileEncodingOutputStream : IEncodingOutputStream {
         readonly Stream fileStream;
         readonly ByteWriter byteWriter;

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
-using FileArchiver.Base;
-using FileArchiver.ViewModel;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.ViewModel;
 using NUnit.Framework;
-
 
 namespace FileArchiver.Tests {
     #region ViewModel
@@ -47,8 +45,8 @@ namespace FileArchiver.Tests {
         public override IInputDataService InputDataService { get; }
         public override IHuffmanEncodingService EncodingService { get; }
         public override IHuffmanDecodingService DecodingService { get; }
-        public TestIFolderSelectorService TestFolderSelectorService => (TestIFolderSelectorService)FolderSelectorService;
-        public TestIFileSelectorService TestFileSelectorService => (TestIFileSelectorService)FileSelectorService;
+        public TestIFolderSelectorService TestFolderSelectorService { get { return (TestIFolderSelectorService)FolderSelectorService; } }
+        public TestIFileSelectorService TestFileSelectorService { get { return (TestIFileSelectorService)FileSelectorService; } }
     }
 
     #endregion

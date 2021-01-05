@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Windows;
-using FileArchiver.Services;
-using FileArchiver.ViewModel;
+using FileArchiver.Core;
+using FileArchiver.Core.Services;
+using FileArchiver.Core.ViewModel;
 
 namespace FileArchiver.Runner {
     public partial class App : Application {

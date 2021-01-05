@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
-using FileArchiver.Base;
-using FileArchiver.DataStructures;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.FileCore {
+namespace FileArchiver.Core.FileCore {
     public class FileDecodingInputStream : IDecodingInputStream {
         readonly Stream fileStream;
         readonly ByteReader byteReader;

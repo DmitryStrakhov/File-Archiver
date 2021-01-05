@@ -1,7 +1,8 @@
-﻿using FileArchiver.DataStructures;
-using FileArchiver.Helpers;
+﻿using System;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.HuffmanCore {
+namespace FileArchiver.Core.HuffmanCore {
     public static class EncodingTools {
         public static WeightsTable BuildWeightsTable(IEncodingInputStream inputStream) {
             Guard.IsNotNull(inputStream, nameof(inputStream));

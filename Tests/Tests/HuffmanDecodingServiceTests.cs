@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.Format;
-using FileArchiver.HuffmanCore;
-using FileArchiver.Parsers;
-using FileArchiver.Services;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.HuffmanCore;
+using FileArchiver.Core.Parsers;
+using FileArchiver.Core.Services;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {
@@ -34,9 +34,9 @@ namespace FileArchiver.Tests {
         #endregion
 
         public TestIFileDecoder Decoder { get; }
-        public string DirectoryName { get; set; } = "DirectoryName";
-        public int Cardinality { get; set; } = 0;
-        public string FileName { get; set; } = "FileName";
+        public string DirectoryName { get; } = "DirectoryName";
+        public int Cardinality { get; set; }
+        public string FileName { get; } = "FileName";
         public string Trace { get; set; } = string.Empty;
     }
 

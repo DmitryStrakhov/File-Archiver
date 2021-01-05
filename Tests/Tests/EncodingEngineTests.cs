@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using FileArchiver.FileCore;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.FileCore;
+using FileArchiver.Core.HuffmanCore;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {

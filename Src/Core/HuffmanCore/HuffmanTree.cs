@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.HuffmanCore {
+namespace FileArchiver.Core.HuffmanCore {
     public abstract class HuffmanTreeBase {
         public abstract bool IsRoot(HuffmanTreeNode node);
         public abstract void DoBFS(IHuffmanTreeVisitor visitor);
@@ -128,9 +128,7 @@ namespace FileArchiver.HuffmanCore {
 
     [DebuggerDisplay("HuffmanTreeNode('{(char)Value.Symbol}',{Value.Weight})")]
     public class HuffmanTreeNode {
-        public HuffmanTreeNode(WeightedSymbol value) : this(value, null, null) {
-        }
-        public HuffmanTreeNode(WeightedSymbol value, HuffmanTreeNode left, HuffmanTreeNode right) {
+        public HuffmanTreeNode(WeightedSymbol value, HuffmanTreeNode left = null, HuffmanTreeNode right = null) {
             Value = value;
             Left = left;
             Right = right;

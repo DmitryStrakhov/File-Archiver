@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace FileArchiver.Helpers {
+namespace FileArchiver.Core.Helpers {
     public static class FolderDialogHelper {
         public static string Show() {
             using(FolderBrowserDialog dialog = new FolderBrowserDialog()) {

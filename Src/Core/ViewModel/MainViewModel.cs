@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FileArchiver.Base;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.ViewModel {
+namespace FileArchiver.Core.ViewModel {
     public class MainViewModel : ViewModelBase {
         readonly ServiceFactory serviceFactory;
         string status;

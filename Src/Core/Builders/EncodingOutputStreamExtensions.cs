@@ -1,9 +1,9 @@
 ﻿using System;
-using FileArchiver.HuffmanCore;
-using FileArchiver.DataStructures;
-using FileArchiver.Format;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.Builders {
+namespace FileArchiver.Core.Builders {
     public static class EncodingOutputStreamExtensions {
         public static void Write(this IEncodingOutputStream @this, StreamKind value) {
             Write(@this, (byte)value);

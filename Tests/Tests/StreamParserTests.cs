@@ -1,9 +1,9 @@
 ﻿using System;
-using FileArchiver.Parsers;
-using FileArchiver.Format;
 using System.Collections.Generic;
-using FileArchiver.HuffmanCore;
-using FileArchiver.DataStructures;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.HuffmanCore;
+using FileArchiver.Core.Parsers;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {

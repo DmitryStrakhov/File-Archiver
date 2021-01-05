@@ -1,7 +1,7 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System;
+using System.IO;
 
-namespace FileArchiver.Helpers {
+namespace FileArchiver.Core.Helpers {
     public static class PathHelper {
         public static string GetDirectoryName(string path) {
             Guard.IsNotNullOrEmpty(path, nameof(path));

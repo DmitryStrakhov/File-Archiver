@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using FileArchiver.Helpers;
+using System.Windows.Input;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.Controls {
+namespace FileArchiver.Core.Controls {
     public class DropDownButton : ContentControl {
         static readonly ControlHelper<DropDownButton> controlHelper;
 

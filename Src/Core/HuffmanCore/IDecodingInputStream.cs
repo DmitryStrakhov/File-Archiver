@@ -1,7 +1,7 @@
 ﻿using System;
-using FileArchiver.DataStructures;
+using FileArchiver.Core.DataStructures;
 
-namespace FileArchiver.HuffmanCore {
+namespace FileArchiver.Core.HuffmanCore {
     public interface IDecodingInputStream : IDisposable {
         bool ReadBit(out Bit bit);
         bool IsEmpty { get; }

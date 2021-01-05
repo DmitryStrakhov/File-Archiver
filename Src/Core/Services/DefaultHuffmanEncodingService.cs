@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Text;
-using FileArchiver.Base;
-using FileArchiver.Builders;
-using FileArchiver.FileCore;
-using FileArchiver.Format;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Builders;
+using FileArchiver.Core.FileCore;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.Services {
+namespace FileArchiver.Core.Services {
     public class DefaultHuffmanEncodingService : IHuffmanEncodingService {
         readonly IFileSystemService fileSystemService;
         readonly IPlatformService platform;

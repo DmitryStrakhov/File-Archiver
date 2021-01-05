@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FileArchiver.HuffmanCore {
+namespace FileArchiver.Core.HuffmanCore {
     public interface IDecodingOutputStream : IDisposable {
         void WriteSymbol(byte symbol);
     }

@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+﻿using System;
+using System.Diagnostics;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.Format {
+namespace FileArchiver.Core.Format {
     [DebuggerDisplay("BootstrapSegment()")]
     public class BootstrapSegment {
         public BootstrapSegment(WeightsTable weightsTable) {

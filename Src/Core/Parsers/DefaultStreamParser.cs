@@ -1,9 +1,9 @@
 ﻿using System;
-using FileArchiver.Format;
-using FileArchiver.Helpers;
-using FileArchiver.HuffmanCore;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.Parsers {
+namespace FileArchiver.Core.Parsers {
     public class DefaultStreamParser : IStreamParser {
         readonly HuffmanDecoder decoder;
 

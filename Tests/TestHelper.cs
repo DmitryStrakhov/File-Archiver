@@ -1,5 +1,5 @@
 ﻿using System;
-using FileArchiver.DataStructures;
+using FileArchiver.Core.DataStructures;
 
 namespace FileArchiver.Tests {
     public static class TestHelper {

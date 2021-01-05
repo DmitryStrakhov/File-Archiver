@@ -1,7 +1,7 @@
 ﻿using System;
-using FileArchiver.DataStructures;
+using FileArchiver.Core.DataStructures;
 
-namespace FileArchiver.HuffmanCore {
+namespace FileArchiver.Core.HuffmanCore {
     public interface IEncodingOutputStream : IDisposable {
         void BeginWrite();
         void EndWrite();

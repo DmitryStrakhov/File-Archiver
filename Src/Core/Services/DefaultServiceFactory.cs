@@ -1,8 +1,9 @@
-﻿using FileArchiver.Base;
-using FileArchiver.Builders;
-using FileArchiver.Parsers;
+﻿using System;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Builders;
+using FileArchiver.Core.Parsers;
 
-namespace FileArchiver.Services {
+namespace FileArchiver.Core.Services {
     public class DefaultServiceFactory : ServiceFactory {
         public override IFileSelectorService FileSelectorService { get; } = new DefaultFileSelectorService();
         public override IFolderSelectorService FolderSelectorService { get; } = new DefaultFolderSelectorService();

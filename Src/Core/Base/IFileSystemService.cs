@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using FileArchiver.Helpers;
+using FileArchiver.Core.Helpers;
 
-namespace FileArchiver.Base {
+namespace FileArchiver.Core.Base {
     public enum FileSystemEntryType {
         File,
         Directory

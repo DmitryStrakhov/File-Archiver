@@ -1,10 +1,9 @@
 ﻿using System;
-using FileArchiver.Builders;
-using FileArchiver.HuffmanCore;
-using FileArchiver.DataStructures;
-using FileArchiver.Format;
+using FileArchiver.Core.DataStructures;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.HuffmanCore;
 
-namespace FileArchiver.Parsers {
+namespace FileArchiver.Core.Parsers {
     public static class FileDecodingInputStreamExtensions {
         public static byte ReadByte(this IDecodingInputStream @this) {
             byte value = 0;

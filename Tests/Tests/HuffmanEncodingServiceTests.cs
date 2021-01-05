@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FileArchiver.Base;
-using FileArchiver.Builders;
-using FileArchiver.Format;
-using FileArchiver.HuffmanCore;
-using FileArchiver.Services;
+using FileArchiver.Core.Base;
+using FileArchiver.Core.Builders;
+using FileArchiver.Core.Format;
+using FileArchiver.Core.HuffmanCore;
+using FileArchiver.Core.Services;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {
