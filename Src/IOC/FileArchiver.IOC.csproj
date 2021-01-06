@@ -50,7 +50,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\FileArchiver.Core.csproj">
+    <ProjectReference Include="..\Core\FileArchiver.Core.csproj">
       <Project>{139442ba-c41b-4c8c-a506-9a92a1c99bc4}</Project>
       <Name>FileArchiver.Core</Name>
     </ProjectReference>

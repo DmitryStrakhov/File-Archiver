@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileArchiver.Runner", "Src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileArchiver.Tests", "Tests\FileArchiver.Tests.csproj", "{3222FE38-32B9-440C-B120-BE7C18721D05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileArchiver.IOC", "Src\IOC\FileArchiver.IOC\FileArchiver.IOC.csproj", "{A0BE4891-F162-4B40-9DAD-6E8157DA52A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileArchiver.IOC", "Src\IOC\FileArchiver.IOC.csproj", "{A0BE4891-F162-4B40-9DAD-6E8157DA52A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

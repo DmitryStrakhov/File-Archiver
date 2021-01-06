@@ -91,7 +91,7 @@
       <Project>{139442ba-c41b-4c8c-a506-9a92a1c99bc4}</Project>
       <Name>FileArchiver.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\IOC\FileArchiver.IOC\FileArchiver.IOC.csproj">
+    <ProjectReference Include="..\IOC\FileArchiver.IOC.csproj">
       <Project>{a0be4891-f162-4b40-9dad-6e8157da52a3}</Project>
       <Name>FileArchiver.IOC</Name>
     </ProjectReference>
