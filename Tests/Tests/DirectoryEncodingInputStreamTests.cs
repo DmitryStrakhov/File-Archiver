@@ -211,7 +211,7 @@ namespace FileArchiver.Tests {
             using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
                 while(stream.ReadSymbol(out byte _)) { }
             }
-            AssertHelper.TrueForAll(streamList, 3, x => x.Trace == "->Dispose;");
+            Assert.That(streamList, Is.All.Matches<TestMemoryStream>(x => x.Trace == "->Dispose;"));
         }
 
         private static IEnumerable<FileSystemEntry> EnumFiles(int count) {

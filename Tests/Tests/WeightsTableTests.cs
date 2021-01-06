@@ -8,7 +8,7 @@ namespace FileArchiver.Tests {
         WeightsTable weightsTable;
 
         [SetUp]
-        public void OnInitialize() {
+        public void SetUp() {
             this.weightsTable = new WeightsTable();
         }
         [Test]

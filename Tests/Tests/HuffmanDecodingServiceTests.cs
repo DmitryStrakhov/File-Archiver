@@ -95,7 +95,7 @@ namespace FileArchiver.Tests {
 
             streamParser.Trace = string.Empty;
             service.Decode(@"C:\Input.archive", @"C:\Output\");
-            AssertHelper.StringIsEmpty(streamParser.Trace);
+            Assert.AreEqual(string.Empty, streamParser.Trace);
         }
         [Test]
         public void DecodeTest2() {
@@ -203,7 +203,7 @@ namespace FileArchiver.Tests {
             
             service.Decode(@"C:\InputFile.dat", @"C:\Root\");
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->WriteFile(C:\Root\file.dat)", platform.Trace);
-            AssertHelper.StreamIsEmpty(dataStream);
+            AssertStreamIsEmpty(dataStream);
         }
         [Test]
         public void DecodeFileTest() {
@@ -233,7 +233,7 @@ namespace FileArchiver.Tests {
 
             service.Decode(@"C:\InputFile.dat", @"C:\Root\");
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->WriteFile(C:\Root\file.dat)", platform.Trace);
-            AssertHelper.AssertStream(dataStream, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4);
+            AssertStream(dataStream, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4);
         }
         [Test]
         public void DecodeDirectoryTest1() {
@@ -305,10 +305,10 @@ namespace FileArchiver.Tests {
                 @"->WriteFile(C:\Root\dir\subdir2\f4.dat)";
             Assert.AreEqual(expectedTrace, platform.Trace);
 
-            AssertHelper.AssertStream(streams[f1], 0x1, 0x15, 0x15, 0x9, 0x9);
-            AssertHelper.AssertStream(streams[f2], 0x15, 0x9, 0x9, 0x15);
-            AssertHelper.StreamIsEmpty(streams[f3]);
-            AssertHelper.AssertStream(streams[f4], 0x3, 0x1, 0x9);
+            AssertStream(streams[f1], 0x1, 0x15, 0x15, 0x9, 0x9);
+            AssertStream(streams[f2], 0x15, 0x9, 0x9, 0x15);
+            AssertStreamIsEmpty(streams[f3]);
+            AssertStream(streams[f4], 0x3, 0x1, 0x9);
         }
         [Test]
         public void DecodeDirectoryTest2() {
@@ -372,6 +372,15 @@ namespace FileArchiver.Tests {
                 @"->CreateDirectory(C:\Root\d0\d2\d3\d6\d8)" + 
                 @"->CreateDirectory(C:\Root\d0\d2\d3\d6\d9)";
             Assert.AreEqual(expectedTrace, platform.Trace);
+        }
+
+        private void AssertStream(MemoryStream stream, params byte[] expected) {
+            if(stream == null) throw new AssertionException(nameof(stream) + " is null");
+            CollectionAssert.AreEqual(expected, stream.ToArray());
+        }
+        private void AssertStreamIsEmpty(MemoryStream stream) {
+            if(stream == null || stream.ToArray().Length != 0)
+                throw new AssertionException(nameof(stream) + " is not empty");
         }
     }
 }

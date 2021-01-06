@@ -7,7 +7,7 @@
     <ProjectGuid>{DB844D44-702B-43CD-8D95-D03DEE5D7059}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>FileArchiver.Runner</RootNamespace>
-    <AssemblyName>FileArchiver.Runner</AssemblyName>
+    <AssemblyName>FileArchiver</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -90,6 +90,10 @@
     <ProjectReference Include="..\Core\FileArchiver.Core.csproj">
       <Project>{139442ba-c41b-4c8c-a506-9a92a1c99bc4}</Project>
       <Name>FileArchiver.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IOC\FileArchiver.IOC\FileArchiver.IOC.csproj">
+      <Project>{a0be4891-f162-4b40-9dad-6e8157da52a3}</Project>
+      <Name>FileArchiver.IOC</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

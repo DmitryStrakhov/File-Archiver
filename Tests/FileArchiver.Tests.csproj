@@ -41,7 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AssertHelper.cs" />
     <Compile Include="Base.cs" />
     <Compile Include="Tests\BitSequenceTests.cs" />
     <Compile Include="Tests\ByteReaderTests.cs" />
@@ -63,7 +62,6 @@
     <Compile Include="Tests\StreamBuilderTests.cs" />
     <Compile Include="Tests\StreamParserTests.cs" />
     <Compile Include="TestExtensions.cs" />
-    <Compile Include="TestHelper.cs" />
     <Compile Include="TestHelpers.cs" />
     <Compile Include="TestIPlatformService.cs" />
     <Compile Include="Tests\ViewModelTests.cs" />
@@ -74,6 +72,10 @@
     <ProjectReference Include="..\Src\Core\FileArchiver.Core.csproj">
       <Project>{139442ba-c41b-4c8c-a506-9a92a1c99bc4}</Project>
       <Name>FileArchiver.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Src\IOC\FileArchiver.IOC\FileArchiver.IOC.csproj">
+      <Project>{a0be4891-f162-4b40-9dad-6e8157da52a3}</Project>
+      <Name>FileArchiver.IOC</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

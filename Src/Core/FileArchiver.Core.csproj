@@ -58,7 +58,6 @@
     <Compile Include="Base\IFileSystemService.cs" />
     <Compile Include="Base\IInputDataService.cs" />
     <Compile Include="Base\IPlatformService.cs" />
-    <Compile Include="Base\ServiceFactory.cs" />
     <Compile Include="Builders\DefaultStreamBuilder.cs" />
     <Compile Include="Builders\EncodingOutputStreamExtensions.cs" />
     <Compile Include="Builders\IStreamBuilder.cs" />
@@ -101,7 +100,6 @@
     <Compile Include="Services\DefaultHuffmanDecodingService.cs" />
     <Compile Include="Services\DefaultHuffmanEncodingService.cs" />
     <Compile Include="Services\DefaultPlatformService.cs" />
-    <Compile Include="Services\DefaultServiceFactory.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Parsers\FileDecodingInputStreamExtensions.cs" />
     <Compile Include="Helpers\Guard.cs" />

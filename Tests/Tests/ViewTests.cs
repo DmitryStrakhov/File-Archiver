@@ -1,10 +1,11 @@
 ﻿using System;
+using FileArchiver.Core;
+using FileArchiver.IOC;
+using FileArchiver.Core.ViewModel;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using FileArchiver.Core;
-using FileArchiver.Core.Services;
-using FileArchiver.Core.ViewModel;
+using FileArchiver.Core.Helpers;
 using NUnit.Framework;
 
 namespace FileArchiver.Tests {
@@ -14,14 +15,14 @@ namespace FileArchiver.Tests {
         MainViewModel viewModel;
 
         [SetUp]
-        public void OnInitialize() {
-            this.window = new MainWindow {ShowInTaskbar = false};
-            this.viewModel = new MainViewModel(new DefaultServiceFactory());
-            this.window.DataContext = viewModel;
+        public void SetUp() {
+            this.window = new Ioc().Resolve<MainWindow>();
+            this.window.ShowInTaskbar = false;
+            this.viewModel = (MainViewModel)window.DataContext;
             this.window.Show();
         }
         [TearDown]
-        public void OnCleanup() {
+        public void TearDown() {
             this.window.Close();
             this.window = null;
             this.viewModel = null;
@@ -29,8 +30,7 @@ namespace FileArchiver.Tests {
         [Test, Explicit]
         public void DisplayTest() {
             while(window.IsVisible) {
-                Action action = () => { };
-                window.Dispatcher.Invoke(DispatcherPriority.Background, action);
+                window.Dispatcher.Invoke(DispatcherPriority.Background, (Action)(() => { }));
             }
         }
         [Test, Explicit]
@@ -38,8 +38,7 @@ namespace FileArchiver.Tests {
             viewModel.Path = "some path";
 
             while(window.IsVisible) {
-                Action action = () => { };
-                window.Dispatcher.Invoke(DispatcherPriority.Background, action);
+                window.Dispatcher.Invoke(DispatcherPriority.Background, (Action)(() => { }));
             }
         }
         [Test]
@@ -51,7 +50,7 @@ namespace FileArchiver.Tests {
 
             Assert.AreEqual(string.Empty, window.PathTextBlock.Text);
             Assert.AreEqual(string.Empty, window.StatusTextBlock.Text);
-            AssertHelper.AreEqual(0, window.ProgressBar.Value);
+            AreEqual(0, window.ProgressBar.Value);
             
             CollectionAssert.IsEmpty(Validation.GetErrors(window.PathTextBlock));
         }
@@ -72,15 +71,18 @@ namespace FileArchiver.Tests {
         [Test]
         public void ProgressValuePropertyTest() {
             viewModel.ProgressValue = 50;
-            AssertHelper.AreEqual(50, window.ProgressBar.Value);
+            AreEqual(50, window.ProgressBar.Value);
             viewModel.ProgressValue = 100;
-            AssertHelper.AreEqual(100, window.ProgressBar.Value);
+            AreEqual(100, window.ProgressBar.Value);
         }
         [Test]
         public void PathValidationErrorTest() {
             viewModel.Path = "Some Path";
             var errors = Validation.GetErrors(window.PathTextBlock);
             Assert.AreEqual(1, errors.Count);
+        }
+        private void AreEqual(double expected, double actual) {
+            if(MathHelper.AreNotEqual(expected, actual)) Assert.Fail();
         }
     }
 }

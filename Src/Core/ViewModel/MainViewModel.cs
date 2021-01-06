@@ -4,14 +4,11 @@ using FileArchiver.Core.Helpers;
 
 namespace FileArchiver.Core.ViewModel {
     public class MainViewModel : ViewModelBase {
-        readonly ServiceFactory serviceFactory;
         string status;
         string path;
         double progressValue;
 
-        public MainViewModel(ServiceFactory serviceFactory) {
-            Guard.IsNotNull(serviceFactory, nameof(serviceFactory));
-            this.serviceFactory = serviceFactory;
+        public MainViewModel() {
             this.status = string.Empty;
             this.path = string.Empty;
             this.progressValue = 0;
@@ -19,6 +16,11 @@ namespace FileArchiver.Core.ViewModel {
         }
 
         public Command RunCommand { get; }
+        public IFileSelectorService FileSelectorService { get; set; }
+        public IFolderSelectorService FolderSelectorService { get; set; }
+        public IInputDataService InputDataService { get; set; }
+        public IHuffmanEncodingService EncodingService { get; set; }
+        public IHuffmanDecodingService DecodingService { get; set; }
 
         public string Path {
             get { return path; }
@@ -56,11 +58,11 @@ namespace FileArchiver.Core.ViewModel {
         }
 
         public bool CanRun() {
-            InputCommand inputCommand = serviceFactory.InputDataService.GetInputCommand(path);
+            InputCommand inputCommand = InputDataService.GetInputCommand(path);
             return inputCommand != InputCommand.Unknown;
         }
         public virtual void Run() {
-            InputCommand inputCommand = serviceFactory.InputDataService.GetInputCommand(path);
+            InputCommand inputCommand = InputDataService.GetInputCommand(path);
             switch(inputCommand) {
                 case InputCommand.Encode:
                     Encode();
@@ -74,14 +76,14 @@ namespace FileArchiver.Core.ViewModel {
         }
 
         private void Encode() {
-            string targetPath = serviceFactory.FileSelectorService.GetSaveFile();
+            string targetPath = FileSelectorService.GetSaveFile();
             if(string.IsNullOrEmpty(targetPath)) return;
-            serviceFactory.EncodingService.Encode(Path, targetPath);
+            EncodingService.Encode(Path, targetPath);
         }
         private void Decode() {
-            string targetFolder = serviceFactory.FolderSelectorService.GetFolder();
+            string targetFolder = FolderSelectorService.GetFolder();
             if(string.IsNullOrEmpty(targetFolder)) return;
-            serviceFactory.DecodingService.Decode(Path, targetFolder);
+            DecodingService.Decode(Path, targetFolder);
         }
     }
 }
