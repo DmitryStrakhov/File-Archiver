@@ -13,10 +13,19 @@ namespace FileArchiver.Tests {
     public sealed class ViewTests {
         MainWindow window;
         MainViewModel viewModel;
+        Ioc ioc;
 
+        [OneTimeSetUp]
+        public void OneTimeSetUp() {
+            ioc = new Ioc();
+        }
+        [OneTimeTearDown]
+        public void OneTimeTearDown() {
+            ioc.Dispose();
+        }
         [SetUp]
         public void SetUp() {
-            this.window = new Ioc().Resolve<MainWindow>();
+            this.window = ioc.Resolve<MainWindow>();
             this.window.ShowInTaskbar = false;
             this.viewModel = (MainViewModel)window.DataContext;
             this.window.Show();
