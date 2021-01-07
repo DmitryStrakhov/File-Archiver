@@ -48,7 +48,6 @@
     <Compile Include="Tests\DirectoryEncodingInputStreamTests.cs" />
     <Compile Include="EmptyEncodingToken.cs" />
     <Compile Include="Tests\EncodingEngineTests.cs" />
-    <Compile Include="Tests\EncodingToolsTests.cs" />
     <Compile Include="Tests\FileDecodingInputStreamTests.cs" />
     <Compile Include="Tests\FileDecodingOutputStreamTests.cs" />
     <Compile Include="Tests\FileEncodingInputStreamTests.cs" />

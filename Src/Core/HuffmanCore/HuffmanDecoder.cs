@@ -13,7 +13,7 @@ namespace FileArchiver.Core.HuffmanCore {
             Guard.IsNotNull(outputStream, nameof(outputStream));
             Guard.IsNotNegative(sequenceLength, nameof(sequenceLength));
 
-            HuffmanTreeBase tree = EncodingTools.BuildHuffmanTree(weightsTable);
+            HuffmanTreeBase tree = new HuffmanEncoder().BuildHuffmanTree(weightsTable);
             Decode(inputStream, tree, outputStream, sequenceLength);
         }
         public void Decode(IDecodingInputStream inputStream, HuffmanTreeBase tree, IDecodingOutputStream outputStream, long sequenceLength) {

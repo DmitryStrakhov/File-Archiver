@@ -79,7 +79,6 @@
     <Compile Include="Helpers\FolderDialogHelper.cs" />
     <Compile Include="DataStructures\BitSequence.cs" />
     <Compile Include="Helpers\PathHelper.cs" />
-    <Compile Include="HuffmanCore\EncodingTools.cs" />
     <Compile Include="HuffmanCore\HuffmanDecoder.cs" />
     <Compile Include="HuffmanCore\HuffmanEncoder.cs" />
     <Compile Include="HuffmanCore\HuffmanTree.cs" />
