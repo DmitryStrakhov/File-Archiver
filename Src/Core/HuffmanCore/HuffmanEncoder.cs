@@ -41,7 +41,8 @@ namespace FileArchiver.Core.HuffmanCore {
 
             while(inputStream.ReadSymbol(out byte symbol)) {
                 BitSequence codingSequence = codingTable[symbol];
-                foreach(Bit bit in codingSequence) {
+                for(int n = 0; n < codingSequence.Size; n++) {
+                    Bit bit = codingSequence[n];
                     sequenceLength++;
                     outputStream.WriteBit(bit);
                 }

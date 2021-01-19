@@ -20,7 +20,6 @@ namespace FileArchiver.Tests {
         [Test]
         public void DefaultsTest() {
             Assert.AreEqual(0, sequence.Size);
-            CollectionAssert.IsEmpty(sequence);
         }
         [Test]
         public void IndexerGetGuardTest1() {
@@ -93,7 +92,6 @@ namespace FileArchiver.Tests {
         public void CloneTest1() {
             BitSequence clonedSequence = sequence.Clone();
             Assert.AreEqual(0, clonedSequence.Size);
-            CollectionAssert.IsEmpty(clonedSequence);
         }
         [Test]
         public void CloneTest2() {
@@ -213,7 +211,10 @@ namespace FileArchiver.Tests {
             AssertSequence(sequence, bits);
         }
         static void AssertSequence(BitSequence sequence, params int[] bits) {
-            int[] actual = sequence.Select(x => x == Bit.Zero ? 0 : 1).ToArray();
+            int[] actual = new int[sequence.Size];
+            for(int n = 0; n < sequence.Size; n++) {
+                actual[n] = sequence[n] == Bit.Zero ? 0 : 1;
+            }
             CollectionAssert.AreEqual(bits, actual);
         }
     }

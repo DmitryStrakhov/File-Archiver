@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using FileArchiver.Core.Helpers;
 
 namespace FileArchiver.Core.DataStructures {
     [DebuggerDisplay("BitSequence(Size={Size})")]
-    public sealed class BitSequence : EnumerableBase<Bit> {
+    public sealed class BitSequence {
         byte[] data;
         int size;
 
@@ -87,20 +86,5 @@ namespace FileArchiver.Core.DataStructures {
             }
             return sequence;
         }
-
-
-        #region Enumerable
-
-        protected override IEnumerator<Bit> CreateEnumerator() {
-            for(int n = 0, bits = size; n < data.Length && bits > 0; n++) {
-                byte slot = data[n];
-                for(int bit = 0; bit < 8 && bits > 0; bit++, bits--) {
-                    yield return (slot & 1) == 0 ? Bit.Zero : Bit.One;
-                    slot >>= 1;
-                }
-            }
-        }
-
-        #endregion
     }
 }
