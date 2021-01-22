@@ -41,7 +41,6 @@ namespace FileArchiver.Core.DataStructures {
         }
 
         public void Insert(TKey key, TValue value) {
-            Guard.IsNotNull(key, nameof(key));
             int pos = Size;
             EnsureSize(Size + 1);
             size++;
@@ -86,23 +85,23 @@ namespace FileArchiver.Core.DataStructures {
         }
 
         static int GetParent(int size, int pos) {
-            Guard.IsInRange(pos, 0, size - 1, nameof(pos));
+            Guard.CheckIndex(pos, size, nameof(pos));
             return pos != 0 ? (pos - 1) / 2 : -1;
         }
         static int GetLeftChild(int size, int pos) {
-            Guard.IsInRange(pos, 0, size - 1, nameof(pos));
+            Guard.CheckIndex(pos, size, nameof(pos));
             int result = 2 * pos + 1;
             if(result >= size) result = -1;
             return result;
         }
         static int GetRightChild(int size, int pos) {
-            Guard.IsInRange(pos, 0, size - 1, nameof(pos));
+            Guard.CheckIndex(pos, size, nameof(pos));
             int result = 2 * pos + 2;
             if(result >= size) result = -1;
             return result;
         }
         static int DoPercolateDown(KeyValuePair<TKey, TValue>[] heapData, int size, int pos, Func<int, int, bool> getIsRightPosition) {
-            Guard.IsInRange(pos, 0, size - 1, nameof(pos));
+            Guard.CheckIndex(pos, size, nameof(pos));
             int keyPos = pos;
             while(true) {
                 int minKeyPos = keyPos;
@@ -121,7 +120,7 @@ namespace FileArchiver.Core.DataStructures {
             }
         }
         static int DoPercolateUp(KeyValuePair<TKey, TValue>[] heapData, int size, int pos, Func<int, int, bool> getIsRightPosition) {
-            Guard.IsInRange(pos, 0, size - 1, nameof(pos));
+            Guard.CheckIndex(pos, size, nameof(pos));
             int keyPos = pos;
             while(true) {
                 int parentPos = GetParent(size, keyPos);

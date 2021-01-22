@@ -13,9 +13,9 @@ namespace FileArchiver.Core.ViewModel {
             this.canExecuteFunc = canExecuteFunc;
         }
 
-        event EventHandler canExecuteChangedHandler;
+        event EventHandler CanExecuteChangedHandler;
         public void RaiseCanExecuteChanged() {
-            canExecuteChangedHandler?.Invoke(this, EventArgs.Empty);
+            CanExecuteChangedHandler?.Invoke(this, EventArgs.Empty);
         }
 
         #region ICommand
@@ -26,8 +26,8 @@ namespace FileArchiver.Core.ViewModel {
             return canExecuteFunc();
         }
         event EventHandler ICommand.CanExecuteChanged {
-            add { canExecuteChangedHandler += value; }
-            remove { canExecuteChangedHandler -= value; }
+            add { CanExecuteChangedHandler += value; }
+            remove { CanExecuteChangedHandler -= value; }
         }
 
         #endregion

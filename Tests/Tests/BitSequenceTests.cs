@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Helpers;
 using NUnit.Framework;
@@ -45,7 +44,7 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public void IndexerSetGuardTest() {
-            Assert.Throws<ArgumentOutOfRangeException>((() => sequence[-1] = Bit.One));
+            Assert.Throws<ArgumentException>(() => sequence[-1] = Bit.One);
         }
         [Test]
         public void SequenceSizeTest() {
@@ -105,7 +104,7 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public void ReduceGuardTest() {
-            Assert.Throws<ArgumentOutOfRangeException>(() => sequence.Reduce(-1));
+            Assert.Throws<ArgumentException>(() => sequence.Reduce(-1));
         }
         [Test]
         public void ReduceTest1() {

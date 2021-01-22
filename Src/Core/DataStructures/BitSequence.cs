@@ -16,12 +16,12 @@ namespace FileArchiver.Core.DataStructures {
         }
         public Bit this[int index] {
             get {
-                Guard.IsInRange(index, 0, size - 1, nameof(index));
-                int slot = data[index / 8];
+                Guard.CheckIndex(index, size, nameof(index));
+                int slot = data[index >> 3];
                 return ((slot >> (index % 8)) & 1) == 0 ? Bit.Zero : Bit.One;
             }
             set {
-                Guard.IsInRange(index, 0, int.MaxValue, nameof(index));
+                Guard.IsNotNegative(index, nameof(index));
                 EnsureData(index);
 
                 if(value == Bit.Zero)
@@ -32,7 +32,7 @@ namespace FileArchiver.Core.DataStructures {
             }
         }
         public void Reduce(int index) {
-            Guard.IsInRange(index, 0, int.MaxValue, nameof(index));
+            Guard.IsNotNegative(index, nameof(index));
             if(index >= size - 1) return;
 
             for(int n = index + 1; n < size; n++) {

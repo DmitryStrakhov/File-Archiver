@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace FileArchiver.Core.DataStructures {
     public sealed class ByteWriter {
@@ -23,9 +24,11 @@ namespace FileArchiver.Core.DataStructures {
             index = 0;
         }
         public bool IsEmpty {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return index == 0; }
         }
         public bool IsReady {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return index == 8; }
         }
         public byte Value { get { return value; } }

@@ -31,8 +31,8 @@ namespace FileArchiver.Core {
 
     public static class ListExtensions {
         public static void Swap<T>(this IList<T> @this, int xPos, int yPos) {
-            Guard.IsInRange(xPos, 0, @this.Count - 1, nameof(xPos));
-            Guard.IsInRange(yPos, 0, @this.Count - 1, nameof(yPos));
+            Guard.CheckIndex(xPos, @this.Count, nameof(xPos));
+            Guard.CheckIndex(yPos, @this.Count, nameof(yPos));
             if(xPos != yPos) {
                 T temp = @this[xPos];
                 @this[xPos] = @this[yPos];

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace FileArchiver.Core.DataStructures {
     public sealed class ByteReader {
@@ -14,7 +15,7 @@ namespace FileArchiver.Core.DataStructures {
             count = 8;
         }
         public Bit ReadBit() {
-            if(!IsReady)
+            if(IsEmpty)
                 throw new InvalidOperationException();
 
             Bit bit = (value & 1) == 0 ? Bit.Zero : Bit.One;
@@ -22,7 +23,12 @@ namespace FileArchiver.Core.DataStructures {
             count--;
             return bit;
         }
+        public bool IsEmpty {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return count == 0; }
+        }
         public bool IsReady {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return count > 0; }
         }
     }
