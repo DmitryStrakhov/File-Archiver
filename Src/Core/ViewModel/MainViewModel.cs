@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Helpers;
 
@@ -12,7 +13,7 @@ namespace FileArchiver.Core.ViewModel {
             this.status = string.Empty;
             this.path = string.Empty;
             this.progressValue = 0;
-            this.RunCommand = new Command(Run, CanRun);
+            this.RunCommand = new Command(async () => await Run(), CanRun);
         }
 
         public Command RunCommand { get; }
@@ -61,29 +62,31 @@ namespace FileArchiver.Core.ViewModel {
             InputCommand inputCommand = InputDataService.GetInputCommand(path);
             return inputCommand != InputCommand.Unknown;
         }
-        public virtual void Run() {
+        public virtual async Task Run() {
             InputCommand inputCommand = InputDataService.GetInputCommand(path);
             switch(inputCommand) {
                 case InputCommand.Encode:
-                    Encode();
+                    await Encode();
                     break;
                 case InputCommand.Decode:
-                    Decode();
+                    await Decode();
                     break;
                 default:
                     throw new Exception(nameof(inputCommand));
             }
         }
 
-        private void Encode() {
+        private async Task Encode() {
             string targetPath = FileSelectorService.GetSaveFile();
             if(string.IsNullOrEmpty(targetPath)) return;
-            EncodingService.Encode(Path, targetPath);
+
+            await Task.Run(() => EncodingService.Encode(Path, targetPath));
         }
-        private void Decode() {
+        private async Task Decode() {
             string targetFolder = FolderSelectorService.GetFolder();
             if(string.IsNullOrEmpty(targetFolder)) return;
-            DecodingService.Decode(Path, targetFolder);
+
+            await Task.Run(() => DecodingService.Decode(Path, targetFolder));
         }
     }
 }
