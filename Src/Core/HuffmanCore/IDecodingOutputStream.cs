@@ -3,5 +3,6 @@
 namespace FileArchiver.Core.HuffmanCore {
     public interface IDecodingOutputStream : IDisposable {
         void WriteSymbol(byte symbol);
+        string Path { get; }
     }
 }

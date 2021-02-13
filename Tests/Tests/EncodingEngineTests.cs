@@ -25,7 +25,7 @@ namespace FileArchiver.Tests {
             try {
                 outputStream.BeginWrite();
                 EncodingToken token = encoder.CreateEncodingToken(inputStream);
-                streamSize = encoder.Encode(inputStream, outputStream, token);
+                streamSize = encoder.Encode(inputStream, outputStream, token, null);
                 outputStream.EndWrite();
                 tree = token.HuffmanTree;
                 return outputMemoryStream.ToArray();
@@ -41,7 +41,7 @@ namespace FileArchiver.Tests {
             FileDecodingOutputStream outputStream = CreateFileDecodingOutputStream(outputMemoryStream);
 
             try {
-                new HuffmanDecoder().Decode(inputStream, tree, outputStream, streamSize);
+                new HuffmanDecoder().Decode(inputStream, tree, outputStream, streamSize, null);
                 return outputMemoryStream.ToArray();
             }
             finally {

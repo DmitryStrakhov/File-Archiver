@@ -10,13 +10,15 @@ namespace FileArchiver.Core.FileCore {
         readonly Stream fileStream;
         readonly ByteReader byteReader;
         long streamSize;
+        long position;
 
-        public FileDecodingInputStream(string fileName, IPlatformService platform) {
-            Guard.IsNotNullOrEmpty(fileName, nameof(fileName));
+        public FileDecodingInputStream(string path, IPlatformService platform) {
+            Guard.IsNotNullOrEmpty(path, nameof(path));
             Guard.IsNotNull(platform, nameof(platform));
 
             this.byteReader = new ByteReader();
-            this.fileStream = platform.ReadFile(fileName);
+            this.position = 0;
+            this.fileStream = platform.ReadFile(path);
             this.streamSize = fileStream.Length * 8;
         }
         
@@ -35,7 +37,14 @@ namespace FileArchiver.Core.FileCore {
             }
             bit = byteReader.ReadBit();
             streamSize--;
+            position++;
             return true;
+        }
+        public long Position {
+            get { return position; }
+        }
+        public long SizeInBytes {
+            get { return fileStream.Length; }
         }
         public bool IsEmpty {
             get { return streamSize == 0; }

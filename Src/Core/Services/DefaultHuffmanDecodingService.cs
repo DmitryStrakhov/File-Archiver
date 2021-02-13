@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.FileCore;
 using FileArchiver.Core.Format;
 using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 using FileArchiver.Core.Parsers;
 
 namespace FileArchiver.Core.Services {
@@ -23,10 +25,12 @@ namespace FileArchiver.Core.Services {
             this.directoriesQueue = new Queue<string>(128);
         }
 
-        public void Decode(string inputFile, string outputFolder) {
+        public Task DecodeAsync(string inputFile, string outputFolder, IProgress<CodingProgressInfo> progress) {
             Guard.IsNotNullOrEmpty(inputFile, nameof(inputFile));
             Guard.IsNotNullOrEmpty(outputFolder, nameof(outputFolder));
-
+            return Task.Run(() => Decode(inputFile, outputFolder, progress));
+        }
+        private void Decode(string inputFile, string outputFolder, IProgress<CodingProgressInfo> progress) {
             FileDecodingInputStream inputStream = new FileDecodingInputStream(inputFile, platform);
 
             try {
@@ -37,12 +41,14 @@ namespace FileArchiver.Core.Services {
                 if(code != StreamKind.WT_CODE)
                     throw new InvalidOperationException();
 
+                ITaskProgressController tpc = CreateTaskProgressController(progress, inputStream);
+                tpc.Start();
                 directoriesQueue.Enqueue(currentDirectory = outputFolder);
                 BootstrapSegment bootstrapSegment = streamParser.ParseWeightsTable(inputStream);
                 while(!inputStream.IsEmpty) {
                     switch(inputStream.ReadStreamFormat()) {
                         case StreamKind.FS_CODE:
-                            DecodeFile(inputStream, bootstrapSegment);
+                            DecodeFile(inputStream, bootstrapSegment, tpc);
                             break;
                         case StreamKind.DS_CODE:
                             DecodeDirectory(inputStream);
@@ -51,17 +57,18 @@ namespace FileArchiver.Core.Services {
                             throw new InvalidOperationException();
                     }
                 }
+                tpc.Finish();
             }
             finally {
                 inputStream.Dispose();
             }
         }
-        private void DecodeFile(FileDecodingInputStream inputStream, BootstrapSegment bootstrapSegment) {
+        private void DecodeFile(FileDecodingInputStream inputStream, BootstrapSegment bootstrapSegment, IProgressHandler progressHandler) {
             FileSegment file = streamParser.ParseFile(inputStream, bootstrapSegment.WeightsTable);
             string path = Path.Combine(currentDirectory, file.Name);
 
             using(FileDecodingOutputStream outputStream = new FileDecodingOutputStream(path, platform)) {
-                file.FileDecoder.Decode(outputStream);
+                file.FileDecoder.Decode(outputStream, progressHandler);
             }
         }
         private void DecodeDirectory(FileDecodingInputStream inputStream) {
@@ -79,5 +86,40 @@ namespace FileArchiver.Core.Services {
                 directoriesQueue.Enqueue(currentDirectory);
             }
         }
+        private ITaskProgressController CreateTaskProgressController(IProgress<CodingProgressInfo> progress, FileDecodingInputStream inputStream) {
+            if(progress == null) return new NullTaskProgressController();
+            return new DecodingTaskProgressController(progress, inputStream.SizeInBytes);
+        }
+    }
+
+    
+    class DecodingTaskProgressController : ITaskProgressController {
+        readonly IProgress<CodingProgressInfo> progress;
+        readonly long total;
+        long current;
+        IProgressState state;
+
+        public DecodingTaskProgressController(IProgress<CodingProgressInfo> progress, long total) {
+            this.progress = progress;
+            this.total = total;
+            this.current = 0;
+            this.state = null;
+        }
+        public void Start() {
+            progress.Report(new CodingProgressInfo(0, "[Start]"));
+        }
+        public void Finish() {
+            progress.Report(new CodingProgressInfo(100, "[Finish]"));
+        }
+        public void StartIndeterminate() {
+        }
+        public void EndIndeterminate() {
+        }
+        public void Report(long byteCount, string statusMessage) {
+            if(total == 0) return;
+            current += byteCount;
+            progress.Report(new CodingProgressInfo((int)(current * 100 / total), statusMessage));
+        }
+        IProgressState IProgressHandler.State { get { return state; } set { state = value; } }
     }
 }

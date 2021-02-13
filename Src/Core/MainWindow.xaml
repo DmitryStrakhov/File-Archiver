@@ -24,66 +24,69 @@
     </Window.Resources>
 
     <Border BorderThickness="1" BorderBrush="Gray" Margin="4">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Bottom">
+                <TextBlock x:Name="StatusTextBlock"
+                           x:FieldModifier="public"
+                           Text="{Binding StatusMessage, FallbackValue=[status]}"
+                           Margin="4" />
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="35" />
-                <RowDefinition Height="35" />
-                <RowDefinition Height="35" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+                <controls:ProgressBarControl x:Name="ProgressBar"
+                             Margin="4"
+                             Minimum="0"
+                             Maximum="100"
+                             Height="27"
+                             x:FieldModifier="public"
+                             ProgressValue="{Binding ProgressValue, FallbackValue=10}" />
+            </StackPanel>
 
-            <controls:DropDownButton Margin="4"
-                                     Grid.Row="0" Grid.Column="0"
-                                     Content="Open"
-                                     x:Name="ChoiceButton"
-                                     x:FieldModifier="public"
-                                     IsEnabled="{Binding IsChoiceButtonEnabled}">
-                <i:Interaction.Behaviors>
-                    <behaviors:OpenFileBehavior Path="{Binding Path, Mode=OneWayToSource}" />
-                    <behaviors:OpenFolderBehavior Path="{Binding Path, Mode=OneWayToSource}" />
-                </i:Interaction.Behaviors>
-            </controls:DropDownButton>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="PathTextBlock"
-                       Style="{StaticResource TextBlockValidationStyleKey}"
-                       Margin="4"
-                       Grid.Row="0" Grid.Column="1"
-                       x:FieldModifier="public"
-                       VerticalAlignment="Center">
-                <TextBlock.Text>
-                    <Binding Path="Path">
-                        <Binding.ValidationRules>
-                            <view:PathValidationRule ValidatesOnTargetUpdated="True" />
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBlock.Text>
-            </TextBlock>
-            <Button x:Name="RunButton"
-                    Margin="4"
-                    Content="Run"
-                    Grid.Row="1" Grid.Column="0"
-                    x:FieldModifier="public"
-                    Command="{Binding RunCommand}" />
-            <ProgressBar x:Name="ProgressBar"
-                         Margin="4"
-                         Grid.Row="1" Grid.Column="1"
-                         IsEnabled="{Binding IsProgressEnabled}"
-                         Minimum="0"
-                         Maximum="100"
-                         x:FieldModifier="public"
-                         Value="{Binding ProgressValue}" />
-            <TextBlock x:Name="StatusTextBlock"
-                       Margin="4"
-                       Grid.Row="2" Grid.Column="1"
-                       Text="{Binding Status}"
-                       VerticalAlignment="Center"
-                       x:FieldModifier="public"
-                       IsEnabled="{Binding IsStatusEnabled}" />
-        </Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <controls:DropDownButton Margin="4"
+                                         Grid.Row="0" Grid.Column="0"
+                                         Content="Open"
+                                         x:Name="ChoiceButton"
+                                         x:FieldModifier="public"
+                                         IsEnabled="{Binding IsChoiceButtonEnabled}">
+                    <i:Interaction.Behaviors>
+                        <behaviors:OpenFileBehavior Path="{Binding Path, Mode=OneWayToSource}" />
+                        <behaviors:OpenFolderBehavior Path="{Binding Path, Mode=OneWayToSource}" />
+                    </i:Interaction.Behaviors>
+                </controls:DropDownButton>
+
+                <TextBlock x:Name="PathTextBlock"
+                           Style="{StaticResource TextBlockValidationStyleKey}"
+                           Margin="4"
+                           Grid.Row="0" Grid.Column="1"
+                           x:FieldModifier="public"
+                           VerticalAlignment="Center">
+                    <TextBlock.Text>
+                        <Binding Path="Path">
+                            <Binding.ValidationRules>
+                                <view:PathValidationRule ValidatesOnTargetUpdated="True" />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <Button x:Name="RunButton"
+                        Margin="4"
+                        Content="Run"
+                        Grid.Row="1" Grid.Column="0"
+                        x:FieldModifier="public"
+                        Command="{Binding RunCommand}" />
+
+            </Grid>
+        </DockPanel>
     </Border>
 </Window>

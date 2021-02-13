@@ -5,12 +5,12 @@ using FileArchiver.Core.Helpers;
 
 namespace FileArchiver.Core.ViewModel {
     public class MainViewModel : ViewModelBase {
-        string status;
+        string statusMessage;
         string path;
         double progressValue;
 
         public MainViewModel() {
-            this.status = string.Empty;
+            this.statusMessage = "[status]";
             this.path = string.Empty;
             this.progressValue = 0;
             this.RunCommand = new Command(async () => await Run(), CanRun);
@@ -32,16 +32,13 @@ namespace FileArchiver.Core.ViewModel {
                 RunCommand.RaiseCanExecuteChanged();
             }
         }
-        public string Status {
-            get { return status; }
+        public string StatusMessage {
+            get { return statusMessage; }
             set {
-                if(Status == value) return;
-                status = value;
-                RaisePropertyChanged(nameof(Status));
+                if(StatusMessage == value) return;
+                statusMessage = value;
+                RaisePropertyChanged(nameof(StatusMessage));
             }
-        }
-        public bool IsStatusEnabled {
-            get { return false; }
         }
         public double ProgressValue {
             get { return progressValue; }
@@ -50,9 +47,6 @@ namespace FileArchiver.Core.ViewModel {
                 progressValue = value;
                 RaisePropertyChanged(nameof(ProgressValue));
             }
-        }
-        public bool IsProgressEnabled {
-            get { return false; }
         }
         public bool IsChoiceButtonEnabled {
             get { return true; }
@@ -63,6 +57,7 @@ namespace FileArchiver.Core.ViewModel {
             return inputCommand != InputCommand.Unknown;
         }
         public virtual async Task Run() {
+            ProgressValue = 0;
             InputCommand inputCommand = InputDataService.GetInputCommand(path);
             switch(inputCommand) {
                 case InputCommand.Encode:
@@ -80,13 +75,13 @@ namespace FileArchiver.Core.ViewModel {
             string targetPath = FileSelectorService.GetSaveFile();
             if(string.IsNullOrEmpty(targetPath)) return;
 
-            await Task.Run(() => EncodingService.Encode(Path, targetPath));
+            await EncodingService.EncodeAsync(Path, targetPath, new DefaultProgressHandler(this));
         }
         private async Task Decode() {
             string targetFolder = FolderSelectorService.GetFolder();
             if(string.IsNullOrEmpty(targetFolder)) return;
 
-            await Task.Run(() => DecodingService.Decode(Path, targetFolder));
+            await DecodingService.DecodeAsync(Path, targetFolder, new DefaultProgressHandler(this));
         }
     }
 }

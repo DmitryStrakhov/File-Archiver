@@ -21,6 +21,56 @@ namespace FileArchiver.Tests {
             Assert.Throws<ArgumentNullException>(() => new FileDecodingInputStream("file", null));
         }
         [Test]
+        public void DefaultsTest() {
+            using(FileDecodingInputStream stream = CreateFileDecodingInputStream(new byte[]{1})) {
+                Assert.IsFalse(stream.IsEmpty);
+                Assert.AreEqual(1, stream.SizeInBytes);
+                Assert.AreEqual(0, stream.Position);
+            }
+        }
+        [Test]
+        public void EmptyStreamTest() {
+            using(FileDecodingInputStream stream = CreateFileDecodingInputStream(new byte[0])) {
+                Assert.IsTrue(stream.IsEmpty);
+                Assert.AreEqual(0, stream.SizeInBytes);
+                Assert.AreEqual(0, stream.Position);
+            }
+        }
+        [Test]
+        public void PositionPropertyTest() {
+            byte[] data = {0x1, 0x2, 0x3};
+
+            using(FileDecodingInputStream stream = CreateFileDecodingInputStream(data)) {
+                Assert.AreEqual(0, stream.Position);
+
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                Assert.AreEqual(2, stream.Position);
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                Assert.AreEqual(8, stream.Position);
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                Assert.AreEqual(10, stream.Position);
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                stream.ReadBit(out Bit _);
+                Assert.AreEqual(13, stream.Position);
+            }
+        }
+        [Test]
+        public void SizePropertyTest() {
+            byte[] data = { 0x1, 0x2, 0x3 };
+
+            using(FileDecodingInputStream stream = CreateFileDecodingInputStream(data)) {
+                Assert.AreEqual(3, stream.SizeInBytes);
+            }
+        }
+        [Test]
         public void ReadBitTest1() {
             byte[] data = {0x39, 0xCC};
 

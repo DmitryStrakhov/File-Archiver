@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using FileArchiver.Core.Base;
 using FileArchiver.Core.Format;
 using FileArchiver.Core.HuffmanCore;
 using FileArchiver.Core.Parsers;
@@ -48,13 +50,39 @@ namespace FileArchiver.Tests {
 
         #region IFileDecoder
 
-        void IFileDecoder.Decode(IDecodingOutputStream outputStream) {
+        void IFileDecoder.Decode(IDecodingOutputStream outputStream, IProgressHandler progress) {
             Trace += "->Decode;";
         }
 
         #endregion
 
         public string Trace { get; set; } = string.Empty;
+    }
+
+    #endregion
+
+    #region IProgress<DecodingProgressInfo>
+
+    public class TestDecodingIProgress : IProgress<CodingProgressInfo> {
+        readonly List<int> valueList;
+        readonly List<string> messageList;
+
+        public TestDecodingIProgress() {
+            this.valueList = new List<int>(128);
+            this.messageList = new List<string>(128);
+        }
+
+        #region IProgress<DecodingProgressInfo>
+
+        void IProgress<CodingProgressInfo>.Report(CodingProgressInfo value) {
+            valueList.Add(value.Value);
+            messageList.Add(value.StatusMessage);
+        }
+
+        #endregion
+
+        public IReadOnlyCollection<int> ValueList { get { return valueList; } }
+        public IReadOnlyCollection<string> MessageList { get { return messageList; } }
     }
 
     #endregion
@@ -90,30 +118,30 @@ namespace FileArchiver.Tests {
             this.service = new DefaultHuffmanDecodingService(platform, streamParser);
         }
         [Test]
-        public void DecodeTest1() {
+        public async Task DecodeTest1() {
             platform.ReadFileFunc = x => new MemoryStream(new byte[0]);
 
             streamParser.Trace = string.Empty;
-            service.Decode(@"C:\Input.archive", @"C:\Output\");
+            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", null);
             Assert.AreEqual(string.Empty, streamParser.Trace);
         }
         [Test]
-        public void DecodeTest2() {
+        public async Task DecodeTest2() {
             byte[] data = { 0x2, 0x0 };
             platform.ReadFileFunc = x => new MemoryStream(data);
 
             streamParser.Trace = string.Empty;
-            service.Decode(@"C:\Input.archive", @"C:\Output\");
+            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", null);
             Assert.AreEqual("->ParseWeightsTable;->ParseFile;", streamParser.Trace);
         }
         [Test]
-        public void DecodeTest3() {
+        public async Task DecodeTest3() {
             byte[] data = { 0x2, 0x1, 0x0, 0x0, 0x1, 0x0, 0x1 };
             platform.ReadFileFunc = x => new MemoryStream(data);
 
             streamParser.Cardinality = 2;
             streamParser.Trace = string.Empty;
-            service.Decode(@"C:\Input.archive", @"C:\Output\");
+            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", null);
             string expected = "->ParseWeightsTable;" +
                               "->ParseDirectory;" +
                               "->ParseFile;" +
@@ -128,9 +156,7 @@ namespace FileArchiver.Tests {
             byte[] data = { 0x1, 0x0, 0x0, 0x1 };
             platform.ReadFileFunc = x => new MemoryStream(data);
 
-            Assert.Throws<InvalidOperationException>(() => {
-                service.Decode(@"C:\Input.archive", @"C:\Output\");
-            });
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", null));
         }
     }
 
@@ -147,34 +173,34 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public void DecodeGuardCase1Test() {
-            Assert.Throws<ArgumentNullException>(() => service.Decode(null, @"C:\Dir\"));
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.DecodeAsync(null, @"C:\Dir\", null));
         }
         [Test]
         public void DecodeGuardCase2Test() {
-            Assert.Throws<ArgumentException>(() => service.Decode(string.Empty, @"C:\Dir\"));
+            Assert.ThrowsAsync<ArgumentException>(async () => await service.DecodeAsync(string.Empty, @"C:\Dir\", null));
         }
         [Test]
         public void DecodeGuardCase3Test() {
-            Assert.Throws<ArgumentNullException>(() => service.Decode(@"C:\File.dat", null));
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.DecodeAsync(@"C:\File.dat", null, null));
         }
         [Test]
         public void DecodeGuardCase4Test() {
-            Assert.Throws<ArgumentException>(() => service.Decode(@"C:\File.dat", string.Empty));
+            Assert.ThrowsAsync<ArgumentException>(async () => await service.DecodeAsync(@"C:\File.dat", string.Empty, null));
         }
         
         [Test]
-        public void DecodeEmptyStreamTest() {
+        public async Task DecodeEmptyStreamTest() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x0).GetStream();
 
             platform.Trace = string.Empty;
             platform.WriteFileFunc += x => new MemoryStream();
-            service.Decode(@"C:\InputFile.dat", @"C:\Root\");
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)", platform.Trace);
         }
         [Test]
-        public void DecodeEmptyDirectoryTest() {
+        public async Task DecodeEmptyDirectoryTest() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x0)
@@ -184,11 +210,11 @@ namespace FileArchiver.Tests {
                 .AddInt(0x0).GetStream();
 
             platform.Trace = string.Empty;
-            service.Decode(@"C:\InputFile.dat", @"C:\Root\");
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->CreateDirectory(C:\Root\dir)", platform.Trace);
         }
         [Test]
-        public void DecodeEmptyFileTest() {
+        public async Task DecodeEmptyFileTest() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x0)
@@ -201,12 +227,12 @@ namespace FileArchiver.Tests {
             platform.WriteFileFunc += x => dataStream;
             platform.Trace = string.Empty;
             
-            service.Decode(@"C:\InputFile.dat", @"C:\Root\");
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->WriteFile(C:\Root\file.dat)", platform.Trace);
             AssertStreamIsEmpty(dataStream);
         }
         [Test]
-        public void DecodeFileTest() {
+        public async Task DecodeFileTest() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x24)
@@ -231,12 +257,12 @@ namespace FileArchiver.Tests {
             platform.WriteFileFunc += x => dataStream;
             platform.Trace = string.Empty;
 
-            service.Decode(@"C:\InputFile.dat", @"C:\Root\");
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->WriteFile(C:\Root\file.dat)", platform.Trace);
             AssertStream(dataStream, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4);
         }
         [Test]
-        public void DecodeDirectoryTest1() {
+        public async Task DecodeDirectoryTest1() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x24)
@@ -293,7 +319,7 @@ namespace FileArchiver.Tests {
             };
             platform.WriteFileFunc += x => streams[x];
             platform.Trace = string.Empty;
-            service.Decode(@"C:\InputFile.dat", @"C:\Root\");
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
             
             string expectedTrace = @"->ReadFile(C:\InputFile.dat)" +
                 @"->CreateDirectory(C:\Root\dir)" + 
@@ -311,7 +337,7 @@ namespace FileArchiver.Tests {
             AssertStream(streams[f4], 0x3, 0x1, 0x9);
         }
         [Test]
-        public void DecodeDirectoryTest2() {
+        public async Task DecodeDirectoryTest2() {
             platform.ReadFileFunc = x => new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x00)
@@ -358,7 +384,7 @@ namespace FileArchiver.Tests {
                 .GetStream();
 
             platform.Trace = string.Empty;
-            service.Decode(@"C:\InputFile.dat", @"C:\Root\");
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
             
             string expectedTrace = @"->ReadFile(C:\InputFile.dat)" +
                 @"->CreateDirectory(C:\Root\d0)" + 
@@ -372,6 +398,86 @@ namespace FileArchiver.Tests {
                 @"->CreateDirectory(C:\Root\d0\d2\d3\d6\d8)" + 
                 @"->CreateDirectory(C:\Root\d0\d2\d3\d6\d9)";
             Assert.AreEqual(expectedTrace, platform.Trace);
+        }
+        [Test]
+        public async Task DecodingProgressTest1() {
+            platform.ReadFileFunc = x => new BufferBuilder()
+                .AddByte(0x2)
+                .AddInt(0x9)
+                .AddByte(0x0)
+                .AddLong(0x1)
+                .AddByte(0x1)
+                .AddInt(0x6)
+                .AddString("dir")
+                .AddInt(2)
+                .AddByte(0x0)
+                .AddInt(0xC)
+                .AddString("f1.dat")
+                .AddLong(0x8)
+                .AddByte(0x0)
+                .AddByte(0x0)
+                .AddInt(0xC)
+                .AddString("f2.dat")
+                .AddLong(0x8)
+                .AddByte(0x0).GetStream();
+
+            const string f1 = @"C:\Root\dir\f1.dat";
+            const string f2 = @"C:\Root\dir\f2.dat";
+            Dictionary<string, MemoryStream> streams = new Dictionary<string, MemoryStream>() {
+                {f1, new MemoryStream()},
+                {f2, new MemoryStream()},
+            };
+            platform.WriteFileFunc += x => streams[x];
+
+            TestDecodingIProgress progress = new TestDecodingIProgress();
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", progress);
+            CollectionAssert.AreEqual(new[] {0, 100}, progress.ValueList);
+            CollectionAssert.AreEqual(new[] {"[Start]", "[Finish]"}, progress.MessageList);
+        }
+        [Test]
+        public async Task DecodingProgressTest2() {
+            platform.ReadFileFunc = x => new BufferBuilder()
+                .AddByte(0x2)
+                .AddInt(0x9)
+                .AddByte(0x0)
+                .AddLong(0x1)
+                .AddByte(0x1)
+                .AddInt(0x6)
+                .AddString("dir")
+                .AddInt(2)
+                .AddByte(0x0)
+                .AddInt(0xC)
+                .AddString("f1.dat")
+                .AddLong(200 * 1024 * 8) // 200Kb
+                .AddByte(0x0, 200 * 1024)
+                .AddByte(0x0)
+                .AddInt(0xC)
+                .AddString("f2.dat")
+                .AddLong(300 * 1024 * 8) // 300Kb
+                .AddByte(0x0, 300 * 1024).GetStream();
+
+            const string f1 = @"C:\Root\dir\f1.dat";
+            const string f2 = @"C:\Root\dir\f2.dat";
+            Dictionary<string, MemoryStream> streams = new Dictionary<string, MemoryStream>() {
+                {f1, new MemoryStream()},
+                {f2, new MemoryStream()},
+            };
+            platform.WriteFileFunc += x => streams[x];
+
+            TestDecodingIProgress progress = new TestDecodingIProgress();
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", progress);
+            int[] expectedValues = {
+                0, 25, 51, 76, 100
+            };
+            string[] expectedMessages = {
+                "[Start]",
+                @"C:\Root\dir\f1.dat",
+                @"C:\Root\dir\f2.dat",
+                @"C:\Root\dir\f2.dat",
+                "[Finish]"
+            };
+            CollectionAssert.AreEqual(expectedValues, progress.ValueList);
+            CollectionAssert.AreEqual(expectedMessages, progress.MessageList);
         }
 
         private void AssertStream(MemoryStream stream, params byte[] expected) {

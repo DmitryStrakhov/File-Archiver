@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Builders;
 using FileArchiver.Core.FileCore;
@@ -22,33 +23,40 @@ namespace FileArchiver.Core.Services {
             this.streamBuilder = streamBuilder;
         }
 
-        public bool Encode(string inputPath, string outputFile) {
+        public Task<bool> EncodeAsync(string inputPath, string outputFile, IProgress<CodingProgressInfo> progress) {
             Guard.IsNotNullOrEmpty(inputPath, nameof(inputPath));
             Guard.IsNotNullOrEmpty(outputFile, nameof(outputFile));
-
+            return Task.Run(() => Encode(inputPath, outputFile, progress));
+        }
+        private bool Encode(string inputPath, string outputFile, IProgress<CodingProgressInfo> progress) {
             HuffmanEncoder encoder = new HuffmanEncoder();
             DirectoryEncodingInputStream directoryInputStream = new DirectoryEncodingInputStream(inputPath, fileSystemService, platform);
             FileEncodingOutputStream outputStream = new FileEncodingOutputStream(outputFile, platform);
 
             try {
                 outputStream.BeginWrite();
+                ITaskProgressController tpc = CreateTaskProgressController(progress, directoryInputStream);
+
+                tpc.StartIndeterminate();
                 EncodingToken encodingToken = encoder.CreateEncodingToken(directoryInputStream);
+                tpc.EndIndeterminate();
                 streamBuilder.Initialize(platform, encodingToken, outputStream);
                 streamBuilder.AddWeightsTable(new BootstrapSegment(encodingToken.WeightsTable));
-
+                tpc.Start();
                 foreach(FileSystemEntry entry in fileSystemService.EnumFileSystemEntries(inputPath)) {
                     switch(entry.Type) {
                         case FileSystemEntryType.Directory:
                             streamBuilder.AddDirectory(new DirectorySegment(entry.Name, entry.Cardinality));
                             break;
                         case FileSystemEntryType.File:
-                            streamBuilder.AddFile(new FileSegment(entry.Name, entry.Path));
+                            streamBuilder.AddFile(new FileSegment(entry.Name, entry.Path), tpc);
                             break;
                         default:
                             throw new InvalidOperationException();
                     }
                 }
                 outputStream.EndWrite();
+                tpc.Finish();
             }
             finally {
                 directoryInputStream.Dispose();
@@ -56,5 +64,42 @@ namespace FileArchiver.Core.Services {
             }
             return true;
         }
+        private ITaskProgressController CreateTaskProgressController(IProgress<CodingProgressInfo> progress, DirectoryEncodingInputStream inputStream) {
+            if(progress == null) return new NullTaskProgressController();
+            return new EncodingTaskProgressController(progress, () => inputStream.SizeInBytes);
+        }
+    }
+
+    
+    class EncodingTaskProgressController : ITaskProgressController {
+        readonly IProgress<CodingProgressInfo> progress;
+        readonly Lazy<long> totalLazy;
+        long current;
+        IProgressState state;
+
+        public EncodingTaskProgressController(IProgress<CodingProgressInfo> progress, Func<long> getTotal) {
+            this.progress = progress;
+            this.totalLazy = new Lazy<long>(getTotal);
+            this.current = 0;
+            this.state = null;
+        }
+
+        public void Start() {
+            progress.Report(new CodingProgressInfo(0, "[Start]"));
+        }
+        public void Finish() {
+            progress.Report(new CodingProgressInfo(100, "[Finish]"));
+        }
+        public void StartIndeterminate() {
+            progress.Report(new CodingProgressInfo(-1, "[Build encoding token]"));
+        }
+        public void EndIndeterminate() {
+        }
+        public void Report(long byteCount, string statusMessage) {
+            if(totalLazy.Value == 0) return;
+            current += byteCount;
+            progress.Report(new CodingProgressInfo((int)(current * 100 / totalLazy.Value), statusMessage));
+        }
+        IProgressState IProgressHandler.State { get { return state; } set { state = value; } }
     }
 }

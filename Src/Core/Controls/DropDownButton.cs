@@ -7,15 +7,13 @@ using FileArchiver.Core.Helpers;
 
 namespace FileArchiver.Core.Controls {
     public class DropDownButton : ContentControl {
-        static readonly ControlHelper<DropDownButton> controlHelper;
-
         public static readonly DependencyProperty IsPressedProperty;
         public static readonly DependencyProperty DropDownMenuProperty;
         static readonly DependencyPropertyKey IsPressedPropertyKey;
 
         static DropDownButton() {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(DropDownButton), new FrameworkPropertyMetadata(typeof(DropDownButton)));
-            controlHelper = new ControlHelper<DropDownButton>();
+            ControlHelper<DropDownButton> controlHelper = new ControlHelper<DropDownButton>();
             IsPressedPropertyKey = controlHelper.RegisterReadOnlyProperty(nameof(IsPressed), false, (d, e) => d.OnIsPressedChanged(e));
             DropDownMenuProperty = controlHelper.RegisterProperty<ContextMenu>(nameof(DropDownMenu), null, (d, e) => d.OnDropDownMenuChanged(e));
             IsPressedProperty = IsPressedPropertyKey.DependencyProperty;

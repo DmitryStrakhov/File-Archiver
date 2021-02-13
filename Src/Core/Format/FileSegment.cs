@@ -4,7 +4,7 @@ using FileArchiver.Core.Helpers;
 using FileArchiver.Core.HuffmanCore;
 
 namespace FileArchiver.Core.Format {
-    [DebuggerDisplay("FileSegment(Name: {Name})")]
+    [DebuggerDisplay("FileSegment(Name: {" + nameof(Name) + "})")]
     public class FileSegment {
         public FileSegment(string name, string path) {
             Guard.IsNotNullOrEmpty(name, nameof(name));
@@ -27,6 +27,6 @@ namespace FileArchiver.Core.Format {
     }
 
     public interface IFileDecoder {
-        void Decode(IDecodingOutputStream outputStream);
+        void Decode(IDecodingOutputStream outputStream, IProgressHandler progress);
     }
 }

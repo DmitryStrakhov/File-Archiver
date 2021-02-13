@@ -7,12 +7,14 @@ using FileArchiver.Core.HuffmanCore;
 namespace FileArchiver.Core.FileCore {
     public class FileEncodingInputStream : IEncodingInputStream {
         readonly Stream fileStream;
+        readonly string path;
 
-        public FileEncodingInputStream(string fileName, IPlatformService platform) {
-            Guard.IsNotNullOrEmpty(fileName, nameof(fileName));
+        public FileEncodingInputStream(string path, IPlatformService platform) {
+            Guard.IsNotNullOrEmpty(path, nameof(path));
             Guard.IsNotNull(platform, nameof(platform));
 
-            this.fileStream = platform.ReadFile(fileName);
+            this.path = path;
+            this.fileStream = platform.ReadFile(path);
         }
         
         public bool ReadSymbol(out byte symbol) {
@@ -23,6 +25,9 @@ namespace FileArchiver.Core.FileCore {
             }
             symbol = (byte)result;
             return true;
+        }
+        public string Path {
+            get { return path; }
         }
         public void Reset() {
             fileStream.Seek(0, SeekOrigin.Begin);

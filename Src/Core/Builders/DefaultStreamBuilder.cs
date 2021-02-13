@@ -49,7 +49,7 @@ namespace FileArchiver.Core.Builders {
             }
             stream.Write(segment.Cardinality);
         }
-        public void AddFile(FileSegment segment) {
+        public void AddFile(FileSegment segment, IProgressHandler progress) {
             string name = segment.Name;
             string path = segment.Path;
             Guard.IsNotNullOrEmpty(name, nameof(name));
@@ -64,7 +64,7 @@ namespace FileArchiver.Core.Builders {
             stream.Write(0L);
             
             using(FileEncodingInputStream fileStream = new FileEncodingInputStream(path, platform)) {
-                long sequenceLength = encoder.Encode(fileStream, stream, token);
+                long sequenceLength = encoder.Encode(fileStream, stream, token, progress);
                 EnsureSequenceLayout(sequenceLength);
                 IStreamPosition endPosition = stream.SavePosition();
                 stream.RestorePosition(sizePosition);

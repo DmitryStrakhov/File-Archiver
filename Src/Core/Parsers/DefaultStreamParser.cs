@@ -63,8 +63,8 @@ namespace FileArchiver.Core.Parsers {
                 this.decoder = decoder;
             }
 
-            public void Decode(IDecodingOutputStream outputStream) {
-                decoder.Decode(inputStream, weightsTable, outputStream, length);
+            public void Decode(IDecodingOutputStream outputStream, IProgressHandler progress) {
+                decoder.Decode(inputStream, weightsTable, outputStream, length, progress);
 
                 int trailingBitCount = MathHelper.ModAdv(length, 8);
                 for(int n = 0; n < trailingBitCount; n++) {

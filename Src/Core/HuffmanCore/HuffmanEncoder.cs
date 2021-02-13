@@ -30,14 +30,16 @@ namespace FileArchiver.Core.HuffmanCore {
             return new EncodingToken(weightsTable, huffmanTree, codingTable);
         }
         
-        public long Encode(IEncodingInputStream inputStream, IEncodingOutputStream outputStream, EncodingToken encodingToken) {
+        public long Encode(IEncodingInputStream inputStream, IEncodingOutputStream outputStream, EncodingToken encodingToken, IProgressHandler progress) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
             Guard.IsNotNull(outputStream, nameof(outputStream));
             Guard.IsNotNull(encodingToken, nameof(encodingToken));
+            const int chunkSize = 128 * 1024; // 128Kb
 
             CodingTable codingTable = encodingToken.CodingTable;
             inputStream.Reset();
             long sequenceLength = 0;
+            long progressValue = progress?.State.CastTo<CodingProgressState>()?.Value ?? 0;
 
             while(inputStream.ReadSymbol(out byte symbol)) {
                 BitSequence codingSequence = codingTable[symbol];
@@ -46,6 +48,15 @@ namespace FileArchiver.Core.HuffmanCore {
                     sequenceLength++;
                     outputStream.WriteBit(bit);
                 }
+                // Throttling
+                if(++progressValue == chunkSize) {
+                    progress?.Report(chunkSize, inputStream.Path);
+                    progressValue = 0;
+                }
+            }
+            if(progress != null) {
+                CodingProgressState progressState = (CodingProgressState)progress.State ?? new CodingProgressState();
+                progress.State = progressState.WithValue(progressValue);
             }
             return sequenceLength;
         }

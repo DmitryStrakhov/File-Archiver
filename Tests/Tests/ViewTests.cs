@@ -5,6 +5,7 @@ using FileArchiver.Core.ViewModel;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using FileArchiver.Core.Controls;
 using FileArchiver.Core.Helpers;
 using NUnit.Framework;
 
@@ -54,11 +55,9 @@ namespace FileArchiver.Tests {
         public void DefaultsTest() {
             Assert.IsTrue(window.ChoiceButton.IsEnabled);
             Assert.IsFalse(window.RunButton.IsEnabled);
-            Assert.IsFalse(window.ProgressBar.IsEnabled);
-            Assert.IsFalse(window.StatusTextBlock.IsEnabled);
 
             Assert.AreEqual(string.Empty, window.PathTextBlock.Text);
-            Assert.AreEqual(string.Empty, window.StatusTextBlock.Text);
+            Assert.AreEqual("[status]", window.StatusTextBlock.Text);
             AreEqual(0, window.ProgressBar.Value);
             
             CollectionAssert.IsEmpty(Validation.GetErrors(window.PathTextBlock));
@@ -71,24 +70,52 @@ namespace FileArchiver.Tests {
             Assert.AreEqual("value2", window.PathTextBlock.Text);
         }
         [Test]
-        public void StatusPropertyTest() {
-            viewModel.Status = "value3";
+        public void StatusMessagePropertyTest() {
+            viewModel.StatusMessage = "value3";
             Assert.AreEqual("value3", window.StatusTextBlock.Text);
-            viewModel.Status = "value4";
+            viewModel.StatusMessage = "value4";
             Assert.AreEqual("value4", window.StatusTextBlock.Text);
         }
         [Test]
-        public void ProgressValuePropertyTest() {
+        public void ProgressValuePropertyTest1() {
             viewModel.ProgressValue = 50;
             AreEqual(50, window.ProgressBar.Value);
+            AreEqual(50, window.ProgressBar.ProgressValue);
             viewModel.ProgressValue = 100;
             AreEqual(100, window.ProgressBar.Value);
+            AreEqual(100, window.ProgressBar.ProgressValue);
+        }
+        [Test]
+        public void ProgressValuePropertyTest2() {
+            ProgressBarControl progressBar = window.ProgressBar;
+            progressBar.IndeterminateValue = -1;
+            progressBar.Minimum = 0;
+            progressBar.Maximum = 100;
+
+            progressBar.ProgressValue = 1;
+            AssertProgressBar(1, 1, false);
+            progressBar.ProgressValue = -10;
+            AssertProgressBar(0, 0, false);
+            progressBar.ProgressValue = 101;
+            AssertProgressBar(100, 100, false);
+
+            progressBar.ProgressValue = -1;
+            AssertProgressBar(100, -1, true);
+            progressBar.ProgressValue = 30;
+            AssertProgressBar(30, 30, false);
         }
         [Test]
         public void PathValidationErrorTest() {
             viewModel.Path = "Some Path";
             var errors = Validation.GetErrors(window.PathTextBlock);
             Assert.AreEqual(1, errors.Count);
+        }
+
+        private void AssertProgressBar(double value, double progressValue, bool isIndeterminate) {
+            ProgressBarControl progressBar = window.ProgressBar;
+            AreEqual(value, progressBar.Value);
+            AreEqual(progressValue, progressBar.ProgressValue);
+            Assert.AreEqual(isIndeterminate, progressBar.IsIndeterminate);
         }
         private void AreEqual(double expected, double actual) {
             if(MathHelper.AreNotEqual(expected, actual)) Assert.Fail();

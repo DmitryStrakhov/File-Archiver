@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
+using FileArchiver.Core.Helpers;
 using FileArchiver.Core.ViewModel;
 using NUnit.Framework;
 
@@ -87,9 +88,9 @@ namespace FileArchiver.Tests {
 
         #region IHuffmanEncodingService
 
-        bool IHuffmanEncodingService.Encode(string inputPath, string outputFile) {
+        Task<bool> IHuffmanEncodingService.EncodeAsync(string inputPath, string outputFile, IProgress<CodingProgressInfo> progress) {
             TraceMember();
-            return true;
+            return Task.FromResult(true);
         }
 
         #endregion
@@ -101,8 +102,9 @@ namespace FileArchiver.Tests {
 
         #region IHuffmanDecodingService
 
-        void IHuffmanDecodingService.Decode(string inputFile, string outputFolder) {
+        Task IHuffmanDecodingService.DecodeAsync(string inputFile, string outputFolder, IProgress<CodingProgressInfo> progress) {
             TraceMember();
+            return Task.FromResult<object>(null);
         }
 
         #endregion
@@ -140,7 +142,7 @@ namespace FileArchiver.Tests {
 
             fileSelectorService.FilePath = @"C:\File.archive";
             await viewModel.Run();
-            Assert.AreEqual("Run;GetInputCommand;GetSaveFile;Encode;", viewModel.Trace);
+            Assert.AreEqual("Run;GetInputCommand;GetSaveFile;EncodeAsync;", viewModel.Trace);
         }
         [Test]
         public async Task EncodeFileTest2() {
@@ -158,7 +160,7 @@ namespace FileArchiver.Tests {
 
             fileSelectorService.FilePath = @"C:\File.archive";
             await viewModel.Run();
-            Assert.AreEqual("Run;GetInputCommand;GetSaveFile;Encode;", viewModel.Trace);
+            Assert.AreEqual("Run;GetInputCommand;GetSaveFile;EncodeAsync;", viewModel.Trace);
         }
         [Test]
         public async Task DecodeFileTest1() {
@@ -167,7 +169,7 @@ namespace FileArchiver.Tests {
 
             folderSelectorService.FolderPath = @"C:\Folder";
             await viewModel.Run();
-            Assert.AreEqual("Run;GetInputCommand;GetFolder;Decode;", viewModel.Trace);
+            Assert.AreEqual("Run;GetInputCommand;GetFolder;DecodeAsync;", viewModel.Trace);
         }
         [Test]
         public async Task DecodeFileTest2() {
@@ -183,7 +185,7 @@ namespace FileArchiver.Tests {
             inputDataService.InputCommand = InputCommand.Unknown;
             viewModel.Path = "Path";
 
-            Assert.ThrowsAsync<Exception>(() => viewModel.Run());
+            Assert.ThrowsAsync<Exception>(async () => await viewModel.Run());
             Assert.AreEqual("Run;GetInputCommand;", viewModel.Trace);
         }
         [Test]

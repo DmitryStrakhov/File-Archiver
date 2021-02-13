@@ -7,25 +7,40 @@ namespace FileArchiver.Core.HuffmanCore {
         public HuffmanDecoder() {
         }
 
-        public void Decode(IDecodingInputStream inputStream, WeightsTable weightsTable, IDecodingOutputStream outputStream, long sequenceLength) {
+        public void Decode(IDecodingInputStream inputStream, WeightsTable weightsTable, IDecodingOutputStream outputStream, long sequenceLength, IProgressHandler progress) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
             Guard.IsNotNull(weightsTable, nameof(weightsTable));
             Guard.IsNotNull(outputStream, nameof(outputStream));
             Guard.IsNotNegative(sequenceLength, nameof(sequenceLength));
 
             HuffmanTreeBase tree = new HuffmanEncoder().BuildHuffmanTree(weightsTable);
-            Decode(inputStream, tree, outputStream, sequenceLength);
+            Decode(inputStream, tree, outputStream, sequenceLength, progress);
         }
-        public void Decode(IDecodingInputStream inputStream, HuffmanTreeBase tree, IDecodingOutputStream outputStream, long sequenceLength) {
+        public void Decode(IDecodingInputStream inputStream, HuffmanTreeBase tree, IDecodingOutputStream outputStream, long sequenceLength, IProgressHandler progress) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
             Guard.IsNotNull(tree, nameof(tree));
             Guard.IsNotNull(outputStream, nameof(outputStream));
             Guard.IsNotNegative(sequenceLength, nameof(sequenceLength));
+            const int chunkSize = 0x20000 * 8; // 128Kb
+            long progressValue = progress?.State.CastTo<CodingProgressState>()?.Value ?? 0;
+            long streamPosition = inputStream.Position;
 
             TreeWalker walker = new TreeWalker(tree, inputStream, outputStream, sequenceLength);
             while(!walker.Exhausted && !inputStream.IsEmpty) {
                 if(!tree.Walk(walker))
                     throw new ArgumentException();
+                // Throttling
+                progressValue += inputStream.Position - streamPosition;
+                streamPosition = inputStream.Position;
+
+                if(progressValue >= chunkSize) {
+                    progress?.Report(progressValue / 8, outputStream.Path);
+                    progressValue %= 8;
+                }
+            }
+            if(progress != null) {
+                CodingProgressState progressState = (CodingProgressState)progress.State ?? new CodingProgressState();
+                progress.State = progressState.WithValue(progressValue);
             }
         }
 

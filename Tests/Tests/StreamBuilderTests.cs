@@ -132,19 +132,19 @@ namespace FileArchiver.Tests {
 
         [Test]
         public void AddFileGuardCase1Test() {
-            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment(null, "path")));
+            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment(null, "path"), null));
         }
         [Test]
         public void AddFileGuardCase2Test() {
-            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment("name", (string)null)));
+            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment("name", (string)null), null));
         }
         [Test]
         public void AddFileGuardCase3Test() {
-            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment(string.Empty, "path")));
+            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment(string.Empty, "path"), null));
         }
         [Test]
         public void AddFileGuardCase4Test() {
-            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment("name", string.Empty)));
+            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment("name", string.Empty), null));
         }
         [Test]
         public void AddFileTest1() {
@@ -154,7 +154,7 @@ namespace FileArchiver.Tests {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
             builder.Initialize(platform, EmptyEncodingToken.Instance, stream);
             
-            builder.AddFile(new FileSegment(@"file.bin", @"C:\file.bin"));
+            builder.AddFile(new FileSegment(@"file.bin", @"C:\file.bin"), null);
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x00)
                 .AddInt(0x10)
@@ -180,7 +180,7 @@ namespace FileArchiver.Tests {
             HuffmanEncoder encoder = new HuffmanEncoder();
             builder.Initialize(platform, CreateEncodingToken(encoder, data), stream);
 
-            builder.AddFile(new FileSegment(@"data.bin", @"C:\data.bin"));
+            builder.AddFile(new FileSegment(@"data.bin", @"C:\data.bin"), null);
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x00)
                 .AddInt(0x10)

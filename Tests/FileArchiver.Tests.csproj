@@ -63,6 +63,7 @@
     <Compile Include="TestExtensions.cs" />
     <Compile Include="TestHelpers.cs" />
     <Compile Include="TestIPlatformService.cs" />
+    <Compile Include="Tests\TestIProgressHandler.cs" />
     <Compile Include="Tests\ViewModelTests.cs" />
     <Compile Include="Tests\ViewTests.cs" />
     <Compile Include="Tests\WeightsTableTests.cs" />

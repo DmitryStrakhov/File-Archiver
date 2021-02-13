@@ -195,6 +195,64 @@ namespace FileArchiver.Tests {
             }
         }
         [Test]
+        public void IsTraversedPropertyTest() {
+            fileSystemService.EnumFileSystemEntriesFunc = _ => EnumFiles(2);
+
+            Dictionary<string, byte[]> data = new Dictionary<string, byte[]> {
+                {@"C:\dir\file1.dat", new byte[] {0x12, 0x33}},
+                {@"C:\dir\file2.dat", new byte[] {0xEA, 0x33}},
+            };
+            platform.ReadFileFunc = x => new MemoryStream(data[x]);
+
+            using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
+                Assert.IsFalse(stream.IsTraversed);
+                while(stream.ReadSymbol(out byte _)) {
+                }
+                Assert.IsTrue(stream.IsTraversed);
+            }
+        }
+        [Test]
+        public void SizeInBytesPropertyGuardTest() {
+            fileSystemService.EnumFileSystemEntriesFunc = _ => EnumFiles(2);
+
+            Dictionary<string, byte[]> data = new Dictionary<string, byte[]> {
+                {@"C:\dir\file1.dat", new byte[] {0x12, 0x33}},
+                {@"C:\dir\file2.dat", new byte[] {0xEA, 0x33}},
+            };
+            platform.ReadFileFunc = x => new MemoryStream(data[x]);
+
+            using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
+                Assert.Throws<InvalidOperationException>(() => { long size = stream.SizeInBytes; });
+            }
+        }
+        [Test]
+        public void SizeInBytesPropertyTest1() {
+            fileSystemService.EnumFileSystemEntriesFunc = x => new FileSystemEntry[0];
+
+            using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
+                while(stream.ReadSymbol(out byte _)) {
+                }
+                Assert.AreEqual(0, stream.SizeInBytes);
+            }
+        }
+        [Test]
+        public void SizeInBytesPropertyTest2() {
+            fileSystemService.EnumFileSystemEntriesFunc = _ => EnumFiles(3);
+
+            Dictionary<string, byte[]> data = new Dictionary<string, byte[]> {
+                {@"C:\dir\file1.dat", new byte[10 * 1024]},
+                {@"C:\dir\file2.dat", new byte[12 * 1024]},
+                {@"C:\dir\file3.dat", new byte[123]},
+            };
+            platform.ReadFileFunc = x => new MemoryStream(data[x]);
+
+            using(DirectoryEncodingInputStream stream = new DirectoryEncodingInputStream(@"C:\dir\", fileSystemService, platform)) {
+                while(stream.ReadSymbol(out byte _)) {
+                }
+                Assert.AreEqual(22651, stream.SizeInBytes);
+            }
+        }
+        [Test]
         public void DisposeTest() {
             fileSystemService.EnumFileSystemEntriesFunc = _ => {
                 return new[] {

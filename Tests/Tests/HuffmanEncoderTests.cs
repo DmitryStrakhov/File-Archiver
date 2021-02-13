@@ -20,20 +20,19 @@ namespace FileArchiver.Tests {
             this.index = 0;
         }
 
-        #region IEncodingInputStream
-
-        bool IEncodingInputStream.ReadSymbol(out byte symbol) {
+        public bool ReadSymbol(out byte symbol) {
             bool hasSymbol = index < data.Length;
             symbol = hasSymbol ? data[index++] : (byte)0;
             return hasSymbol;
         }
-        void IEncodingInputStream.Reset() {
+        public string Path {
+            get { return "[test]"; }
+        }
+        public void Reset() {
             index = 0;
         }
-        void IDisposable.Dispose() {
+        public void Dispose() {
         }
-
-        #endregion
     }
 
     class TestIEncodingOutputStream : IEncodingOutputStream {
@@ -96,19 +95,19 @@ namespace FileArchiver.Tests {
         [Test]
         public void EncodeGuardCase1Test() {
             Assert.Throws<ArgumentNullException>(() =>
-                new HuffmanEncoder().Encode(null, new TestIEncodingOutputStream(), EmptyEncodingToken.Instance)
+                new HuffmanEncoder().Encode(null, new TestIEncodingOutputStream(), EmptyEncodingToken.Instance, null)
             );
         }
         [Test]
         public void EncodeGuardCase2Test() {
             Assert.Throws<ArgumentNullException>(() =>
-                new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), null, EmptyEncodingToken.Instance)
+                new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), null, EmptyEncodingToken.Instance, null)
             );
         }
         [Test]
         public void EncodeGuardCase3Test() {
             Assert.Throws<ArgumentNullException>(() =>
-                new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), new TestIEncodingOutputStream(), null)
+                new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), new TestIEncodingOutputStream(), null, null)
             );
         }
 
@@ -372,7 +371,7 @@ namespace FileArchiver.Tests {
 
             HuffmanEncoder encoder = new HuffmanEncoder();
             EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            long length = encoder.Encode(inputStream, outputStream, token);
+            long length = encoder.Encode(inputStream, outputStream, token, null);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
             Assert.AreEqual(0, length);
@@ -386,7 +385,7 @@ namespace FileArchiver.Tests {
             
             HuffmanEncoder encoder = new HuffmanEncoder();
             EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            long length = encoder.Encode(inputStream, outputStream, token);
+            long length = encoder.Encode(inputStream, outputStream, token, null);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
 
@@ -407,7 +406,7 @@ namespace FileArchiver.Tests {
             
             HuffmanEncoder encoder = new HuffmanEncoder();
             EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            long length = encoder.Encode(inputStream, outputStream, token);
+            long length = encoder.Encode(inputStream, outputStream, token, null);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
 
@@ -432,11 +431,41 @@ namespace FileArchiver.Tests {
             
             HuffmanEncoder encoder = new HuffmanEncoder();
             EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            long length = encoder.Encode(inputStream, outputStream, token);
+            long length = encoder.Encode(inputStream, outputStream, token, null);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
             Assert.AreEqual(54, length);
             AssertOutputStream(outputStream, "110111111111111110111111111101010101010001010000000000");
+        }
+        [Test]
+        [TestCase(0)]
+        [TestCase(1)]
+        public void EncodingProgressTest1(int size) {
+            byte[] data = new byte[size];
+            TestIEncodingInputStream inputStream = new TestIEncodingInputStream(data);
+            TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
+            
+            HuffmanEncoder encoder = new HuffmanEncoder();
+            EncodingToken token = encoder.CreateEncodingToken(inputStream);
+            TestIProgressHandler progress = new TestIProgressHandler();
+            encoder.Encode(inputStream, outputStream, token, progress);
+            CollectionAssert.IsEmpty(progress.ValueList);
+        }
+        [Test]
+        public void EncodingProgressTest2() {
+            byte[] data = new byte[27 * 1024];
+            TestIEncodingInputStream inputStream = new TestIEncodingInputStream(data);
+            TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
+            
+            HuffmanEncoder encoder = new HuffmanEncoder();
+            EncodingToken token = encoder.CreateEncodingToken(inputStream);
+            TestIProgressHandler progress = new TestIProgressHandler();
+
+            for(int n = 0; n < 10; n++) {
+                encoder.Encode(inputStream, outputStream, token, progress);
+                inputStream.Reset();
+            }
+            CollectionAssert.AreEqual(new long[]{ 128 * 1024, 128 * 1024 }, progress.ValueList);
         }
 
         private void AssertOutputStream(TestIEncodingOutputStream stream, string expected) {

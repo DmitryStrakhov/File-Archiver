@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace FileArchiver.Core.Base {
     public interface IHuffmanDecodingService {
-        void Decode(string inputFile, string outputFolder);
+        Task DecodeAsync(string inputFile, string outputFolder, IProgress<CodingProgressInfo> progress);
     }
 }

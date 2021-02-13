@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace FileArchiver.Core.Base {
     public interface IHuffmanEncodingService {
-        bool Encode(string inputPath, string outputFile);
+        Task<bool> EncodeAsync(string inputPath, string outputFile, IProgress<CodingProgressInfo> progress);
     }
 }

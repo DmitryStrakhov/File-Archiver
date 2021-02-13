@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Helpers;
@@ -18,6 +19,10 @@ namespace FileArchiver.Tests {
 
         public BufferBuilder AddByte(byte value) {
             memoryStream.WriteByte(value);
+            return this;
+        }
+        public BufferBuilder AddByte(byte value, int times) {
+            for(int n = 0; n < times; n++) AddByte(value);
             return this;
         }
         public BufferBuilder AddInt(int value) {
@@ -278,6 +283,14 @@ namespace FileArchiver.Tests {
                 chars[n] = bits[n] == Bit.Zero ? '0' : '1';
             }
             return new string(chars);
+        }
+        public static string CreateString(string pattern, int repeat) {
+            StringBuilder stringBuilder = new StringBuilder(pattern.Length * repeat);
+
+            for(int n = 0; n < repeat; n++) {
+                stringBuilder.Append(pattern);
+            }
+            return stringBuilder.ToString();
         }
     }
 }
