@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using FileArchiver.Core;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Helpers;
@@ -90,24 +91,24 @@ namespace FileArchiver.Tests {
     public class HuffmanEncoderTests {
         [Test]
         public void CreateEncodingTokenGuardTest() {
-            Assert.Throws<ArgumentNullException>(() => new HuffmanEncoder().CreateEncodingToken(null));
+            Assert.Throws<ArgumentNullException>(() => new HuffmanEncoder().CreateEncodingToken(null, CancellationToken.None));
         }
         [Test]
         public void EncodeGuardCase1Test() {
             Assert.Throws<ArgumentNullException>(() =>
-                new HuffmanEncoder().Encode(null, new TestIEncodingOutputStream(), EmptyEncodingToken.Instance, null)
+                new HuffmanEncoder().Encode(null, new TestIEncodingOutputStream(), EmptyEncodingToken.Instance, CancellationToken.None, null)
             );
         }
         [Test]
         public void EncodeGuardCase2Test() {
             Assert.Throws<ArgumentNullException>(() =>
-                new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), null, EmptyEncodingToken.Instance, null)
+                new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), null, EmptyEncodingToken.Instance, CancellationToken.None, null)
             );
         }
         [Test]
         public void EncodeGuardCase3Test() {
             Assert.Throws<ArgumentNullException>(() =>
-                new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), new TestIEncodingOutputStream(), null, null)
+                new HuffmanEncoder().Encode(new TestIEncodingInputStream(new byte[0]), new TestIEncodingOutputStream(), null, CancellationToken.None, null)
             );
         }
 
@@ -115,7 +116,7 @@ namespace FileArchiver.Tests {
         public void BuildWeightsTableTest1() {
             HuffmanEncoder encoder = new HuffmanEncoder();
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(new byte[0]);
-            WeightsTable weightsTable = encoder.BuildWeightsTable(inputStream);
+            WeightsTable weightsTable = encoder.BuildWeightsTable(inputStream, CancellationToken.None);
             Assert.IsNotNull(weightsTable);
             CollectionAssert.IsEmpty(weightsTable);
         }
@@ -123,7 +124,7 @@ namespace FileArchiver.Tests {
         public void BuildWeightsTableTest2() {
             HuffmanEncoder encoder = new HuffmanEncoder();
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(new byte[] {1});
-            WeightsTable weightsTable = encoder.BuildWeightsTable(inputStream);
+            WeightsTable weightsTable = encoder.BuildWeightsTable(inputStream, CancellationToken.None);
             Assert.IsNotNull(weightsTable);
             WeightedSymbol[] expected = {new WeightedSymbol(1, 1)};
             CollectionAssert.AreEqual(expected, weightsTable.ToArray());
@@ -134,7 +135,7 @@ namespace FileArchiver.Tests {
             HuffmanEncoder encoder = new HuffmanEncoder();
 
             TestIEncodingInputStream inputStream = new TestIEncodingInputStream(data);
-            WeightsTable weightsTable = encoder.BuildWeightsTable(inputStream);
+            WeightsTable weightsTable = encoder.BuildWeightsTable(inputStream, CancellationToken.None);
             Assert.IsNotNull(weightsTable);
             WeightedSymbol[] expected = {
                 new WeightedSymbol((byte)'a', 7),
@@ -370,8 +371,8 @@ namespace FileArchiver.Tests {
             TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
 
             HuffmanEncoder encoder = new HuffmanEncoder();
-            EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            long length = encoder.Encode(inputStream, outputStream, token, null);
+            EncodingToken token = encoder.CreateEncodingToken(inputStream, CancellationToken.None);
+            long length = encoder.Encode(inputStream, outputStream, token, CancellationToken.None, null);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
             Assert.AreEqual(0, length);
@@ -384,8 +385,8 @@ namespace FileArchiver.Tests {
             TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
             
             HuffmanEncoder encoder = new HuffmanEncoder();
-            EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            long length = encoder.Encode(inputStream, outputStream, token, null);
+            EncodingToken token = encoder.CreateEncodingToken(inputStream, CancellationToken.None);
+            long length = encoder.Encode(inputStream, outputStream, token, CancellationToken.None, null);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
 
@@ -405,8 +406,8 @@ namespace FileArchiver.Tests {
             TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
             
             HuffmanEncoder encoder = new HuffmanEncoder();
-            EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            long length = encoder.Encode(inputStream, outputStream, token, null);
+            EncodingToken token = encoder.CreateEncodingToken(inputStream, CancellationToken.None);
+            long length = encoder.Encode(inputStream, outputStream, token, CancellationToken.None, null);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
 
@@ -430,8 +431,8 @@ namespace FileArchiver.Tests {
             TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
             
             HuffmanEncoder encoder = new HuffmanEncoder();
-            EncodingToken token = encoder.CreateEncodingToken(inputStream);
-            long length = encoder.Encode(inputStream, outputStream, token, null);
+            EncodingToken token = encoder.CreateEncodingToken(inputStream, CancellationToken.None);
+            long length = encoder.Encode(inputStream, outputStream, token, CancellationToken.None, null);
             Assert.IsNotNull(token.HuffmanTree);
             Assert.IsNotNull(token.CodingTable);
             Assert.AreEqual(54, length);
@@ -446,9 +447,9 @@ namespace FileArchiver.Tests {
             TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
             
             HuffmanEncoder encoder = new HuffmanEncoder();
-            EncodingToken token = encoder.CreateEncodingToken(inputStream);
+            EncodingToken token = encoder.CreateEncodingToken(inputStream, CancellationToken.None);
             TestIProgressHandler progress = new TestIProgressHandler();
-            encoder.Encode(inputStream, outputStream, token, progress);
+            encoder.Encode(inputStream, outputStream, token, CancellationToken.None, progress);
             CollectionAssert.IsEmpty(progress.ValueList);
         }
         [Test]
@@ -458,11 +459,11 @@ namespace FileArchiver.Tests {
             TestIEncodingOutputStream outputStream = new TestIEncodingOutputStream();
             
             HuffmanEncoder encoder = new HuffmanEncoder();
-            EncodingToken token = encoder.CreateEncodingToken(inputStream);
+            EncodingToken token = encoder.CreateEncodingToken(inputStream, CancellationToken.None);
             TestIProgressHandler progress = new TestIProgressHandler();
 
             for(int n = 0; n < 10; n++) {
-                encoder.Encode(inputStream, outputStream, token, progress);
+                encoder.Encode(inputStream, outputStream, token, CancellationToken.None, progress);
                 inputStream.Reset();
             }
             CollectionAssert.AreEqual(new long[]{ 128 * 1024, 128 * 1024 }, progress.ValueList);

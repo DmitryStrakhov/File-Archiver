@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using FileArchiver.Core.Format;
 using FileArchiver.Core.Helpers;
 using FileArchiver.Core.HuffmanCore;
@@ -63,8 +64,8 @@ namespace FileArchiver.Core.Parsers {
                 this.decoder = decoder;
             }
 
-            public void Decode(IDecodingOutputStream outputStream, IProgressHandler progress) {
-                decoder.Decode(inputStream, weightsTable, outputStream, length, progress);
+            public void Decode(IDecodingOutputStream outputStream, CancellationToken cancellationToken, IProgressHandler progress) {
+                decoder.Decode(inputStream, weightsTable, outputStream, length, cancellationToken, progress);
 
                 int trailingBitCount = MathHelper.ModAdv(length, 8);
                 for(int n = 0; n < trailingBitCount; n++) {

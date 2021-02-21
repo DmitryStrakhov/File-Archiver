@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.FileCore;
@@ -25,12 +26,12 @@ namespace FileArchiver.Core.Services {
             this.directoriesQueue = new Queue<string>(128);
         }
 
-        public Task DecodeAsync(string inputFile, string outputFolder, IProgress<CodingProgressInfo> progress) {
+        public Task DecodeAsync(string inputFile, string outputFolder, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             Guard.IsNotNullOrEmpty(inputFile, nameof(inputFile));
             Guard.IsNotNullOrEmpty(outputFolder, nameof(outputFolder));
-            return Task.Run(() => Decode(inputFile, outputFolder, progress));
+            return Task.Run(() => Decode(inputFile, outputFolder, cancellationToken, progress), cancellationToken);
         }
-        private void Decode(string inputFile, string outputFolder, IProgress<CodingProgressInfo> progress) {
+        private void Decode(string inputFile, string outputFolder, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             FileDecodingInputStream inputStream = new FileDecodingInputStream(inputFile, platform);
 
             try {
@@ -48,7 +49,7 @@ namespace FileArchiver.Core.Services {
                 while(!inputStream.IsEmpty) {
                     switch(inputStream.ReadStreamFormat()) {
                         case StreamKind.FS_CODE:
-                            DecodeFile(inputStream, bootstrapSegment, tpc);
+                            DecodeFile(inputStream, bootstrapSegment, cancellationToken, tpc);
                             break;
                         case StreamKind.DS_CODE:
                             DecodeDirectory(inputStream);
@@ -63,12 +64,12 @@ namespace FileArchiver.Core.Services {
                 inputStream.Dispose();
             }
         }
-        private void DecodeFile(FileDecodingInputStream inputStream, BootstrapSegment bootstrapSegment, IProgressHandler progressHandler) {
+        private void DecodeFile(FileDecodingInputStream inputStream, BootstrapSegment bootstrapSegment, CancellationToken cancellationToken, IProgressHandler progressHandler) {
             FileSegment file = streamParser.ParseFile(inputStream, bootstrapSegment.WeightsTable);
             string path = Path.Combine(currentDirectory, file.Name);
 
             using(FileDecodingOutputStream outputStream = new FileDecodingOutputStream(path, platform)) {
-                file.FileDecoder.Decode(outputStream, progressHandler);
+                file.FileDecoder.Decode(outputStream, cancellationToken, progressHandler);
             }
         }
         private void DecodeDirectory(FileDecodingInputStream inputStream) {

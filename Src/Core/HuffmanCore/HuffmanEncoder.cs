@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Helpers;
 
@@ -20,21 +21,21 @@ namespace FileArchiver.Core.HuffmanCore {
     public class HuffmanEncoder {
         public HuffmanEncoder() {
         }
+        const int ChunkSize = 128 * 1024; // 128Kb throttling
 
-        public EncodingToken CreateEncodingToken(IEncodingInputStream inputStream) {
+        public EncodingToken CreateEncodingToken(IEncodingInputStream inputStream, CancellationToken cancellationToken) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
 
-            WeightsTable weightsTable = BuildWeightsTable(inputStream);
+            WeightsTable weightsTable = BuildWeightsTable(inputStream, cancellationToken);
             HuffmanTreeBase huffmanTree = BuildHuffmanTree(weightsTable);
             CodingTable codingTable = BuildCodingTable(huffmanTree);
             return new EncodingToken(weightsTable, huffmanTree, codingTable);
         }
         
-        public long Encode(IEncodingInputStream inputStream, IEncodingOutputStream outputStream, EncodingToken encodingToken, IProgressHandler progress) {
+        public long Encode(IEncodingInputStream inputStream, IEncodingOutputStream outputStream, EncodingToken encodingToken, CancellationToken cancellationToken, IProgressHandler progress) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
             Guard.IsNotNull(outputStream, nameof(outputStream));
             Guard.IsNotNull(encodingToken, nameof(encodingToken));
-            const int chunkSize = 128 * 1024; // 128Kb
 
             CodingTable codingTable = encodingToken.CodingTable;
             inputStream.Reset();
@@ -49,8 +50,9 @@ namespace FileArchiver.Core.HuffmanCore {
                     outputStream.WriteBit(bit);
                 }
                 // Throttling
-                if(++progressValue == chunkSize) {
-                    progress?.Report(chunkSize, inputStream.Path);
+                if(++progressValue == ChunkSize) {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    progress?.Report(ChunkSize, inputStream.Path);
                     progressValue = 0;
                 }
             }
@@ -61,12 +63,17 @@ namespace FileArchiver.Core.HuffmanCore {
             return sequenceLength;
         }
 
-        public WeightsTable BuildWeightsTable(IEncodingInputStream inputStream) {
+        public WeightsTable BuildWeightsTable(IEncodingInputStream inputStream, CancellationToken cancellationToken) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
             WeightsTable weightsTable = new WeightsTable();
+            int currentChunkSz = 0;
 
             while(inputStream.ReadSymbol(out byte symbol)) {
                 weightsTable.TrackSymbol(symbol);
+                if(++currentChunkSz == ChunkSize) {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    currentChunkSz = 0;
+                }
             }
             return weightsTable;
         }

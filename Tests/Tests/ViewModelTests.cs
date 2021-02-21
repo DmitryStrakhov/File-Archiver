@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Helpers;
@@ -35,7 +36,11 @@ namespace FileArchiver.Tests {
     #region Services
 
     public class TestIFileSelectorService : TraceableObject, IFileSelectorService {
-        public TestIFileSelectorService(ITraceableObject traceableObject) : base(traceableObject) {
+        public TestIFileSelectorService()
+            : this(NoneTraceableObject.Instance) {
+        }
+        public TestIFileSelectorService(ITraceableObject traceableObject)
+            : base(traceableObject) {
         }
 
         #region IFileSelectorService
@@ -51,7 +56,11 @@ namespace FileArchiver.Tests {
     }
 
     public class TestIFolderSelectorService : TraceableObject, IFolderSelectorService {
-        public TestIFolderSelectorService(ITraceableObject traceableObject) : base(traceableObject) {
+        public TestIFolderSelectorService()
+            : this(NoneTraceableObject.Instance) {
+        }
+        public TestIFolderSelectorService(ITraceableObject traceableObject)
+            : base(traceableObject) {
         }
 
         #region IFolderSelectorService
@@ -67,7 +76,11 @@ namespace FileArchiver.Tests {
     }
 
     public class TestIInputDataService : TraceableObject, IInputDataService {
-        public TestIInputDataService(ITraceableObject traceableObject) : base(traceableObject) {
+        public TestIInputDataService() 
+            : this(NoneTraceableObject.Instance) {
+        }
+        public TestIInputDataService(ITraceableObject traceableObject)
+            : base(traceableObject) {
         }
 
         #region IInputDataService
@@ -83,31 +96,45 @@ namespace FileArchiver.Tests {
     }
 
     public class TestIHuffmanEncodingService : TraceableObject, IHuffmanEncodingService {
-        public TestIHuffmanEncodingService(ITraceableObject traceableObject) : base(traceableObject) {
+        public TestIHuffmanEncodingService()
+            : this(NoneTraceableObject.Instance) {
+        }
+        public TestIHuffmanEncodingService(ITraceableObject traceableObject)
+            : base(traceableObject) {
         }
 
         #region IHuffmanEncodingService
 
-        Task<bool> IHuffmanEncodingService.EncodeAsync(string inputPath, string outputFile, IProgress<CodingProgressInfo> progress) {
+        Task<bool> IHuffmanEncodingService.EncodeAsync(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             TraceMember();
+            EncodeAction?.Invoke();
             return Task.FromResult(true);
         }
 
         #endregion
+
+        public Action EncodeAction { get; set; }
     }
 
     public class TestIHuffmanDecodingService : TraceableObject, IHuffmanDecodingService {
-        public TestIHuffmanDecodingService(ITraceableObject traceableObject) : base(traceableObject) {
+        public TestIHuffmanDecodingService()
+            : this(NoneTraceableObject.Instance) {
+        }
+        public TestIHuffmanDecodingService(ITraceableObject traceableObject)
+            : base(traceableObject) {
         }
 
         #region IHuffmanDecodingService
 
-        Task IHuffmanDecodingService.DecodeAsync(string inputFile, string outputFolder, IProgress<CodingProgressInfo> progress) {
+        Task IHuffmanDecodingService.DecodeAsync(string inputFile, string outputFolder, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             TraceMember();
+            DecodeAction?.Invoke();
             return Task.FromResult<object>(null);
         }
 
         #endregion
+
+        public Action DecodeAction { get; set; }
     }
 
     #endregion
@@ -118,6 +145,8 @@ namespace FileArchiver.Tests {
         TestIInputDataService inputDataService;
         TestIFileSelectorService fileSelectorService;
         TestIFolderSelectorService folderSelectorService;
+        TestIHuffmanEncodingService encodingService;
+        TestIHuffmanDecodingService decodingService;
 
         [SetUp]
         public void SetUp() {
@@ -125,6 +154,8 @@ namespace FileArchiver.Tests {
             this.inputDataService = (TestIInputDataService)viewModel.InputDataService;
             this.fileSelectorService = (TestIFileSelectorService)viewModel.FileSelectorService;
             this.folderSelectorService = (TestIFolderSelectorService)viewModel.FolderSelectorService;
+            encodingService = (TestIHuffmanEncodingService)viewModel.EncodingService;
+            decodingService = (TestIHuffmanDecodingService)viewModel.DecodingService;
         }
         [TearDown]
         public void TearDown() {
@@ -134,6 +165,7 @@ namespace FileArchiver.Tests {
         [Test]
         public void DefaultsTest() {
             Assert.IsFalse(viewModel.CanRun());
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
         }
         [Test]
         public async Task EncodeFileTest1() {
@@ -212,5 +244,30 @@ namespace FileArchiver.Tests {
             viewModel.Path = @"some path";
             Assert.IsFalse(viewModel.CanRun());
         }
+        [Test]
+        public async Task StatusPropertyTest1() {
+            encodingService.EncodeAction = () => {
+                Assert.AreEqual(ViewModelStatus.Encoding, viewModel.Status);
+            };
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+
+            inputDataService.InputCommand = InputCommand.Encode;
+            fileSelectorService.FilePath = @"C:\File.archive";
+            await viewModel.Run();
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+        }
+        [Test]
+        public async Task StatusPropertyTest2() {
+            decodingService.DecodeAction = () => {
+                Assert.AreEqual(ViewModelStatus.Decoding, viewModel.Status);
+            };
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+
+            inputDataService.InputCommand = InputCommand.Decode;
+            folderSelectorService.FolderPath = @"C:\Folder";
+            await viewModel.Run();
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+        }
+
     }
 }

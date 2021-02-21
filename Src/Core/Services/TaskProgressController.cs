@@ -19,6 +19,6 @@ namespace FileArchiver.Core.Services {
         }
         public void EndIndeterminate() {
         }
-        IProgressState IProgressHandler.State { get { return null; } set { } }
+        IProgressState IProgressHandler.State { get; set; }
     }
 }

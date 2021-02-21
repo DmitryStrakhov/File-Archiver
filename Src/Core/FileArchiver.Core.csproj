@@ -63,6 +63,7 @@
     <Compile Include="Builders\EncodingOutputStreamExtensions.cs" />
     <Compile Include="Builders\IStreamBuilder.cs" />
     <Compile Include="Controls\ProgressBarControl.cs" />
+    <Compile Include="Converters\CancelLinkVisibilityConverter.cs" />
     <Compile Include="Format\BootstrapSegment.cs" />
     <Compile Include="Format\FileSegment.cs" />
     <Compile Include="Format\StreamKind.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="ViewModel\Command.cs" />
     <Compile Include="ViewModel\DefaultProgressHandler.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelStatus.cs" />
     <Compile Include="View\PathValidationRule.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

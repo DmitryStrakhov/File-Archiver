@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Builders;
@@ -23,12 +24,12 @@ namespace FileArchiver.Core.Services {
             this.streamBuilder = streamBuilder;
         }
 
-        public Task<bool> EncodeAsync(string inputPath, string outputFile, IProgress<CodingProgressInfo> progress) {
+        public Task<bool> EncodeAsync(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             Guard.IsNotNullOrEmpty(inputPath, nameof(inputPath));
             Guard.IsNotNullOrEmpty(outputFile, nameof(outputFile));
-            return Task.Run(() => Encode(inputPath, outputFile, progress));
+            return Task.Run(() => Encode(inputPath, outputFile, cancellationToken, progress), cancellationToken);
         }
-        private bool Encode(string inputPath, string outputFile, IProgress<CodingProgressInfo> progress) {
+        private bool Encode(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             HuffmanEncoder encoder = new HuffmanEncoder();
             DirectoryEncodingInputStream directoryInputStream = new DirectoryEncodingInputStream(inputPath, fileSystemService, platform);
             FileEncodingOutputStream outputStream = new FileEncodingOutputStream(outputFile, platform);
@@ -38,7 +39,7 @@ namespace FileArchiver.Core.Services {
                 ITaskProgressController tpc = CreateTaskProgressController(progress, directoryInputStream);
 
                 tpc.StartIndeterminate();
-                EncodingToken encodingToken = encoder.CreateEncodingToken(directoryInputStream);
+                EncodingToken encodingToken = encoder.CreateEncodingToken(directoryInputStream, cancellationToken);
                 tpc.EndIndeterminate();
                 streamBuilder.Initialize(platform, encodingToken, outputStream);
                 streamBuilder.AddWeightsTable(new BootstrapSegment(encodingToken.WeightsTable));
@@ -49,7 +50,7 @@ namespace FileArchiver.Core.Services {
                             streamBuilder.AddDirectory(new DirectorySegment(entry.Name, entry.Cardinality));
                             break;
                         case FileSystemEntryType.File:
-                            streamBuilder.AddFile(new FileSegment(entry.Name, entry.Path), tpc);
+                            streamBuilder.AddFile(new FileSegment(entry.Name, entry.Path), cancellationToken, tpc);
                             break;
                         default:
                             throw new InvalidOperationException();

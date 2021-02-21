@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using FileArchiver.Core.FileCore;
 using FileArchiver.Core.HuffmanCore;
 using NUnit.Framework;
@@ -24,8 +25,8 @@ namespace FileArchiver.Tests {
             HuffmanEncoder encoder = new HuffmanEncoder();
             try {
                 outputStream.BeginWrite();
-                EncodingToken token = encoder.CreateEncodingToken(inputStream);
-                streamSize = encoder.Encode(inputStream, outputStream, token, null);
+                EncodingToken token = encoder.CreateEncodingToken(inputStream, CancellationToken.None);
+                streamSize = encoder.Encode(inputStream, outputStream, token, CancellationToken.None, null);
                 outputStream.EndWrite();
                 tree = token.HuffmanTree;
                 return outputMemoryStream.ToArray();
@@ -41,7 +42,7 @@ namespace FileArchiver.Tests {
             FileDecodingOutputStream outputStream = CreateFileDecodingOutputStream(outputMemoryStream);
 
             try {
-                new HuffmanDecoder().Decode(inputStream, tree, outputStream, streamSize, null);
+                new HuffmanDecoder().Decode(inputStream, tree, outputStream, streamSize, CancellationToken.None, null);
                 return outputMemoryStream.ToArray();
             }
             finally {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace FileArchiver.Core.ViewModel {
 
@@ -9,7 +10,7 @@ namespace FileArchiver.Core.ViewModel {
 
         #region INotifyPropertyChanged
 
-        protected void RaisePropertyChanged(string propertyName) {
+        protected void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         public event PropertyChangedEventHandler PropertyChanged;

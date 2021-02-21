@@ -7,6 +7,7 @@
         xmlns:controls="clr-namespace:FileArchiver.Core.Controls"
         xmlns:behaviors="clr-namespace:FileArchiver.Core.Behaviors"
         xmlns:view="clr-namespace:FileArchiver.Core.View"
+        xmlns:converters="clr-namespace:FileArchiver.Core.Converters"
         mc:Ignorable="d"
         Title="File Archiver"
         Width="700" Height="350"
@@ -21,11 +22,20 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <converters:CancelLinkVisibilityConverter x:Key="CancelLinkVisibilityConverterKey" />
     </Window.Resources>
 
     <Border BorderThickness="1" BorderBrush="Gray" Margin="4">
         <DockPanel>
             <StackPanel DockPanel.Dock="Bottom">
+                <TextBlock x:Name="CancelLink"
+                           x:FieldModifier="public"
+                           Visibility="{Binding Status, Mode=OneWay, Converter={StaticResource CancelLinkVisibilityConverterKey}}"
+                           Margin="4">
+                    <Hyperlink Focusable="False" Command="{Binding CancelCommand}">
+                        Cancel
+                    </Hyperlink>
+                </TextBlock>
                 <TextBlock x:Name="StatusTextBlock"
                            x:FieldModifier="public"
                            Text="{Binding StatusMessage, FallbackValue=[status]}"

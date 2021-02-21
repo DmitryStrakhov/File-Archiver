@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Runtime.CompilerServices;
 using FileArchiver.Core.Helpers;
 
@@ -25,6 +26,18 @@ namespace FileArchiver.Tests {
         }
         public string GetTrace() {
             return traceBuilder.ToString();
+        }
+    }
+
+    public sealed class NoneTraceableObject : ITraceableObject {
+        private NoneTraceableObject() {
+        }
+        public static readonly NoneTraceableObject Instance = new NoneTraceableObject();
+
+        public void TraceMember(string name) {
+        }
+        public string GetTrace() {
+            return string.Empty;
         }
     }
 }

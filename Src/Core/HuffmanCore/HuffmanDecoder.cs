@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Helpers;
 
@@ -7,16 +8,16 @@ namespace FileArchiver.Core.HuffmanCore {
         public HuffmanDecoder() {
         }
 
-        public void Decode(IDecodingInputStream inputStream, WeightsTable weightsTable, IDecodingOutputStream outputStream, long sequenceLength, IProgressHandler progress) {
+        public void Decode(IDecodingInputStream inputStream, WeightsTable weightsTable, IDecodingOutputStream outputStream, long sequenceLength, CancellationToken cancellationToken, IProgressHandler progress) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
             Guard.IsNotNull(weightsTable, nameof(weightsTable));
             Guard.IsNotNull(outputStream, nameof(outputStream));
             Guard.IsNotNegative(sequenceLength, nameof(sequenceLength));
 
             HuffmanTreeBase tree = new HuffmanEncoder().BuildHuffmanTree(weightsTable);
-            Decode(inputStream, tree, outputStream, sequenceLength, progress);
+            Decode(inputStream, tree, outputStream, sequenceLength, cancellationToken, progress);
         }
-        public void Decode(IDecodingInputStream inputStream, HuffmanTreeBase tree, IDecodingOutputStream outputStream, long sequenceLength, IProgressHandler progress) {
+        public void Decode(IDecodingInputStream inputStream, HuffmanTreeBase tree, IDecodingOutputStream outputStream, long sequenceLength, CancellationToken cancellationToken, IProgressHandler progress) {
             Guard.IsNotNull(inputStream, nameof(inputStream));
             Guard.IsNotNull(tree, nameof(tree));
             Guard.IsNotNull(outputStream, nameof(outputStream));
@@ -34,6 +35,7 @@ namespace FileArchiver.Core.HuffmanCore {
                 streamPosition = inputStream.Position;
 
                 if(progressValue >= chunkSize) {
+                    cancellationToken.ThrowIfCancellationRequested();
                     progress?.Report(progressValue / 8, outputStream.Path);
                     progressValue %= 8;
                 }

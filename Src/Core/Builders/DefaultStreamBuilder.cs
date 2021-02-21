@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.FileCore;
@@ -10,20 +11,20 @@ namespace FileArchiver.Core.Builders {
     public class DefaultStreamBuilder : IStreamBuilder {
         IPlatformService platform;
         HuffmanEncoder encoder;
-        EncodingToken token;
+        EncodingToken encodingToken;
         IEncodingOutputStream stream;
 
         public DefaultStreamBuilder() {
             this.encoder = null;
         }
 
-        public void Initialize(IPlatformService platform, EncodingToken token, IEncodingOutputStream stream) {
+        public void Initialize(IPlatformService platform, EncodingToken encodingToken, IEncodingOutputStream stream) {
             Guard.IsNotNull(platform, nameof(platform));
-            Guard.IsNotNull(token, nameof(token));
+            Guard.IsNotNull(encodingToken, nameof(encodingToken));
             Guard.IsNotNull(stream, nameof(stream));
 
             this.platform = platform;
-            this.token = token;
+            this.encodingToken = encodingToken;
             this.stream = stream;
             this.encoder = new HuffmanEncoder();
         }
@@ -49,7 +50,7 @@ namespace FileArchiver.Core.Builders {
             }
             stream.Write(segment.Cardinality);
         }
-        public void AddFile(FileSegment segment, IProgressHandler progress) {
+        public void AddFile(FileSegment segment, CancellationToken cancellationToken, IProgressHandler progress) {
             string name = segment.Name;
             string path = segment.Path;
             Guard.IsNotNullOrEmpty(name, nameof(name));
@@ -64,15 +65,15 @@ namespace FileArchiver.Core.Builders {
             stream.Write(0L);
             
             using(FileEncodingInputStream fileStream = new FileEncodingInputStream(path, platform)) {
-                long sequenceLength = encoder.Encode(fileStream, stream, token, progress);
-                EnsureSequenceLayout(sequenceLength);
+                long sequenceLength = encoder.Encode(fileStream, stream, encodingToken, cancellationToken, progress);
+                LayoutStreamInMemory(sequenceLength);
                 IStreamPosition endPosition = stream.SavePosition();
                 stream.RestorePosition(sizePosition);
                 stream.Write(sequenceLength);
                 stream.RestorePosition(endPosition);
             }
         }
-        private void EnsureSequenceLayout(long length) {
+        private void LayoutStreamInMemory(long length) {
             int trailingBitCount = MathHelper.ModAdv(length, 8);
 
             for(int n = 0; n < trailingBitCount; n++) {

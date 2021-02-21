@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using FileArchiver.Core.Helpers;
 using FileArchiver.Core.HuffmanCore;
 
@@ -27,6 +28,6 @@ namespace FileArchiver.Core.Format {
     }
 
     public interface IFileDecoder {
-        void Decode(IDecodingOutputStream outputStream, IProgressHandler progress);
+        void Decode(IDecodingOutputStream outputStream, CancellationToken cancellationToken, IProgressHandler progress);
     }
 }

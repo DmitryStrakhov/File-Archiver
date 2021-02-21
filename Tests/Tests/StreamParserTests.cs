@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Format;
 using FileArchiver.Core.HuffmanCore;
@@ -137,7 +138,7 @@ namespace FileArchiver.Tests {
             IFileDecoder decoder = segment.FileDecoder;
             Assert.IsNotNull(decoder);
             TestIDecodingOutputStream outputStream = new TestIDecodingOutputStream();
-            decoder.Decode(outputStream, null);
+            decoder.Decode(outputStream, CancellationToken.None, null);
             CollectionAssert.IsEmpty(outputStream.ByteList);
         }
         [Test]
@@ -172,7 +173,7 @@ namespace FileArchiver.Tests {
             IFileDecoder decoder = segment.FileDecoder;
             Assert.IsNotNull(decoder);
             TestIDecodingOutputStream outputStream = new TestIDecodingOutputStream();
-            decoder.Decode(outputStream, null);
+            decoder.Decode(outputStream, CancellationToken.None, null);
             byte[] expectedData = {1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4};
             Assert.AreEqual(expectedData, outputStream.ByteList);
         }

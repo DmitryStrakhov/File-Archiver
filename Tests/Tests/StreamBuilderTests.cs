@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using FileArchiver.Core.Builders;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Format;
@@ -132,19 +133,19 @@ namespace FileArchiver.Tests {
 
         [Test]
         public void AddFileGuardCase1Test() {
-            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment(null, "path"), null));
+            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment(null, "path"), CancellationToken.None, null));
         }
         [Test]
         public void AddFileGuardCase2Test() {
-            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment("name", (string)null), null));
+            Assert.Throws<ArgumentNullException>(() => builder.AddFile(new FileSegment("name", (string)null), CancellationToken.None, null));
         }
         [Test]
         public void AddFileGuardCase3Test() {
-            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment(string.Empty, "path"), null));
+            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment(string.Empty, "path"), CancellationToken.None, null));
         }
         [Test]
         public void AddFileGuardCase4Test() {
-            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment("name", string.Empty), null));
+            Assert.Throws<ArgumentException>(() => builder.AddFile(new FileSegment("name", string.Empty), CancellationToken.None, null));
         }
         [Test]
         public void AddFileTest1() {
@@ -154,7 +155,7 @@ namespace FileArchiver.Tests {
             TestIEncodingOutputStream stream = new TestIEncodingOutputStream();
             builder.Initialize(platform, EmptyEncodingToken.Instance, stream);
             
-            builder.AddFile(new FileSegment(@"file.bin", @"C:\file.bin"), null);
+            builder.AddFile(new FileSegment(@"file.bin", @"C:\file.bin"), CancellationToken.None, null);
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x00)
                 .AddInt(0x10)
@@ -180,7 +181,7 @@ namespace FileArchiver.Tests {
             HuffmanEncoder encoder = new HuffmanEncoder();
             builder.Initialize(platform, CreateEncodingToken(encoder, data), stream);
 
-            builder.AddFile(new FileSegment(@"data.bin", @"C:\data.bin"), null);
+            builder.AddFile(new FileSegment(@"data.bin", @"C:\data.bin"), CancellationToken.None, null);
             IReadOnlyList<Bit> bitList = BitListHelper.CreateBuilder()
                 .AddByte(0x00)
                 .AddInt(0x10)
@@ -201,7 +202,7 @@ namespace FileArchiver.Tests {
         }
         private EncodingToken CreateEncodingToken(HuffmanEncoder encoder, byte[] data) {
             using(TestIEncodingInputStream inputStream = new TestIEncodingInputStream(data)) {
-                return encoder.CreateEncodingToken(inputStream);
+                return encoder.CreateEncodingToken(inputStream, CancellationToken.None);
             }
         }
     }

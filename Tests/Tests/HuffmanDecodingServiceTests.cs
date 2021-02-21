@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Format;
@@ -50,7 +51,7 @@ namespace FileArchiver.Tests {
 
         #region IFileDecoder
 
-        void IFileDecoder.Decode(IDecodingOutputStream outputStream, IProgressHandler progress) {
+        void IFileDecoder.Decode(IDecodingOutputStream outputStream, CancellationToken cancellationToken, IProgressHandler progress) {
             Trace += "->Decode;";
         }
 
@@ -122,7 +123,7 @@ namespace FileArchiver.Tests {
             platform.ReadFileFunc = x => new MemoryStream(new byte[0]);
 
             streamParser.Trace = string.Empty;
-            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", null);
+            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", CancellationToken.None, null);
             Assert.AreEqual(string.Empty, streamParser.Trace);
         }
         [Test]
@@ -131,7 +132,7 @@ namespace FileArchiver.Tests {
             platform.ReadFileFunc = x => new MemoryStream(data);
 
             streamParser.Trace = string.Empty;
-            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", null);
+            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", CancellationToken.None, null);
             Assert.AreEqual("->ParseWeightsTable;->ParseFile;", streamParser.Trace);
         }
         [Test]
@@ -141,7 +142,7 @@ namespace FileArchiver.Tests {
 
             streamParser.Cardinality = 2;
             streamParser.Trace = string.Empty;
-            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", null);
+            await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", CancellationToken.None, null);
             string expected = "->ParseWeightsTable;" +
                               "->ParseDirectory;" +
                               "->ParseFile;" +
@@ -156,7 +157,7 @@ namespace FileArchiver.Tests {
             byte[] data = { 0x1, 0x0, 0x0, 0x1 };
             platform.ReadFileFunc = x => new MemoryStream(data);
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", null));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", CancellationToken.None, null));
         }
     }
 
@@ -173,19 +174,19 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public void DecodeGuardCase1Test() {
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.DecodeAsync(null, @"C:\Dir\", null));
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.DecodeAsync(null, @"C:\Dir\", CancellationToken.None, null));
         }
         [Test]
         public void DecodeGuardCase2Test() {
-            Assert.ThrowsAsync<ArgumentException>(async () => await service.DecodeAsync(string.Empty, @"C:\Dir\", null));
+            Assert.ThrowsAsync<ArgumentException>(async () => await service.DecodeAsync(string.Empty, @"C:\Dir\", CancellationToken.None, null));
         }
         [Test]
         public void DecodeGuardCase3Test() {
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.DecodeAsync(@"C:\File.dat", null, null));
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.DecodeAsync(@"C:\File.dat", null, CancellationToken.None, null));
         }
         [Test]
         public void DecodeGuardCase4Test() {
-            Assert.ThrowsAsync<ArgumentException>(async () => await service.DecodeAsync(@"C:\File.dat", string.Empty, null));
+            Assert.ThrowsAsync<ArgumentException>(async () => await service.DecodeAsync(@"C:\File.dat", string.Empty, CancellationToken.None, null));
         }
         
         [Test]
@@ -196,7 +197,7 @@ namespace FileArchiver.Tests {
 
             platform.Trace = string.Empty;
             platform.WriteFileFunc += x => new MemoryStream();
-            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", CancellationToken.None, null);
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)", platform.Trace);
         }
         [Test]
@@ -210,7 +211,7 @@ namespace FileArchiver.Tests {
                 .AddInt(0x0).GetStream();
 
             platform.Trace = string.Empty;
-            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", CancellationToken.None, null);
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->CreateDirectory(C:\Root\dir)", platform.Trace);
         }
         [Test]
@@ -227,7 +228,7 @@ namespace FileArchiver.Tests {
             platform.WriteFileFunc += x => dataStream;
             platform.Trace = string.Empty;
             
-            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", CancellationToken.None, null);
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->WriteFile(C:\Root\file.dat)", platform.Trace);
             AssertStreamIsEmpty(dataStream);
         }
@@ -257,7 +258,7 @@ namespace FileArchiver.Tests {
             platform.WriteFileFunc += x => dataStream;
             platform.Trace = string.Empty;
 
-            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", CancellationToken.None, null);
             Assert.AreEqual(@"->ReadFile(C:\InputFile.dat)->WriteFile(C:\Root\file.dat)", platform.Trace);
             AssertStream(dataStream, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4);
         }
@@ -319,7 +320,7 @@ namespace FileArchiver.Tests {
             };
             platform.WriteFileFunc += x => streams[x];
             platform.Trace = string.Empty;
-            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", CancellationToken.None, null);
             
             string expectedTrace = @"->ReadFile(C:\InputFile.dat)" +
                 @"->CreateDirectory(C:\Root\dir)" + 
@@ -384,7 +385,7 @@ namespace FileArchiver.Tests {
                 .GetStream();
 
             platform.Trace = string.Empty;
-            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", null);
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", CancellationToken.None, null);
             
             string expectedTrace = @"->ReadFile(C:\InputFile.dat)" +
                 @"->CreateDirectory(C:\Root\d0)" + 
@@ -430,7 +431,7 @@ namespace FileArchiver.Tests {
             platform.WriteFileFunc += x => streams[x];
 
             TestDecodingIProgress progress = new TestDecodingIProgress();
-            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", progress);
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", CancellationToken.None, progress);
             CollectionAssert.AreEqual(new[] {0, 100}, progress.ValueList);
             CollectionAssert.AreEqual(new[] {"[Start]", "[Finish]"}, progress.MessageList);
         }
@@ -465,7 +466,7 @@ namespace FileArchiver.Tests {
             platform.WriteFileFunc += x => streams[x];
 
             TestDecodingIProgress progress = new TestDecodingIProgress();
-            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", progress);
+            await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", CancellationToken.None, progress);
             int[] expectedValues = {
                 0, 25, 51, 76, 100
             };
@@ -478,6 +479,40 @@ namespace FileArchiver.Tests {
             };
             CollectionAssert.AreEqual(expectedValues, progress.ValueList);
             CollectionAssert.AreEqual(expectedMessages, progress.MessageList);
+        }
+        [Test]
+        public void DecodingCancellationTest() {
+            platform.ReadFileFunc = x => new BufferBuilder()
+                .AddByte(0x2)
+                .AddInt(0x9)
+                .AddByte(0x0)
+                .AddLong(0x1)
+                .AddByte(0x1)
+                .AddInt(0x6)
+                .AddString("dir")
+                .AddInt(2)
+                .AddByte(0x0)
+                .AddInt(0xC)
+                .AddString("f1.dat")
+                .AddLong(200 * 1024 * 8) // 200Kb
+                .AddByte(0x0, 200 * 1024)
+                .AddByte(0x0)
+                .AddInt(0xC)
+                .AddString("f2.dat")
+                .AddLong(300 * 1024 * 8) // 300Kb
+                .AddByte(0x0, 300 * 1024).GetStream();
+
+            const string f2 = @"C:\Root\dir\f2.dat";
+            WritableMemoryStream outputStream = new WritableMemoryStream();
+
+            using(CancellationTokenSource cts = new CancellationTokenSource()) {
+                platform.WriteFileFunc += x => {
+                    if(string.Equals(x, f2, StringComparison.OrdinalIgnoreCase)) cts.Cancel();
+                    return outputStream;
+                };
+                Assert.ThrowsAsync<OperationCanceledException>(async () => await service.DecodeAsync(@"C:\InputFile.dat", @"C:\Root\", cts.Token, null));
+                Assert.AreEqual(256 * 1024 * 8, outputStream.Length);
+            }
         }
 
         private void AssertStream(MemoryStream stream, params byte[] expected) {

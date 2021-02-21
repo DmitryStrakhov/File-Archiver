@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Builders;
@@ -19,7 +20,7 @@ namespace FileArchiver.Tests {
 
         #region IStreamBuilder
 
-        void IStreamBuilder.Initialize(IPlatformService platform, EncodingToken token, IEncodingOutputStream stream) {
+        void IStreamBuilder.Initialize(IPlatformService platform, EncodingToken encodingToken, IEncodingOutputStream stream) {
             Trace += "->Initialize;";
         }
         void IStreamBuilder.AddWeightsTable(BootstrapSegment segment) {
@@ -28,7 +29,7 @@ namespace FileArchiver.Tests {
         void IStreamBuilder.AddDirectory(DirectorySegment segment) {
             Trace += $"->AddDirectory({segment.Name});";
         }
-        void IStreamBuilder.AddFile(FileSegment segment, IProgressHandler progress) {
+        void IStreamBuilder.AddFile(FileSegment segment, CancellationToken cancellationToken, IProgressHandler progress) {
             Trace += $"->AddFile({segment.Name});";
         }
         
@@ -113,7 +114,7 @@ namespace FileArchiver.Tests {
             fileSystem.EnumFileSystemEntriesFunc = _ => new FileSystemEntry[0];
 
             streamBuilder.Trace = string.Empty;
-            await service.EncodeAsync(@"C:\dir\", "file.dat", null);
+            await service.EncodeAsync(@"C:\dir\", "file.dat", CancellationToken.None, null);
             Assert.AreEqual("->Initialize;->AddWeightsTable;", streamBuilder.Trace);
         }
         [Test]
@@ -123,7 +124,7 @@ namespace FileArchiver.Tests {
             };
             
             streamBuilder.Trace = string.Empty;
-            await service.EncodeAsync(@"C:\file1.dat", @"C:\file2.dat", null);
+            await service.EncodeAsync(@"C:\file1.dat", @"C:\file2.dat", CancellationToken.None, null);
             Assert.AreEqual("->Initialize;->AddWeightsTable;->AddFile(file1.dat);", streamBuilder.Trace);
         }
         [Test]
@@ -143,7 +144,7 @@ namespace FileArchiver.Tests {
                                    "->AddDirectory(subdir1);" +
                                    "->AddFile(file3.dat);" +
                                    "->AddDirectory(subdir2);";
-            await service.EncodeAsync(@"C:\dir\", @"C:\file.dat", null);
+            await service.EncodeAsync(@"C:\dir\", @"C:\file.dat", CancellationToken.None, null);
             Assert.AreEqual(expectedTrace, streamBuilder.Trace);
         }
     }
@@ -153,43 +154,41 @@ namespace FileArchiver.Tests {
         DefaultHuffmanEncodingService service;
         TestIPlatformService platform;
         TestIFileSystemService fileSystem;
-        MemoryStream outputStream;
 
         [SetUp]
         public void SetUp() {
             this.fileSystem = new TestIFileSystemService();
-            this.outputStream = new MemoryStream();
-
-            this.platform = new TestIPlatformService {
-                WriteFileFunc = x => outputStream
-            };
+            this.platform = new TestIPlatformService();
             this.service = new DefaultHuffmanEncodingService(fileSystem, platform, new DefaultStreamBuilder());
         }
         
         [Test]
         public void EncodeGuardCase1Test() {
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.EncodeAsync(null, "file", null));
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.EncodeAsync(null, "file", CancellationToken.None, null));
         }
         [Test]
         public void EncodeGuardCase2Test() {
-            Assert.ThrowsAsync<ArgumentException>(async () => await service.EncodeAsync(string.Empty, "file", null));
+            Assert.ThrowsAsync<ArgumentException>(async () => await service.EncodeAsync(string.Empty, "file", CancellationToken.None, null));
         }
         [Test]
         public void EncodeGuardCase3Test() {
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.EncodeAsync("file", null, null));
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await service.EncodeAsync("file", null, CancellationToken.None, null));
         }
         [Test]
         public void EncodeGuardCase4Test() {
-            Assert.ThrowsAsync<ArgumentException>(async () => await service.EncodeAsync("file", string.Empty, null));
+            Assert.ThrowsAsync<ArgumentException>(async () => await service.EncodeAsync("file", string.Empty, CancellationToken.None, null));
         }
 
         [Test]
         public async Task EncodeEmptyDirectoryTest() {
+            MemoryStream outputStream = new MemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
+
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\")};
             };
 
-            await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", null);
+            await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", CancellationToken.None, null);
             byte[] expected = new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x0)
@@ -201,12 +200,15 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public async Task EncodeEmptyFileTest() {
+            MemoryStream outputStream = new MemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
+
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\file.dat")};
             };
             platform.ReadFileFunc += x => new MemoryStream();
 
-            await service.EncodeAsync(@"C:\file.dat", @"C:\outputFile.dat", null);
+            await service.EncodeAsync(@"C:\file.dat", @"C:\outputFile.dat", CancellationToken.None, null);
             byte[] expected = new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x0)
@@ -219,13 +221,15 @@ namespace FileArchiver.Tests {
         [Test]
         public async Task EncodeFileTest() {
             byte[] data = {1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4};
+            MemoryStream outputStream = new MemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
 
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] { new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\file.dat")};
             };
             platform.ReadFileFunc += x => new MemoryStream(data);
 
-            await service.EncodeAsync(@"C:\file.dat", @"C:\outputFile.dat", null);
+            await service.EncodeAsync(@"C:\file.dat", @"C:\outputFile.dat", CancellationToken.None, null);
             byte[] expected = new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x24)
@@ -249,6 +253,9 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public async Task EncodeDirectoryTest1() {
+            MemoryStream outputStream = new MemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
+
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] {
                     new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\", 2),
@@ -269,7 +276,7 @@ namespace FileArchiver.Tests {
             };
             platform.ReadFileFunc = x => new MemoryStream(data[x]);
 
-            await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", null);
+            await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", CancellationToken.None, null);
             byte[] expected = new BufferBuilder()
                 .AddByte(0x2)
                 .AddInt(0x24)
@@ -318,6 +325,8 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public async Task EncodingProgressTest1() {
+            MemoryStream outputStream = new MemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] {
                     new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\", 2),
@@ -329,15 +338,17 @@ namespace FileArchiver.Tests {
             platform.ReadFileFunc = x => new MemoryStream(new byte[0]);
 
             TestEncodingProgress progress = new TestEncodingProgress();
-            await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", progress);
+            await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", CancellationToken.None, progress);
             CollectionAssert.AreEqual(new[]{-1, 0, 100}, progress.ValueList);
             CollectionAssert.AreEqual(new[]{"[Build encoding token]", "[Start]", "[Finish]"}, progress.MessageList);
         }
         [Test]
         public async Task EncodingProgressTest2() {
+            MemoryStream outputStream = new MemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
             fileSystem.EnumFileSystemEntriesFunc = _ => {
                 return new[] {
-                    new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\", 2),
+                    new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\"),
                     new FileSystemEntry(FileSystemEntryType.File, "f1.dat", @"C:\dir\f1.dat"),
                     new FileSystemEntry(FileSystemEntryType.File, "f2.dat", @"C:\dir\f2.dat"),
                     new FileSystemEntry(FileSystemEntryType.File, "f3.dat", @"C:\dir\f3.dat"),
@@ -353,7 +364,7 @@ namespace FileArchiver.Tests {
             };
 
             TestEncodingProgress progress = new TestEncodingProgress();
-            await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", progress);
+            await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", CancellationToken.None, progress);
             int[] expectedValues = {
                 -1, 0, 25, 50, 76, 100
             };
@@ -367,6 +378,32 @@ namespace FileArchiver.Tests {
             };
             CollectionAssert.AreEqual(expectedValues, progress.ValueList);
             CollectionAssert.AreEqual(expectedMessages, progress.MessageList);
+        }
+        [Test]
+        public void EncodingCancellationTest() {
+            WritableMemoryStream outputStream = new WritableMemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
+
+            fileSystem.EnumFileSystemEntriesFunc = _ => {
+                return new[] {
+                    new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\"),
+                    new FileSystemEntry(FileSystemEntryType.File, "f1.dat", @"C:\dir\f1.dat"),
+                    new FileSystemEntry(FileSystemEntryType.File, "f2.dat", @"C:\dir\f2.dat"),
+                };
+            };
+            using(CancellationTokenSource cts = new CancellationTokenSource()) {
+                int fileRequest = 0;
+                platform.ReadFileFunc = x => {
+                    if(++fileRequest == 4) cts.Cancel();
+                    switch(x) {
+                        case @"C:\dir\f1.dat": return new MemoryStream(new byte[200 * 1024]);
+                        case @"C:\dir\f2.dat": return new MemoryStream(new byte[300 * 1024]);
+                        default: throw new NotImplementedException();
+                    }
+                };
+                Assert.ThrowsAsync<OperationCanceledException>(async () => await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", cts.Token, null));
+                Assert.AreEqual(32855, outputStream.Length);
+            }
         }
     }
 }

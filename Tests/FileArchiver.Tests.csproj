@@ -41,10 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Base.cs" />
+    <Compile Include="TestStreams.cs" />
+    <Compile Include="TraceableObject.cs" />
     <Compile Include="Tests\BitSequenceTests.cs" />
     <Compile Include="Tests\ByteReaderTests.cs" />
     <Compile Include="Tests\ByteWriterTests.cs" />
+    <Compile Include="ControlAssert.cs" />
     <Compile Include="Tests\DirectoryEncodingInputStreamTests.cs" />
     <Compile Include="EmptyEncodingToken.cs" />
     <Compile Include="Tests\EncodingEngineTests.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Helpers;
@@ -8,15 +9,21 @@ namespace FileArchiver.Core.ViewModel {
         string statusMessage;
         string path;
         double progressValue;
+        ViewModelStatus status;
+        CancellationTokenSource cts;
 
         public MainViewModel() {
             this.statusMessage = "[status]";
             this.path = string.Empty;
             this.progressValue = 0;
+            this.cts = null;
+            this.Status = ViewModelStatus.WaitForCommand;
+            this.CancelCommand = new Command(Cancel);
             this.RunCommand = new Command(async () => await Run(), CanRun);
         }
 
         public Command RunCommand { get; }
+        public Command CancelCommand { get; }
         public IFileSelectorService FileSelectorService { get; set; }
         public IFolderSelectorService FolderSelectorService { get; set; }
         public IInputDataService InputDataService { get; set; }
@@ -28,7 +35,7 @@ namespace FileArchiver.Core.ViewModel {
             set {
                 if(Path == value) return;
                 path = value;
-                RaisePropertyChanged(nameof(Path));
+                RaisePropertyChanged();
                 RunCommand.RaiseCanExecuteChanged();
             }
         }
@@ -37,7 +44,7 @@ namespace FileArchiver.Core.ViewModel {
             set {
                 if(StatusMessage == value) return;
                 statusMessage = value;
-                RaisePropertyChanged(nameof(StatusMessage));
+                RaisePropertyChanged();
             }
         }
         public double ProgressValue {
@@ -45,7 +52,15 @@ namespace FileArchiver.Core.ViewModel {
             set {
                 if(MathHelper.AreEqual(ProgressValue, value)) return;
                 progressValue = value;
-                RaisePropertyChanged(nameof(ProgressValue));
+                RaisePropertyChanged();
+            }
+        }
+        public ViewModelStatus Status {
+            get { return status; }
+            private set {
+                if(Status == value) return;
+                status = value;
+                RaisePropertyChanged();
             }
         }
         public bool IsChoiceButtonEnabled {
@@ -55,6 +70,9 @@ namespace FileArchiver.Core.ViewModel {
         public bool CanRun() {
             InputCommand inputCommand = InputDataService.GetInputCommand(path);
             return inputCommand != InputCommand.Unknown;
+        }
+        public void Cancel() {
+            cts?.Cancel();
         }
         public virtual async Task Run() {
             ProgressValue = 0;
@@ -75,13 +93,39 @@ namespace FileArchiver.Core.ViewModel {
             string targetPath = FileSelectorService.GetSaveFile();
             if(string.IsNullOrEmpty(targetPath)) return;
 
-            await EncodingService.EncodeAsync(Path, targetPath, new DefaultProgressHandler(this));
+            Status = ViewModelStatus.Encoding;
+            cts = new CancellationTokenSource();
+            try {
+                try {
+                    await EncodingService.EncodeAsync(Path, targetPath, cts.Token, new DefaultProgressHandler(this));
+                }
+                catch(OperationCanceledException) {
+                    StatusMessage = "Encoding Cancelled";
+                }
+            }
+            finally {
+                cts.Dispose();
+                Status = ViewModelStatus.WaitForCommand;
+            }
         }
         private async Task Decode() {
             string targetFolder = FolderSelectorService.GetFolder();
             if(string.IsNullOrEmpty(targetFolder)) return;
 
-            await DecodingService.DecodeAsync(Path, targetFolder, new DefaultProgressHandler(this));
+            Status = ViewModelStatus.Decoding;
+            cts = new CancellationTokenSource();
+            try {
+                try {
+                    await DecodingService.DecodeAsync(Path, targetFolder, cts.Token, new DefaultProgressHandler(this));
+                }
+                catch(OperationCanceledException) {
+                    StatusMessage = "Decoding Cancelled";
+                }
+            }
+            finally {
+                cts.Dispose();
+                Status = ViewModelStatus.WaitForCommand;
+            }
         }
     }
 }
