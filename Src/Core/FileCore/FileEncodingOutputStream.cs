@@ -13,6 +13,7 @@ namespace FileArchiver.Core.FileCore {
         public FileEncodingOutputStream(string fileName, IPlatformService platform) {
             Guard.IsNotNullOrEmpty(fileName, nameof(fileName));
             Guard.IsNotNull(platform, nameof(platform));
+
             this.byteWriter = new ByteWriter();
             this.fileStream = platform.WriteFile(fileName);
         }
@@ -36,6 +37,9 @@ namespace FileArchiver.Core.FileCore {
         public void RestorePosition(IStreamPosition position) {
             Guard.IsNotNull(position, nameof(position));
             fileStream.Position = ((StreamPosition)position).Position;
+        }
+        public long SizeInBytes {
+            get { return fileStream.Length; }
         }
         public void Dispose() {
             fileStream.Dispose();

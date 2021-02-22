@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Media;
 using System.Windows.Threading;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Builders;
@@ -69,6 +70,7 @@ namespace FileArchiver.Tests {
             Assert.AreEqual("[status]", window.StatusTextBlock.Text);
             AreEqual(0, window.ProgressBar.Value);
             Assert.IsFalse(window.CancelLink.IsVisible);
+            Assert.IsFalse(window.EncodingResultControl.IsVisible);
 
             CollectionAssert.IsEmpty(Validation.GetErrors(window.PathTextBlock));
         }
@@ -244,6 +246,92 @@ namespace FileArchiver.Tests {
             viewModel.DecodingService = new DefaultHuffmanDecodingService(platform, new DefaultStreamParser());
             await viewModel.Run();
             Assert.AreEqual(256 * 1024 * 8, outputStream.Length);
+        }
+        [Test]
+        public async Task EncodingResultPanelVisibilityTest1() {
+            TestIFileSelectorService fileSelector = new TestIFileSelectorService();
+            fileSelector.FilePath = @"path";
+            viewModel.FileSelectorService = fileSelector;
+
+            TestIInputDataService inputDataService = new TestIInputDataService();
+            inputDataService.InputCommand = InputCommand.Encode;
+            viewModel.InputDataService = inputDataService;
+            
+            TestIHuffmanEncodingService encodingService = new TestIHuffmanEncodingService();
+            encodingService.EncodeAction = () => {
+                Assert.IsFalse(window.EncodingResultControl.IsVisible);
+            };
+            viewModel.EncodingService = encodingService;
+            
+            Assert.IsFalse(window.EncodingResultControl.IsVisible);
+            await viewModel.Run();
+            Assert.IsTrue(window.EncodingResultControl.IsVisible);
+            await viewModel.Run();
+            Assert.IsTrue(window.EncodingResultControl.IsVisible);
+        }
+        [Test]
+        public async Task EncodingResultPanelVisibilityTest2() {
+            TestIFolderSelectorService folderSelector = new TestIFolderSelectorService();
+            folderSelector.FolderPath = @"C:\folder\";
+            viewModel.FolderSelectorService = folderSelector;
+
+            TestIInputDataService inputDataService = new TestIInputDataService();
+            inputDataService.InputCommand = InputCommand.Decode;
+            viewModel.InputDataService = inputDataService;
+            
+            TestIHuffmanDecodingService encodingService = new TestIHuffmanDecodingService();
+            encodingService.DecodeAction = () => {
+                Assert.IsFalse(window.EncodingResultControl.IsVisible);
+            };
+            viewModel.DecodingService = encodingService;
+            
+            Assert.IsFalse(window.EncodingResultControl.IsVisible);
+            await viewModel.Run();
+            Assert.IsFalse(window.EncodingResultControl.IsVisible);
+        }
+        [Test]
+        public async Task EncodingStatisticsTest() {
+            TestIFileSelectorService fileSelector = new TestIFileSelectorService();
+            fileSelector.FilePath = @"path";
+            viewModel.FileSelectorService = fileSelector;
+            viewModel.Path = @"C:\dir\";
+
+            TestIInputDataService inputDataService = new TestIInputDataService();
+            inputDataService.InputCommand = InputCommand.Encode;
+            viewModel.InputDataService = inputDataService;
+
+            TestIFileSystemService fileSystem = new TestIFileSystemService();
+            fileSystem.EnumFileSystemEntriesFunc = _ => {
+                return new[] {
+                    new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\"),
+                    new FileSystemEntry(FileSystemEntryType.File, "f1.dat", @"C:\dir\f1.dat"),
+                    new FileSystemEntry(FileSystemEntryType.File, "f2.dat", @"C:\dir\f2.dat"),
+                };
+            };
+
+            WritableMemoryStream outputStream = new WritableMemoryStream();
+            TestIPlatformService platform = new TestIPlatformService();
+            platform.WriteFileFunc = _ => outputStream;
+
+            platform.ReadFileFunc = x => {
+                switch(x) {
+                    case @"C:\dir\f1.dat": return new MemoryStream(new byte[200 * 1024]);
+                    case @"C:\dir\f2.dat": return new MemoryStream(new byte[300 * 1024]);
+                    default: throw new NotImplementedException();
+                }
+            };
+            viewModel.EncodingService = new DefaultHuffmanEncodingService(fileSystem, platform, new DefaultStreamBuilder());
+
+            await viewModel.Run();
+            window.UpdateLayout();
+            
+            TextBlock inputSizeTextBlock = window.EncodingResultControl.GetContentTemplateControl<TextBlock>("InputSizeTextBlock");
+            TextBlock outputSizeTextBlock = window.EncodingResultControl.GetContentTemplateControl<TextBlock>("OutputSizeTextBlock");
+            TextBlock saveFactorTextBlock = window.EncodingResultControl.GetContentTemplateControl<TextBlock>("SaveFactorTextBlock");
+
+            Assert.AreEqual("Input Size: 512 Kb", inputSizeTextBlock.Text);
+            Assert.AreEqual("Output Size: 64.1 Kb", outputSizeTextBlock.Text);
+            Assert.AreEqual("Save Factor: 87.48%", saveFactorTextBlock.Text);
         }
 
         private void AssertProgressBar(double value, double progressValue, bool isIndeterminate) {

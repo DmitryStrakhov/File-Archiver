@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Helpers;
 using FileArchiver.Core.HuffmanCore;
@@ -74,6 +77,22 @@ namespace FileArchiver.Tests {
             chars[0] = '0';
             chars[1] = 'x';
             return new string(chars);
+        }
+    }
+
+    public static class ContentControlExtensions {
+        public static T GetContentTemplateControl<T>(this ContentControl @this, string controlName)
+            where T : UIElement {
+
+            if(VisualTreeHelper.GetChildrenCount(@this) == 0) {
+                throw new ArgumentException(nameof(@this));
+            }
+
+            ContentPresenter contentPresenter = (ContentPresenter)VisualTreeHelper.GetChild(@this, 0);
+            if(contentPresenter == null) {
+                throw new ArgumentException(nameof(@this));
+            }
+            return (T)@this.ContentTemplate.FindName(controlName, contentPresenter);
         }
     }
 }

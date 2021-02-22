@@ -405,5 +405,46 @@ namespace FileArchiver.Tests {
                 Assert.AreEqual(32855, outputStream.Length);
             }
         }
+        [Test]
+        public async Task EncodingStatisticsTest1() {
+            fileSystem.EnumFileSystemEntriesFunc = _ => {
+                return new[] {
+                    new FileSystemEntry(FileSystemEntryType.File, "file.dat", @"C:\dir\file.dat"),
+                };
+            };
+            WritableMemoryStream outputStream = new WritableMemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
+            platform.ReadFileFunc = x => new MemoryStream(new byte[0]);
+
+            EncodingStatistics statistics = await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", CancellationToken.None, null);
+            Assert.IsNotNull(statistics);
+            Assert.AreEqual(0, statistics.InputSize);
+            Assert.AreEqual(42, statistics.OutputSize);
+        }
+        [Test]
+        public async Task EncodingStatisticsTest2() {
+            WritableMemoryStream outputStream = new WritableMemoryStream();
+            platform.WriteFileFunc = _ => outputStream;
+
+            fileSystem.EnumFileSystemEntriesFunc = _ => {
+                return new[] {
+                    new FileSystemEntry(FileSystemEntryType.Directory, "dir", @"C:\dir\"),
+                    new FileSystemEntry(FileSystemEntryType.File, "f1.dat", @"C:\dir\f1.dat"),
+                    new FileSystemEntry(FileSystemEntryType.File, "f2.dat", @"C:\dir\f2.dat"),
+                };
+            };
+            platform.ReadFileFunc = x => {
+                switch(x) {
+                    case @"C:\dir\f1.dat": return new MemoryStream(new byte[200 * 1024]);
+                    case @"C:\dir\f2.dat": return new MemoryStream(new byte[300 * 1024]);
+                    default: throw new NotImplementedException();
+                }
+            };
+
+            EncodingStatistics statistics = await service.EncodeAsync(@"C:\dir\", @"C:\outputFile.dat", CancellationToken.None, null);
+            Assert.IsNotNull(statistics);
+            Assert.AreEqual(500 * 1024, statistics.InputSize);
+            Assert.AreEqual(64095, statistics.OutputSize);
+        }
     }
 }

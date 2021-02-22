@@ -64,6 +64,9 @@ namespace FileArchiver.Tests {
         void IEncodingOutputStream.RestorePosition(IStreamPosition position) {
             index = ((StreamPosition)position).Index;
         }
+        long IEncodingOutputStream.SizeInBytes {
+            get { return bitList.Count / 8; }
+        }
         void IDisposable.Dispose() {
         }
 

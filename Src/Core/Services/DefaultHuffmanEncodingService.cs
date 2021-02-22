@@ -24,12 +24,12 @@ namespace FileArchiver.Core.Services {
             this.streamBuilder = streamBuilder;
         }
 
-        public Task<bool> EncodeAsync(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
+        public Task<EncodingStatistics> EncodeAsync(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             Guard.IsNotNullOrEmpty(inputPath, nameof(inputPath));
             Guard.IsNotNullOrEmpty(outputFile, nameof(outputFile));
             return Task.Run(() => Encode(inputPath, outputFile, cancellationToken, progress), cancellationToken);
         }
-        private bool Encode(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
+        private EncodingStatistics Encode(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             HuffmanEncoder encoder = new HuffmanEncoder();
             DirectoryEncodingInputStream directoryInputStream = new DirectoryEncodingInputStream(inputPath, fileSystemService, platform);
             FileEncodingOutputStream outputStream = new FileEncodingOutputStream(outputFile, platform);
@@ -58,12 +58,12 @@ namespace FileArchiver.Core.Services {
                 }
                 outputStream.EndWrite();
                 tpc.Finish();
+                return new EncodingStatistics(directoryInputStream.SizeInBytes, outputStream.SizeInBytes);
             }
             finally {
                 directoryInputStream.Dispose();
                 outputStream.Dispose();
             }
-            return true;
         }
         private ITaskProgressController CreateTaskProgressController(IProgress<CodingProgressInfo> progress, DirectoryEncodingInputStream inputStream) {
             if(progress == null) return new NullTaskProgressController();

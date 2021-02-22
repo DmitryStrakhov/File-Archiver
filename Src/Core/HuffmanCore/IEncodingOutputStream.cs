@@ -6,6 +6,7 @@ namespace FileArchiver.Core.HuffmanCore {
         void BeginWrite();
         void EndWrite();
         void WriteBit(Bit bit);
+        long SizeInBytes { get; }
         IStreamPosition SavePosition();
         void RestorePosition(IStreamPosition position);
     }

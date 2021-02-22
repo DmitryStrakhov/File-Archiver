@@ -7,6 +7,7 @@
         xmlns:controls="clr-namespace:FileArchiver.Core.Controls"
         xmlns:behaviors="clr-namespace:FileArchiver.Core.Behaviors"
         xmlns:view="clr-namespace:FileArchiver.Core.View"
+        xmlns:viewModel="clr-namespace:FileArchiver.Core.ViewModel"
         xmlns:converters="clr-namespace:FileArchiver.Core.Converters"
         mc:Ignorable="d"
         Title="File Archiver"
@@ -23,6 +24,7 @@
             </Style.Triggers>
         </Style>
         <converters:CancelLinkVisibilityConverter x:Key="CancelLinkVisibilityConverterKey" />
+        <converters:EncodingResultVisibilityConverter x:Key="EncodingResultVisibilityConverterKey" />
     </Window.Resources>
 
     <Border BorderThickness="1" BorderBrush="Gray" Margin="4">
@@ -30,7 +32,7 @@
             <StackPanel DockPanel.Dock="Bottom">
                 <TextBlock x:Name="CancelLink"
                            x:FieldModifier="public"
-                           Visibility="{Binding Status, Mode=OneWay, Converter={StaticResource CancelLinkVisibilityConverterKey}}"
+                           Visibility="{Binding Status, Converter={StaticResource CancelLinkVisibilityConverterKey}}"
                            Margin="4">
                     <Hyperlink Focusable="False" Command="{Binding CancelCommand}">
                         Cancel
@@ -59,7 +61,6 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="35" />
                     <RowDefinition Height="35" />
-                    <RowDefinition Height="35" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
@@ -82,7 +83,7 @@
                            x:FieldModifier="public"
                            VerticalAlignment="Center">
                     <TextBlock.Text>
-                        <Binding Path="Path">
+                        <Binding Path="Path" FallbackValue="(path)">
                             <Binding.ValidationRules>
                                 <view:PathValidationRule ValidatesOnTargetUpdated="True" />
                             </Binding.ValidationRules>
@@ -96,6 +97,31 @@
                         x:FieldModifier="public"
                         Command="{Binding RunCommand}" />
 
+                <ContentControl x:Name="EncodingResultControl"
+                                x:FieldModifier="public"
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Content="{Binding EncodingResult}"
+                                Visibility="{Binding Status, Converter={StaticResource EncodingResultVisibilityConverterKey}}">
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate DataType="viewModel:EncodingResultViewModel">
+                            <StackPanel>
+                                <TextBlock x:Name="InputSizeTextBlock"
+                                           Margin="8"
+                                           Text="{Binding InputSize, FallbackValue=(InputSize)}" />
+
+                                <TextBlock x:Name="OutputSizeTextBlock"
+                                           Margin="8"
+                                           Text="{Binding OutputSize, FallbackValue=(OutputSize)}" />
+
+                                <TextBlock x:Name="SaveFactorTextBlock"
+                                           Margin="8"
+                                           Text="{Binding SaveFactor, FallbackValue=(SaveFactor)}" />
+                            </StackPanel>
+
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
             </Grid>
         </DockPanel>
     </Border>

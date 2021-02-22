@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 using FileArchiver.Core.ViewModel;
 using NUnit.Framework;
 
@@ -105,14 +106,16 @@ namespace FileArchiver.Tests {
 
         #region IHuffmanEncodingService
 
-        Task<bool> IHuffmanEncodingService.EncodeAsync(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
+        Task<EncodingStatistics> IHuffmanEncodingService.EncodeAsync(string inputPath, string outputFile, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             TraceMember();
             EncodeAction?.Invoke();
-            return Task.FromResult(true);
+            return Task.FromResult(new EncodingStatistics(InputSize, OutputSize));
         }
 
         #endregion
 
+        public long InputSize { get; set; } = 0;
+        public long OutputSize { get; set; } = 0;
         public Action EncodeAction { get; set; }
     }
 
@@ -254,7 +257,8 @@ namespace FileArchiver.Tests {
             inputDataService.InputCommand = InputCommand.Encode;
             fileSelectorService.FilePath = @"C:\File.archive";
             await viewModel.Run();
-            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+            Assert.AreEqual(ViewModelStatus.WaitForCommand | ViewModelStatus.EncodingFinished, viewModel.Status);
+            await viewModel.Run();
         }
         [Test]
         public async Task StatusPropertyTest2() {
@@ -266,8 +270,8 @@ namespace FileArchiver.Tests {
             inputDataService.InputCommand = InputCommand.Decode;
             folderSelectorService.FolderPath = @"C:\Folder";
             await viewModel.Run();
-            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+            Assert.AreEqual(ViewModelStatus.WaitForCommand | ViewModelStatus.DecodingFinished, viewModel.Status);
+            await viewModel.Run();
         }
-
     }
 }

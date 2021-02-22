@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Helpers;
+using FileArchiver.Core.HuffmanCore;
 
 namespace FileArchiver.Core.ViewModel {
     public class MainViewModel : ViewModelBase {
@@ -11,6 +12,7 @@ namespace FileArchiver.Core.ViewModel {
         double progressValue;
         ViewModelStatus status;
         CancellationTokenSource cts;
+        EncodingResultViewModel encodingResult;
 
         public MainViewModel() {
             this.statusMessage = "[status]";
@@ -63,6 +65,14 @@ namespace FileArchiver.Core.ViewModel {
                 RaisePropertyChanged();
             }
         }
+        public EncodingResultViewModel EncodingResult {
+            get { return encodingResult; }
+            private set {
+                if(EncodingResult == value) return;
+                encodingResult = value;
+                RaisePropertyChanged();
+            }
+        }
         public bool IsChoiceButtonEnabled {
             get { return true; }
         }
@@ -97,7 +107,8 @@ namespace FileArchiver.Core.ViewModel {
             cts = new CancellationTokenSource();
             try {
                 try {
-                    await EncodingService.EncodeAsync(Path, targetPath, cts.Token, new DefaultProgressHandler(this));
+                    EncodingStatistics statistics = await EncodingService.EncodeAsync(Path, targetPath, cts.Token, new DefaultProgressHandler(this));
+                    EncodingResult = new EncodingResultViewModel(statistics);
                 }
                 catch(OperationCanceledException) {
                     StatusMessage = "Encoding Cancelled";
@@ -105,7 +116,7 @@ namespace FileArchiver.Core.ViewModel {
             }
             finally {
                 cts.Dispose();
-                Status = ViewModelStatus.WaitForCommand;
+                Status = ViewModelStatus.WaitForCommand | ViewModelStatus.EncodingFinished;
             }
         }
         private async Task Decode() {
@@ -124,7 +135,7 @@ namespace FileArchiver.Core.ViewModel {
             }
             finally {
                 cts.Dispose();
-                Status = ViewModelStatus.WaitForCommand;
+                Status = ViewModelStatus.WaitForCommand | ViewModelStatus.DecodingFinished;
             }
         }
     }

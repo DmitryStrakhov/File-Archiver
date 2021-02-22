@@ -63,7 +63,9 @@
     <Compile Include="Builders\EncodingOutputStreamExtensions.cs" />
     <Compile Include="Builders\IStreamBuilder.cs" />
     <Compile Include="Controls\ProgressBarControl.cs" />
-    <Compile Include="Converters\CancelLinkVisibilityConverter.cs" />
+    <Compile Include="Converters\CancelLinkVisibility.cs" />
+    <Compile Include="Converters\EncodingResultVisibility.cs" />
+    <Compile Include="FormatProviders\FileSizeFormatProvider.cs" />
     <Compile Include="Format\BootstrapSegment.cs" />
     <Compile Include="Format\FileSegment.cs" />
     <Compile Include="Format\StreamKind.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="DataStructures\BitSequence.cs" />
     <Compile Include="Helpers\PathHelper.cs" />
     <Compile Include="HuffmanCore\CodingProgressState.cs" />
+    <Compile Include="HuffmanCore\EncodingStatistics.cs" />
     <Compile Include="HuffmanCore\HuffmanDecoder.cs" />
     <Compile Include="HuffmanCore\HuffmanEncoder.cs" />
     <Compile Include="HuffmanCore\HuffmanTree.cs" />
@@ -124,6 +127,7 @@
     <Compile Include="ViewModel\DefaultProgressHandler.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelStatus.cs" />
+    <Compile Include="ViewModel\EncodingResultViewModel.cs" />
     <Compile Include="View\PathValidationRule.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
