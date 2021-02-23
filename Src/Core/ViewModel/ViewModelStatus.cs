@@ -8,5 +8,6 @@ namespace FileArchiver.Core.ViewModel {
         Decoding = 4,
         EncodingFinished = 8,
         DecodingFinished = 16,
+        Error = 32,
     }
 }

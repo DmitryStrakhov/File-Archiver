@@ -106,17 +106,19 @@ namespace FileArchiver.Core.ViewModel {
             Status = ViewModelStatus.Encoding;
             cts = new CancellationTokenSource();
             try {
-                try {
-                    EncodingStatistics statistics = await EncodingService.EncodeAsync(Path, targetPath, cts.Token, new DefaultProgressHandler(this));
-                    EncodingResult = new EncodingResultViewModel(statistics);
-                }
-                catch(OperationCanceledException) {
-                    StatusMessage = "Encoding Cancelled";
-                }
+                EncodingStatistics statistics = await EncodingService.EncodeAsync(Path, targetPath, cts.Token, new DefaultProgressHandler(this));
+                EncodingResult = new EncodingResultViewModel(statistics);
+                Status = ViewModelStatus.WaitForCommand | ViewModelStatus.EncodingFinished;
+            }
+            catch(OperationCanceledException) {
+                StatusMessage = "Encoding Cancelled";
+            }
+            catch {
+                Status = ViewModelStatus.Error;
+                throw;
             }
             finally {
                 cts.Dispose();
-                Status = ViewModelStatus.WaitForCommand | ViewModelStatus.EncodingFinished;
             }
         }
         private async Task Decode() {
@@ -126,16 +128,18 @@ namespace FileArchiver.Core.ViewModel {
             Status = ViewModelStatus.Decoding;
             cts = new CancellationTokenSource();
             try {
-                try {
-                    await DecodingService.DecodeAsync(Path, targetFolder, cts.Token, new DefaultProgressHandler(this));
-                }
-                catch(OperationCanceledException) {
-                    StatusMessage = "Decoding Cancelled";
-                }
+                await DecodingService.DecodeAsync(Path, targetFolder, cts.Token, new DefaultProgressHandler(this));
+                Status = ViewModelStatus.WaitForCommand | ViewModelStatus.DecodingFinished;
+            }
+            catch(OperationCanceledException) {
+                StatusMessage = "Decoding Cancelled";
+            }
+            catch {
+                Status = ViewModelStatus.Error;
+                throw;
             }
             finally {
                 cts.Dispose();
-                Status = ViewModelStatus.WaitForCommand | ViewModelStatus.DecodingFinished;
             }
         }
     }

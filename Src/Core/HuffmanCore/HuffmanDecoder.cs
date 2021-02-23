@@ -22,6 +22,7 @@ namespace FileArchiver.Core.HuffmanCore {
             Guard.IsNotNull(tree, nameof(tree));
             Guard.IsNotNull(outputStream, nameof(outputStream));
             Guard.IsNotNegative(sequenceLength, nameof(sequenceLength));
+
             const int chunkSize = 0x20000 * 8; // 128Kb
             long progressValue = progress?.State.CastTo<CodingProgressState>()?.Value ?? 0;
             long streamPosition = inputStream.Position;

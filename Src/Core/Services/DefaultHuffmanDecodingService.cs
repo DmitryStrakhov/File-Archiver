@@ -34,6 +34,7 @@ namespace FileArchiver.Core.Services {
         private void Decode(string inputFile, string outputFolder, CancellationToken cancellationToken, IProgress<CodingProgressInfo> progress) {
             FileDecodingInputStream inputStream = new FileDecodingInputStream(inputFile, platform);
 
+            ITaskProgressController tpc = CreateTaskProgressController(progress, inputStream);
             try {
                 if(inputStream.IsEmpty)
                     return;
@@ -42,7 +43,6 @@ namespace FileArchiver.Core.Services {
                 if(code != StreamKind.WT_CODE)
                     throw new InvalidOperationException();
 
-                ITaskProgressController tpc = CreateTaskProgressController(progress, inputStream);
                 tpc.Start();
                 directoriesQueue.Enqueue(currentDirectory = outputFolder);
                 BootstrapSegment bootstrapSegment = streamParser.ParseWeightsTable(inputStream);
@@ -55,10 +55,14 @@ namespace FileArchiver.Core.Services {
                             DecodeDirectory(inputStream);
                             break;
                         default:
-                            throw new InvalidOperationException();
+                            throw new StreamFormatException();
                     }
                 }
                 tpc.Finish();
+            }
+            catch {
+                tpc.Error();
+                throw;
             }
             finally {
                 inputStream.Dispose();
@@ -111,6 +115,9 @@ namespace FileArchiver.Core.Services {
         }
         public void Finish() {
             progress.Report(new CodingProgressInfo(100, "[Finish]"));
+        }
+        public void Error() {
+            progress.Report(new CodingProgressInfo(0, "[Decoding Error]"));
         }
         public void StartIndeterminate() {
         }

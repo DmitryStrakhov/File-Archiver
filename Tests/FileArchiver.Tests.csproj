@@ -43,6 +43,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestStreams.cs" />
     <Compile Include="Tests\FileSizeFormatProviderTests.cs" />
+    <Compile Include="Tests\UnhandledExceptionWindowTests.cs" />
     <Compile Include="TraceableObject.cs" />
     <Compile Include="Tests\BitSequenceTests.cs" />
     <Compile Include="Tests\ByteReaderTests.cs" />

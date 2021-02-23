@@ -49,17 +49,12 @@ namespace FileArchiver.Tests {
         }
         [Test, Explicit]
         public void DisplayTest() {
-            while(window.IsVisible) {
-                window.Dispatcher.Invoke(DispatcherPriority.Background, (Action)(() => { }));
-            }
+            window.DoDispatcherLoop();
         }
         [Test, Explicit]
         public void DisplayValidationErrorsTest() {
             viewModel.Path = "some path";
-
-            while(window.IsVisible) {
-                window.Dispatcher.Invoke(DispatcherPriority.Background, (Action)(() => { }));
-            }
+            window.DoDispatcherLoop();
         }
         [Test]
         public void DefaultsTest() {

@@ -4,6 +4,7 @@ namespace FileArchiver.Core.Services {
     public interface ITaskProgressController : IProgressHandler {
         void Start();
         void Finish();
+        void Error();
         void StartIndeterminate();
         void EndIndeterminate();
     }
@@ -12,6 +13,8 @@ namespace FileArchiver.Core.Services {
         public void Start() {
         }
         public void Finish() {
+        }
+        public void Error() {
         }
         public void Report(long byteCount, string statusMessage) {
         }

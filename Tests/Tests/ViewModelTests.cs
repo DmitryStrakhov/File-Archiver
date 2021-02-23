@@ -259,6 +259,7 @@ namespace FileArchiver.Tests {
             await viewModel.Run();
             Assert.AreEqual(ViewModelStatus.WaitForCommand | ViewModelStatus.EncodingFinished, viewModel.Status);
             await viewModel.Run();
+            Assert.AreEqual(ViewModelStatus.WaitForCommand | ViewModelStatus.EncodingFinished, viewModel.Status);
         }
         [Test]
         public async Task StatusPropertyTest2() {
@@ -272,6 +273,29 @@ namespace FileArchiver.Tests {
             await viewModel.Run();
             Assert.AreEqual(ViewModelStatus.WaitForCommand | ViewModelStatus.DecodingFinished, viewModel.Status);
             await viewModel.Run();
+            Assert.AreEqual(ViewModelStatus.WaitForCommand | ViewModelStatus.DecodingFinished, viewModel.Status);
+        }
+        [Test]
+        public async Task StatusPropertyTest3() {
+            encodingService.EncodeAction = () => throw new Exception();
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+
+            inputDataService.InputCommand = InputCommand.Encode;
+            fileSelectorService.FilePath = @"C:\File.archive";
+            try { await viewModel.Run(); }
+            catch { /*ignored*/ }
+            Assert.AreEqual(ViewModelStatus.Error, viewModel.Status);
+        }
+        [Test]
+        public async Task StatusPropertyTest4() {
+            decodingService.DecodeAction = () => throw new Exception();
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+
+            inputDataService.InputCommand = InputCommand.Decode;
+            folderSelectorService.FolderPath = @"C:\Folder";
+            try { await viewModel.Run(); }
+            catch { /*ignored*/ }
+            Assert.AreEqual(ViewModelStatus.Error, viewModel.Status);
         }
     }
 }

@@ -34,10 +34,9 @@ namespace FileArchiver.Core.Services {
             DirectoryEncodingInputStream directoryInputStream = new DirectoryEncodingInputStream(inputPath, fileSystemService, platform);
             FileEncodingOutputStream outputStream = new FileEncodingOutputStream(outputFile, platform);
 
+            ITaskProgressController tpc = CreateTaskProgressController(progress, directoryInputStream);
             try {
                 outputStream.BeginWrite();
-                ITaskProgressController tpc = CreateTaskProgressController(progress, directoryInputStream);
-
                 tpc.StartIndeterminate();
                 EncodingToken encodingToken = encoder.CreateEncodingToken(directoryInputStream, cancellationToken);
                 tpc.EndIndeterminate();
@@ -59,6 +58,10 @@ namespace FileArchiver.Core.Services {
                 outputStream.EndWrite();
                 tpc.Finish();
                 return new EncodingStatistics(directoryInputStream.SizeInBytes, outputStream.SizeInBytes);
+            }
+            catch {
+                tpc.Error();
+                throw;
             }
             finally {
                 directoryInputStream.Dispose();
@@ -90,6 +93,9 @@ namespace FileArchiver.Core.Services {
         }
         public void Finish() {
             progress.Report(new CodingProgressInfo(100, "[Finish]"));
+        }
+        public void Error() {
+            progress.Report(new CodingProgressInfo(0, "[Encoding Error]"));
         }
         public void StartIndeterminate() {
             progress.Report(new CodingProgressInfo(-1, "[Build encoding token]"));

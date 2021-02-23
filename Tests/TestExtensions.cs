@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using FileArchiver.Core.DataStructures;
 using FileArchiver.Core.Helpers;
 using FileArchiver.Core.HuffmanCore;
@@ -93,6 +94,16 @@ namespace FileArchiver.Tests {
                 throw new ArgumentException(nameof(@this));
             }
             return (T)@this.ContentTemplate.FindName(controlName, contentPresenter);
+        }
+    }
+
+    public static class WindowExtensions {
+        public static void DoDispatcherLoop(this Window @this) {
+            Action action = () => { };
+
+            while(@this.IsVisible) {
+                @this.Dispatcher.Invoke(DispatcherPriority.Background, action);
+            }
         }
     }
 }

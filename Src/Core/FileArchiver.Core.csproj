@@ -86,6 +86,7 @@
     <Compile Include="Helpers\PathHelper.cs" />
     <Compile Include="HuffmanCore\CodingProgressState.cs" />
     <Compile Include="HuffmanCore\EncodingStatistics.cs" />
+    <Compile Include="HuffmanCore\StreamFormatException.cs" />
     <Compile Include="HuffmanCore\HuffmanDecoder.cs" />
     <Compile Include="HuffmanCore\HuffmanEncoder.cs" />
     <Compile Include="HuffmanCore\HuffmanTree.cs" />
@@ -126,9 +127,13 @@
     <Compile Include="ViewModel\Command.cs" />
     <Compile Include="ViewModel\DefaultProgressHandler.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\UnhandledExceptionViewModel.cs" />
     <Compile Include="ViewModel\ViewModelStatus.cs" />
     <Compile Include="ViewModel\EncodingResultViewModel.cs" />
     <Compile Include="View\PathValidationRule.cs" />
+    <Compile Include="View\UnhandledExceptionWindow.xaml.cs">
+      <DependentUpon>UnhandledExceptionWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -140,6 +145,10 @@
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\UnhandledExceptionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

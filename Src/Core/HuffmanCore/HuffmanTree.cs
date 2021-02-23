@@ -102,7 +102,7 @@ namespace FileArchiver.Core.HuffmanCore {
                         node = node.Right;
                         break;
                     case TreeWalkStep.Finish: return true;
-                    default: throw new InvalidOperationException();
+                    default: throw new StreamFormatException();
                 }
             }
             return false;
