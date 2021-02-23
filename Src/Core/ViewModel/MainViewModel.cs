@@ -13,6 +13,7 @@ namespace FileArchiver.Core.ViewModel {
         ViewModelStatus status;
         CancellationTokenSource cts;
         EncodingResultViewModel encodingResult;
+        const string DefaultArchiveExtension = "archive";
 
         public MainViewModel() {
             this.statusMessage = "[status]";
@@ -63,6 +64,7 @@ namespace FileArchiver.Core.ViewModel {
                 if(Status == value) return;
                 status = value;
                 RaisePropertyChanged();
+                RunCommand?.RaiseCanExecuteChanged();
             }
         }
         public EncodingResultViewModel EncodingResult {
@@ -73,13 +75,12 @@ namespace FileArchiver.Core.ViewModel {
                 RaisePropertyChanged();
             }
         }
-        public bool IsChoiceButtonEnabled {
-            get { return true; }
-        }
 
         public bool CanRun() {
-            InputCommand inputCommand = InputDataService.GetInputCommand(path);
-            return inputCommand != InputCommand.Unknown;
+            if(Status.IsEncodingOrDecodingPerforming()) {
+                return false;
+            }
+            return InputDataService.GetInputCommand(path) != InputCommand.Unknown;
         }
         public void Cancel() {
             cts?.Cancel();
@@ -100,7 +101,7 @@ namespace FileArchiver.Core.ViewModel {
         }
 
         private async Task Encode() {
-            string targetPath = FileSelectorService.GetSaveFile();
+            string targetPath = FileSelectorService.GetSaveFile(DefaultArchiveExtension);
             if(string.IsNullOrEmpty(targetPath)) return;
 
             Status = ViewModelStatus.Encoding;
@@ -112,6 +113,7 @@ namespace FileArchiver.Core.ViewModel {
             }
             catch(OperationCanceledException) {
                 StatusMessage = "Encoding Cancelled";
+                Status = ViewModelStatus.Cancelled;
             }
             catch {
                 Status = ViewModelStatus.Error;
@@ -133,6 +135,7 @@ namespace FileArchiver.Core.ViewModel {
             }
             catch(OperationCanceledException) {
                 StatusMessage = "Decoding Cancelled";
+                Status = ViewModelStatus.Cancelled;
             }
             catch {
                 Status = ViewModelStatus.Error;

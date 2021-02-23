@@ -9,8 +9,7 @@ namespace FileArchiver.Tests {
     public class UnhandledExceptionWindowTests {
         [Test, Explicit]
         public void ShowUpTest() {
-            Exception exception = Exception<Exception>();
-            UnhandledExceptionWindow window = CreateWindow(exception);
+            UnhandledExceptionWindow window = CreateWindow(Exception<Exception>());
             try {
                 window.Show();
                 window.DoDispatcherLoop();

@@ -25,6 +25,7 @@
         </Style>
         <converters:CancelLinkVisibilityConverter x:Key="CancelLinkVisibilityConverterKey" />
         <converters:EncodingResultVisibilityConverter x:Key="EncodingResultVisibilityConverterKey" />
+        <converters:SelectorButtonIsEnabledConverter x:Key="SelectorButtonIsEnabledConverterKey" />
     </Window.Resources>
 
     <Border BorderThickness="1" BorderBrush="Gray" Margin="4">
@@ -64,12 +65,13 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <controls:DropDownButton Margin="4"
-                                         Grid.Row="0" Grid.Column="0"
-                                         Content="Open"
-                                         x:Name="ChoiceButton"
+                <controls:DropDownButton x:Name="OpenDropDownButton"
                                          x:FieldModifier="public"
-                                         IsEnabled="{Binding IsChoiceButtonEnabled}">
+                                         Margin="4"
+                                         Grid.Row="0"
+                                         Grid.Column="0"
+                                         Content="Open"
+                                         IsEnabled="{Binding Status, Converter={StaticResource SelectorButtonIsEnabledConverterKey}}">
                     <i:Interaction.Behaviors>
                         <behaviors:OpenFileBehavior Path="{Binding Path, Mode=OneWayToSource}" />
                         <behaviors:OpenFolderBehavior Path="{Binding Path, Mode=OneWayToSource}" />
@@ -77,10 +79,11 @@
                 </controls:DropDownButton>
 
                 <TextBlock x:Name="PathTextBlock"
+                           x:FieldModifier="public"
                            Style="{StaticResource TextBlockValidationStyleKey}"
                            Margin="4"
-                           Grid.Row="0" Grid.Column="1"
-                           x:FieldModifier="public"
+                           Grid.Row="0"
+                           Grid.Column="1"
                            VerticalAlignment="Center">
                     <TextBlock.Text>
                         <Binding Path="Path" FallbackValue="(path)">
@@ -91,10 +94,11 @@
                     </TextBlock.Text>
                 </TextBlock>
                 <Button x:Name="RunButton"
+                        x:FieldModifier="public"
                         Margin="4"
                         Content="Run"
-                        Grid.Row="1" Grid.Column="0"
-                        x:FieldModifier="public"
+                        Grid.Row="1"
+                        Grid.Column="0"
                         Command="{Binding RunCommand}" />
 
                 <ContentControl x:Name="EncodingResultControl"
@@ -105,19 +109,35 @@
                                 Visibility="{Binding Status, Converter={StaticResource EncodingResultVisibilityConverterKey}}">
                     <ContentControl.ContentTemplate>
                         <DataTemplate DataType="viewModel:EncodingResultViewModel">
-                            <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="430" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                </Grid.RowDefinitions>
                                 <TextBlock x:Name="InputSizeTextBlock"
                                            Margin="8"
+                                           Grid.Row="0"
+                                           Grid.Column="1"
                                            Text="{Binding InputSize, FallbackValue=(InputSize)}" />
 
                                 <TextBlock x:Name="OutputSizeTextBlock"
                                            Margin="8"
+                                           Grid.Row="1"
+                                           Grid.Column="1"
                                            Text="{Binding OutputSize, FallbackValue=(OutputSize)}" />
 
                                 <TextBlock x:Name="SaveFactorTextBlock"
                                            Margin="8"
+                                           Grid.Row="2"
+                                           Grid.Column="1"
                                            Text="{Binding SaveFactor, FallbackValue=(SaveFactor)}" />
-                            </StackPanel>
+                            </Grid>
 
                         </DataTemplate>
                     </ContentControl.ContentTemplate>

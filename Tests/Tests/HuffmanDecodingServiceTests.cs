@@ -157,7 +157,7 @@ namespace FileArchiver.Tests {
             byte[] data = { 0x1, 0x0, 0x0, 0x1 };
             platform.ReadFileFunc = x => new MemoryStream(data);
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", CancellationToken.None, null));
+            Assert.ThrowsAsync<StreamFormatException>(async () => await service.DecodeAsync(@"C:\Input.archive", @"C:\Output\", CancellationToken.None, null));
         }
     }
 

@@ -9,8 +9,9 @@ namespace FileArchiver.Core.Helpers {
             }
             return null;
         }
-        public static string SaveFile() {
+        public static string SaveFile(string defaultExtension) {
             using(SaveFileDialog dialog = new SaveFileDialog()) {
+                dialog.DefaultExt = defaultExtension;
                 if(dialog.ShowDialog() == DialogResult.OK) return dialog.FileName;
             }
             return null;

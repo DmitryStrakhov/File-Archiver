@@ -4,8 +4,8 @@ using FileArchiver.Core.Helpers;
 
 namespace FileArchiver.Core.Services {
     public class DefaultFileSelectorService : IFileSelectorService {
-        public string GetSaveFile() {
-            return FileDialogHelper.SaveFile();
+        public string GetSaveFile(string defaultExtension) {
+            return FileDialogHelper.SaveFile(defaultExtension);
         }
     }
 }

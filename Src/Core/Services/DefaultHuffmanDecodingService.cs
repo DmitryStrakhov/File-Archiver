@@ -41,7 +41,7 @@ namespace FileArchiver.Core.Services {
 
                 StreamKind code = inputStream.ReadStreamFormat();
                 if(code != StreamKind.WT_CODE)
-                    throw new InvalidOperationException();
+                    throw new StreamFormatException();
 
                 tpc.Start();
                 directoriesQueue.Enqueue(currentDirectory = outputFolder);

@@ -55,6 +55,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ArrowPenBrushConverter.cs" />
     <Compile Include="Base\CodingProgressInfo.cs" />
     <Compile Include="Base\IFileSystemService.cs" />
     <Compile Include="Base\IInputDataService.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Builders\EncodingOutputStreamExtensions.cs" />
     <Compile Include="Builders\IStreamBuilder.cs" />
     <Compile Include="Controls\ProgressBarControl.cs" />
+    <Compile Include="Converters\Base.cs" />
     <Compile Include="Converters\CancelLinkVisibility.cs" />
     <Compile Include="Converters\EncodingResultVisibility.cs" />
     <Compile Include="FormatProviders\FileSizeFormatProvider.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="Parsers\DefaultStreamParser.cs" />
     <Compile Include="Format\DirectorySegment.cs" />
     <Compile Include="Parsers\IStreamParser.cs" />
+    <Compile Include="Converters\SelectorButtonIsEnabledConverter.cs" />
     <Compile Include="Services\DefaultFileSelectorService.cs" />
     <Compile Include="Services\DefaultFileSystemService.cs" />
     <Compile Include="Services\DefaultInputDataService.cs" />

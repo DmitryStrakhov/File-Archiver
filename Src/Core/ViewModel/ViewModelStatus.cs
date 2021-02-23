@@ -9,5 +9,12 @@ namespace FileArchiver.Core.ViewModel {
         EncodingFinished = 8,
         DecodingFinished = 16,
         Error = 32,
+        Cancelled = 64,
+    }
+
+    public static class ViewModelStatusExtensions {
+        public static bool IsEncodingOrDecodingPerforming(this ViewModelStatus @this) {
+            return (@this & (ViewModelStatus.Encoding | ViewModelStatus.Decoding)) != 0;
+        }
     }
 }

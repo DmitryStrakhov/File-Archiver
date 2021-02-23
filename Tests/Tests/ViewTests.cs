@@ -8,9 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Threading;
 using FileArchiver.Core.Base;
 using FileArchiver.Core.Builders;
 using FileArchiver.Core.Controls;
@@ -58,7 +57,7 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public void DefaultsTest() {
-            Assert.IsTrue(window.ChoiceButton.IsEnabled);
+            Assert.IsTrue(window.OpenDropDownButton.IsEnabled);
             Assert.IsFalse(window.RunButton.IsEnabled);
 
             Assert.AreEqual(string.Empty, window.PathTextBlock.Text);
@@ -125,40 +124,14 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public async Task CancelLinkVisibilityTest1() {
-            TestIFileSelectorService fileSelector = new TestIFileSelectorService();
-            fileSelector.FilePath = @"path";
-            viewModel.FileSelectorService = fileSelector;
-
-            TestIInputDataService inputDataService = new TestIInputDataService();
-            inputDataService.InputCommand = InputCommand.Encode;
-            viewModel.InputDataService = inputDataService;
-            
-            TestIHuffmanEncodingService encodingService = new TestIHuffmanEncodingService();
-            encodingService.EncodeAction = () => {
-                Assert.AreEqual(Visibility.Visible, window.CancelLink.Visibility);
-            };
-            viewModel.EncodingService = encodingService;
-
+            SetupEncodingService(() => Assert.AreEqual(Visibility.Visible, window.CancelLink.Visibility));
             Assert.AreEqual(Visibility.Hidden, window.CancelLink.Visibility);
             await viewModel.Run();
             Assert.AreEqual(Visibility.Hidden, window.CancelLink.Visibility);
         }
         [Test]
         public async Task CancelLinkVisibilityTest2() {
-            TestIFolderSelectorService folderSelector = new TestIFolderSelectorService();
-            folderSelector.FolderPath = "path";
-            viewModel.FolderSelectorService = folderSelector;
-
-            TestIInputDataService inputDataService = new TestIInputDataService();
-            inputDataService.InputCommand = InputCommand.Decode;
-            viewModel.InputDataService = inputDataService;
-
-            TestIHuffmanDecodingService decodingService = new TestIHuffmanDecodingService();
-            decodingService.DecodeAction = () => {
-                Assert.AreEqual(Visibility.Visible, window.CancelLink.Visibility);
-            };
-            viewModel.DecodingService = decodingService;
-
+            SetupDecodingService(() => Assert.AreEqual(Visibility.Visible, window.CancelLink.Visibility));
             Assert.AreEqual(Visibility.Hidden, window.CancelLink.Visibility);
             await viewModel.Run();
             Assert.AreEqual(Visibility.Hidden, window.CancelLink.Visibility);
@@ -244,20 +217,7 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public async Task EncodingResultPanelVisibilityTest1() {
-            TestIFileSelectorService fileSelector = new TestIFileSelectorService();
-            fileSelector.FilePath = @"path";
-            viewModel.FileSelectorService = fileSelector;
-
-            TestIInputDataService inputDataService = new TestIInputDataService();
-            inputDataService.InputCommand = InputCommand.Encode;
-            viewModel.InputDataService = inputDataService;
-            
-            TestIHuffmanEncodingService encodingService = new TestIHuffmanEncodingService();
-            encodingService.EncodeAction = () => {
-                Assert.IsFalse(window.EncodingResultControl.IsVisible);
-            };
-            viewModel.EncodingService = encodingService;
-            
+            SetupEncodingService(() => Assert.IsFalse(window.EncodingResultControl.IsVisible));
             Assert.IsFalse(window.EncodingResultControl.IsVisible);
             await viewModel.Run();
             Assert.IsTrue(window.EncodingResultControl.IsVisible);
@@ -266,20 +226,7 @@ namespace FileArchiver.Tests {
         }
         [Test]
         public async Task EncodingResultPanelVisibilityTest2() {
-            TestIFolderSelectorService folderSelector = new TestIFolderSelectorService();
-            folderSelector.FolderPath = @"C:\folder\";
-            viewModel.FolderSelectorService = folderSelector;
-
-            TestIInputDataService inputDataService = new TestIInputDataService();
-            inputDataService.InputCommand = InputCommand.Decode;
-            viewModel.InputDataService = inputDataService;
-            
-            TestIHuffmanDecodingService encodingService = new TestIHuffmanDecodingService();
-            encodingService.DecodeAction = () => {
-                Assert.IsFalse(window.EncodingResultControl.IsVisible);
-            };
-            viewModel.DecodingService = encodingService;
-            
+            SetupDecodingService(() => Assert.IsFalse(window.EncodingResultControl.IsVisible));
             Assert.IsFalse(window.EncodingResultControl.IsVisible);
             await viewModel.Run();
             Assert.IsFalse(window.EncodingResultControl.IsVisible);
@@ -328,6 +275,64 @@ namespace FileArchiver.Tests {
             Assert.AreEqual("Output Size: 64.1 Kb", outputSizeTextBlock.Text);
             Assert.AreEqual("Save Factor: 87.48%", saveFactorTextBlock.Text);
         }
+        [Test]
+        [TestCase("OpenDropDownButton")]
+        [TestCase("RunButton")]
+        public async Task SelectButtonsAccessibilityTest1(string buttonName) {
+            Control button = (Control)window.FindName(buttonName);
+            Assert.IsNotNull(button);
+            SetupEncodingService(() => Assert.IsFalse(button.IsEnabled));
+
+            if(button is ButtonBase b) {
+                (b.Command as Command)?.RaiseCanExecuteChanged();
+            }
+            Assert.IsTrue(button.IsEnabled);
+            await viewModel.Run();
+            Assert.IsTrue(button.IsEnabled);
+        }
+        [Test]
+        [TestCase("OpenDropDownButton")]
+        [TestCase("RunButton")]
+        public async Task SelectButtonsAccessibilityTest2(string buttonName) {
+            Control button = (Control)window.FindName(buttonName);
+            Assert.IsNotNull(button);
+            SetupDecodingService(() => Assert.IsFalse(button.IsEnabled));
+
+            if(button is ButtonBase b) {
+                (b.Command as Command)?.RaiseCanExecuteChanged();
+            }
+            Assert.IsTrue(button.IsEnabled);
+            await viewModel.Run();
+            Assert.IsTrue(button.IsEnabled);
+        }
+
+        private void SetupEncodingService(Action encodeAction) {
+            TestIFileSelectorService fileSelector = new TestIFileSelectorService();
+            fileSelector.FilePath = @"path";
+            viewModel.FileSelectorService = fileSelector;
+
+            TestIInputDataService inputDataService = new TestIInputDataService();
+            inputDataService.InputCommand = InputCommand.Encode;
+            viewModel.InputDataService = inputDataService;
+            
+            TestIHuffmanEncodingService encodingService = new TestIHuffmanEncodingService();
+            encodingService.EncodeAction = encodeAction;
+            viewModel.EncodingService = encodingService;
+        }
+        private void SetupDecodingService(Action decodeAction) {
+            TestIFolderSelectorService folderSelector = new TestIFolderSelectorService();
+            folderSelector.FolderPath = @"C:\folder\";
+            viewModel.FolderSelectorService = folderSelector;
+
+            TestIInputDataService inputDataService = new TestIInputDataService();
+            inputDataService.InputCommand = InputCommand.Decode;
+            viewModel.InputDataService = inputDataService;
+
+            TestIHuffmanDecodingService encodingService = new TestIHuffmanDecodingService();
+            encodingService.DecodeAction = decodeAction;
+            viewModel.DecodingService = encodingService;
+        }
+
 
         private void AssertProgressBar(double value, double progressValue, bool isIndeterminate) {
             ProgressBarControl progressBar = window.ProgressBar;

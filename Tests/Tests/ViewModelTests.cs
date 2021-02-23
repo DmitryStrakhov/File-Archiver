@@ -46,7 +46,7 @@ namespace FileArchiver.Tests {
 
         #region IFileSelectorService
 
-        string IFileSelectorService.GetSaveFile() {
+        string IFileSelectorService.GetSaveFile(string defaultExtension) {
             TraceMember();
             return FilePath;
         }
@@ -296,6 +296,26 @@ namespace FileArchiver.Tests {
             try { await viewModel.Run(); }
             catch { /*ignored*/ }
             Assert.AreEqual(ViewModelStatus.Error, viewModel.Status);
+        }
+        [Test]
+        public async Task StatusPropertyTest5() {
+            encodingService.EncodeAction = () => throw new OperationCanceledException();
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+
+            inputDataService.InputCommand = InputCommand.Encode;
+            fileSelectorService.FilePath = @"C:\File.archive";
+            await viewModel.Run();
+            Assert.AreEqual(ViewModelStatus.Cancelled, viewModel.Status);
+        }
+        [Test]
+        public async Task StatusPropertyTest6() {
+            decodingService.DecodeAction = () => throw new OperationCanceledException();
+            Assert.AreEqual(ViewModelStatus.WaitForCommand, viewModel.Status);
+
+            inputDataService.InputCommand = InputCommand.Decode;
+            folderSelectorService.FolderPath = @"C:\Folder";
+            await viewModel.Run();
+            Assert.AreEqual(ViewModelStatus.Cancelled, viewModel.Status);
         }
     }
 }
